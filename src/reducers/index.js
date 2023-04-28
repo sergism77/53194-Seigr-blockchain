@@ -1,4 +1,3 @@
-//30. getGeneratingGetGenerate
 //31. getGeneratingSetGenerate
 //32. getMiningGetBlockTemplate
 //33. getMiningGetMiningInfo

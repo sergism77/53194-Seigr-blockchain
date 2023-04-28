@@ -596,3 +596,329 @@ const getBlockchainTxOutSetInfoFailure = () => ({
 export const resetGetBlockchainTxOutSetInfo = () => ({
     type: GET_BLOCKCHAIN_TX_OUT_SET_INFO_RESET
 });
+
+export const getGeneratingGenerate = (generate) => {
+    return (dispatch) => {
+        dispatch(getGeneratingGenerateLoading());
+        axios.get(`${API_URL}/generating/generate/${generate}`)
+            .then(response => {
+                dispatch(getGeneratingGenerateSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getGeneratingGenerateFailure(error.response.data));
+            });
+    };
+}
+
+const getGeneratingGenerateLoading = () => ({
+    type: GET_GENERATING_GENERATE
+});
+
+const getGeneratingGenerateSuccess = (data) => ({
+    type: GET_GENERATING_GENERATE_SUCCESS,
+    payload: data
+});
+
+const getGeneratingGenerateFailure = () => ({
+    type: GET_GENERATING_GENERATE_FAILURE
+});
+
+export const resetGetGeneratingGenerate = () => ({
+    type: GET_GENERATING_GENERATE_RESET
+});
+
+export const getGeneratingGetGenerate = () => {
+    return (dispatch) => {
+        dispatch(getGeneratingGetGenerateLoading());
+        axios.get(`${API_URL}/generating/getgenerate`)
+            .then(response => {
+                dispatch(getGeneratingGetGenerateSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getGeneratingGetGenerateFailure(error.response.data));
+            });
+    };
+}
+
+const getGeneratingGetGenerateLoading = () => ({
+    type: GET_GENERATING_GET_GENERATE
+});
+
+const getGeneratingGetGenerateSuccess = (data) => ({
+    type: GET_GENERATING_GET_GENERATE_SUCCESS,
+    payload: data
+});
+
+const getGeneratingGetGenerateFailure = () => ({
+    type: GET_GENERATING_GET_GENERATE_FAILURE
+});
+
+export const resetGetGeneratingGetGenerate = () => ({
+    type: GET_GENERATING_GET_GENERATE_RESET
+});
+
+export const getGeneratingGetHashesPerSec = () => {
+    return (dispatch) => {
+        dispatch(getGeneratingGetHashesPerSecLoading());
+        axios.get(`${API_URL}/generating/gethashespersec`)
+            .then(response => {
+                dispatch(getGeneratingGetHashesPerSecSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getGeneratingGetHashesPerSecFailure(error.response.data));
+            });
+    };
+}
+
+const getGeneratingGetHashesPerSecLoading = () => ({
+    type: GET_GENERATING_GET_HASHES_PER_SEC
+});
+
+const getGeneratingGetHashesPerSecSuccess = (data) => ({
+    type: GET_GENERATING_GET_HASHES_PER_SEC_SUCCESS,
+    payload: data
+});
+
+const getGeneratingGetHashesPerSecFailure = () => ({
+    type: GET_GENERATING_GET_HASHES_PER_SEC_FAILURE
+});
+
+export const resetGetGeneratingGetHashesPerSec = () => ({
+    type: GET_GENERATING_GET_HASHES_PER_SEC_RESET
+});
+
+export const getMiningGetBlockTemplate = (template_request) => {
+    return (dispatch) => {
+        dispatch(getMiningGetBlockTemplateLoading());
+        axios.post(`${API_URL}/mining/getblocktemplate`, template_request)
+            .then(response => {
+                dispatch(getMiningGetBlockTemplateSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getMiningGetBlockTemplateFailure(error.response.data));
+            });
+    };
+}
+
+const getMiningGetBlockTemplateLoading = () => ({
+    type: GET_MINING_GET_BLOCK_TEMPLATE
+});
+
+const getMiningGetBlockTemplateSuccess = (data) => ({
+    type: GET_MINING_GET_BLOCK_TEMPLATE_SUCCESS,
+    payload: data
+});
+
+const getMiningGetBlockTemplateFailure = () => ({
+    type: GET_MINING_GET_BLOCK_TEMPLATE_FAILURE
+});
+
+export const resetGetMiningGetBlockTemplate = () => ({
+    type: GET_MINING_GET_BLOCK_TEMPLATE_RESET
+});
+
+export const getMiningGetMiningInfo = () => {
+    return (dispatch) => {
+        dispatch(getMiningGetMiningInfoLoading());
+        axios.get(`${API_URL}/mining/getmininginfo`)
+            .then(response => {
+                dispatch(getMiningGetMiningInfoSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getMiningGetMiningInfoFailure(error.response.data));
+            });
+    };
+}
+
+const getMiningGetMiningInfoLoading = () => ({
+    type: GET_MINING_GET_MINING_INFO
+});
+
+const getMiningGetMiningInfoSuccess = (data) => ({
+    type: GET_MINING_GET_MINING_INFO_SUCCESS,
+    payload: data
+});
+
+const getMiningGetMiningInfoFailure = () => ({
+    type: GET_MINING_GET_MINING_INFO_FAILURE
+});
+
+export const resetGetMiningGetMiningInfo = () => ({
+    type: GET_MINING_GET_MINING_INFO_RESET
+});
+
+export const getMiningGetNetworkHashPS = (blocks, height) => {
+    return (dispatch) => {
+        dispatch(getMiningGetNetworkHashPSLoading());
+        axios.get(`${API_URL}/mining/getnetworkhashps/${blocks}/${height}`)
+            .then(response => {
+                dispatch(getMiningGetNetworkHashPSSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getMiningGetNetworkHashPSFailure(error.response.data));
+            });
+    };
+}
+
+const getMiningGetNetworkHashPSLoading = () => ({
+    type: GET_MINING_GET_NETWORK_HASH_PS
+});
+
+const getMiningGetNetworkHashPSSuccess = (data) => ({
+    type: GET_MINING_GET_NETWORK_HASH_PS_SUCCESS,
+    payload: data
+});
+
+const getMiningGetNetworkHashPSFailure = () => ({
+    type: GET_MINING_GET_NETWORK_HASH_PS_FAILURE
+});
+
+export const resetGetMiningGetNetworkHashPS = () => ({
+    type: GET_MINING_GET_NETWORK_HASH_PS_RESET
+});
+
+export const getMiningPrioritiseTransaction = (txid, priority_delta, fee_delta) => {
+    return (dispatch) => {
+        dispatch(getMiningPrioritiseTransactionLoading());
+        axios.get(`${API_URL}/mining/prioritisetransaction/${txid}/${priority_delta}/${fee_delta}`)
+            .then(response => {
+                dispatch(getMiningPrioritiseTransactionSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getMiningPrioritiseTransactionFailure(error.response.data));
+            });
+    };
+}
+
+const getMiningPrioritiseTransactionLoading = () => ({
+    type: GET_MINING_PRIORITISE_TRANSACTION
+});
+
+const getMiningPrioritiseTransactionSuccess = (data) => ({
+    type: GET_MINING_PRIORITISE_TRANSACTION_SUCCESS,
+    payload: data
+});
+
+const getMiningPrioritiseTransactionFailure = () => ({
+    type: GET_MINING_PRIORITISE_TRANSACTION_FAILURE
+});
+
+export const resetGetMiningPrioritiseTransaction = () => ({
+    type: GET_MINING_PRIORITISE_TRANSACTION_RESET
+});
+
+export const getMiningSubmitBlock = (hexdata, parameters) => {
+    return (dispatch) => {
+        dispatch(getMiningSubmitBlockLoading());
+        axios.post(`${API_URL}/mining/submitblock`, hexdata, parameters)
+            .then(response => {
+                dispatch(getMiningSubmitBlockSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getMiningSubmitBlockFailure(error.response.data));
+            });
+    };
+}
+
+const getMiningSubmitBlockLoading = () => ({
+    type: GET_MINING_SUBMIT_BLOCK
+});
+
+const getMiningSubmitBlockSuccess = (data) => ({
+    type: GET_MINING_SUBMIT_BLOCK_SUCCESS,
+    payload: data
+});
+
+const getMiningSubmitBlockFailure = () => ({
+    type: GET_MINING_SUBMIT_BLOCK_FAILURE
+});
+
+export const resetGetMiningSubmitBlock = () => ({
+    type: GET_MINING_SUBMIT_BLOCK_RESET
+});
+
+export const getRawTransaction = (txid, verbose) => {
+    return (dispatch) => {
+        dispatch(getRawTransactionLoading());
+        axios.get(`${API_URL}/rawtransaction/${txid}/${verbose}`)
+            .then(response => {
+                dispatch(getRawTransactionSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getRawTransactionFailure(error.response.data));
+            });
+    };
+}
+
+const getRawTransactionLoading = () => ({
+    type: GET_RAW_TRANSACTION
+});
+
+const getRawTransactionSuccess = (data) => ({
+    type: GET_RAW_TRANSACTION_SUCCESS,
+    payload: data
+});
+
+const getRawTransactionFailure = () => ({
+    type: GET_RAW_TRANSACTION_FAILURE
+});
+
+export const resetGetRawTransaction = () => ({
+    type: GET_RAW_TRANSACTION_RESET
+});
+
+export const getRawTransactionDecodeRawTransaction = (hexstring) => {
+    return (dispatch) => {
+        dispatch(getRawTransactionDecodeRawTransactionLoading());
+        axios.get(`${API_URL}/rawtransaction/decoderawtransaction/${hexstring}`)
+            .then(response => {
+                dispatch(getRawTransactionDecodeRawTransactionSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getRawTransactionDecodeRawTransactionFailure(error.response.data));
+            });
+    };
+}
+
+const getRawTransactionDecodeRawTransactionLoading = () => ({
+    type: GET_RAW_TRANSACTION_DECODE_RAW_TRANSACTION
+});
+
+const getRawTransactionDecodeRawTransactionSuccess = (data) => ({
+    type: GET_RAW_TRANSACTION_DECODE_RAW_TRANSACTION_SUCCESS,
+    payload: data
+});
+
+const getRawTransactionDecodeRawTransactionFailure = () => ({
+    type: GET_RAW_TRANSACTION_DECODE_RAW_TRANSACTION_FAILURE
+});
+
+export const resetGetRawTransactionDecodeRawTransaction = () => ({
+    type: GET_RAW_TRANSACTION_DECODE_RAW_TRANSACTION_RESET
+});
+
+export const getRawTransactionDecodeScript = (hexstring) => {
+    return (dispatch) => {
+        dispatch(getRawTransactionDecodeScriptLoading());
+        axios.get(`${API_URL}/rawtransaction/decodescript/${hexstring}`)
+            .then(response => {
+                dispatch(getRawTransactionDecodeScriptSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getRawTransactionDecodeScriptFailure(error.response.data));
+            });
+    };
+}
+
+const getRawTransactionDecodeScriptLoading = () => ({
+    type: GET_RAW_TRANSACTION_DECODE_SCRIPT
+});
+
+const getRawTransactionDecodeScriptSuccess = (data) => ({
+    type: GET_RAW_TRANSACTION_DECODE_SCRIPT_SUCCESS,
+    payload: data
+});
+
+const getRawTransactionDecodeScriptFailure = () => ({
+    type: GET_RAW_TRANSACTION_DECODE_SCRIPT_FAILURE
+});
