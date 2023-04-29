@@ -1269,3 +1269,830 @@ export const getWalletGetRawChangeAddress = (address_type) => {
             });
     };
 }
+
+const getWalletGetRawChangeAddressLoading = () => ({
+    type: GET_WALLET_GET_RAW_CHANGE_ADDRESS
+});
+
+const getWalletGetRawChangeAddressSuccess = (data) => ({
+    type: GET_WALLET_GET_RAW_CHANGE_ADDRESS_SUCCESS,
+    payload: data
+});
+
+const getWalletGetRawChangeAddressFailure = () => ({
+    type: GET_WALLET_GET_RAW_CHANGE_ADDRESS_FAILURE
+});
+
+export const resetGetWalletGetRawChangeAddress = () => ({
+    type: GET_WALLET_GET_RAW_CHANGE_ADDRESS_RESET
+});
+
+export const getWalletGetReceivedByAddress = (address, minconf) => {
+    return (dispatch) => {
+        dispatch(getWalletGetReceivedByAddressLoading());
+        axios.get(`${API_URL}/wallet/getreceivedbyaddress/${address}/${minconf}`)
+            .then(response => {
+                dispatch(getWalletGetReceivedByAddressSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletGetReceivedByAddressFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletGetReceivedByAddressLoading = () => ({
+    type: GET_WALLET_GET_RECEIVED_BY_ADDRESS
+});
+
+const getWalletGetReceivedByAddressSuccess = (data) => ({
+    type: GET_WALLET_GET_RECEIVED_BY_ADDRESS_SUCCESS,
+    payload: data
+});
+
+const getWalletGetReceivedByAddressFailure = () => ({
+    type: GET_WALLET_GET_RECEIVED_BY_ADDRESS_FAILURE
+});
+
+export const resetGetWalletGetReceivedByAddress = () => ({
+    type: GET_WALLET_GET_RECEIVED_BY_ADDRESS_RESET
+});
+
+export const getWalletGetTransaction = (txid, include_watchonly) => {
+    return (dispatch) => {
+        dispatch(getWalletGetTransactionLoading());
+        axios.get(`${API_URL}/wallet/gettransaction/${txid}/${include_watchonly}`)
+            .then(response => {
+                dispatch(getWalletGetTransactionSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletGetTransactionFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletGetTransactionLoading = () => ({
+    type: GET_WALLET_GET_TRANSACTION
+});
+
+const getWalletGetTransactionSuccess = (data) => ({
+    type: GET_WALLET_GET_TRANSACTION_SUCCESS,
+    payload: data
+});
+
+const getWalletGetTransactionFailure = () => ({
+    type: GET_WALLET_GET_TRANSACTION_FAILURE
+});
+
+export const resetGetWalletGetTransaction = () => ({
+    type: GET_WALLET_GET_TRANSACTION_RESET
+});
+
+export const getWalletGetUnconfirmedBalance = () => {
+    return (dispatch) => {
+        dispatch(getWalletGetUnconfirmedBalanceLoading());
+        axios.get(`${API_URL}/wallet/getunconfirmedbalance`)
+            .then(response => {
+                dispatch(getWalletGetUnconfirmedBalanceSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletGetUnconfirmedBalanceFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletGetUnconfirmedBalanceLoading = () => ({
+    type: GET_WALLET_GET_UNCONFIRMED_BALANCE
+});
+
+const getWalletGetUnconfirmedBalanceSuccess = (data) => ({
+    type: GET_WALLET_GET_UNCONFIRMED_BALANCE_SUCCESS,
+    payload: data
+});
+
+const getWalletGetUnconfirmedBalanceFailure = () => ({
+    type: GET_WALLET_GET_UNCONFIRMED_BALANCE_FAILURE
+});
+
+export const resetGetWalletGetUnconfirmedBalance = () => ({
+    type: GET_WALLET_GET_UNCONFIRMED_BALANCE_RESET
+});
+
+export const getWalletGetWalletInfo = () => {
+    return (dispatch) => {
+        dispatch(getWalletGetWalletInfoLoading());
+        axios.get(`${API_URL}/wallet/getwalletinfo`)
+            .then(response => {
+                dispatch(getWalletGetWalletInfoSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletGetWalletInfoFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletGetWalletInfoLoading = () => ({
+    type: GET_WALLET_GET_WALLET_INFO
+});
+
+const getWalletGetWalletInfoSuccess = (data) => ({
+    type: GET_WALLET_GET_WALLET_INFO_SUCCESS,
+    payload: data
+});
+
+const getWalletGetWalletInfoFailure = () => ({
+    type: GET_WALLET_GET_WALLET_INFO_FAILURE
+});
+
+export const resetGetWalletGetWalletInfo = () => ({
+    type: GET_WALLET_GET_WALLET_INFO_RESET
+});
+
+export const getWalletImportAddress = (address, label, rescan) => {
+    return (dispatch) => {
+        dispatch(getWalletImportAddressLoading());
+        axios.get(`${API_URL}/wallet/importaddress/${address}/${label}/${rescan}`)
+            .then(response => {
+                dispatch(getWalletImportAddressSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletImportAddressFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletImportAddressLoading = () => ({
+    type: GET_WALLET_IMPORT_ADDRESS
+});
+
+const getWalletImportAddressSuccess = (data) => ({
+    type: GET_WALLET_IMPORT_ADDRESS_SUCCESS,
+    payload: data
+});
+
+const getWalletImportAddressFailure = () => ({
+    type: GET_WALLET_IMPORT_ADDRESS_FAILURE
+});
+
+export const resetGetWalletImportAddress = () => ({
+    type: GET_WALLET_IMPORT_ADDRESS_RESET
+});
+
+export const getWalletImportMulti = (requests, options) => {
+    return (dispatch) => {
+        dispatch(getWalletImportMultiLoading());
+        axios.post(`${API_URL}/wallet/importmulti`, { requests, options })
+            .then(response => {
+                dispatch(getWalletImportMultiSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletImportMultiFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletImportMultiLoading = () => ({
+    type: GET_WALLET_IMPORT_MULTI
+});
+
+const getWalletImportMultiSuccess = (data) => ({
+    type: GET_WALLET_IMPORT_MULTI_SUCCESS,
+    payload: data
+});
+
+const getWalletImportMultiFailure = () => ({
+    type: GET_WALLET_IMPORT_MULTI_FAILURE
+});
+
+export const resetGetWalletImportMulti = () => ({
+    type: GET_WALLET_IMPORT_MULTI_RESET
+});
+
+export const getWalletImportPrivKey = (privkey, label, rescan) => {
+    return (dispatch) => {
+        dispatch(getWalletImportPrivKeyLoading());
+        axios.get(`${API_URL}/wallet/importprivkey/${privkey}/${label}/${rescan}`)
+            .then(response => {
+                dispatch(getWalletImportPrivKeySuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletImportPrivKeyFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletImportPrivKeyLoading = () => ({
+    type: GET_WALLET_IMPORT_PRIV_KEY
+});
+
+const getWalletImportPrivKeySuccess = (data) => ({
+    type: GET_WALLET_IMPORT_PRIV_KEY_SUCCESS,
+    payload: data
+});
+
+const getWalletImportPrivKeyFailure = () => ({
+    type: GET_WALLET_IMPORT_PRIV_KEY_FAILURE
+});
+
+export const resetGetWalletImportPrivKey = () => ({
+    type: GET_WALLET_IMPORT_PRIV_KEY_RESET
+});
+
+export const getWalletImportPrunedFunds = (rawtransaction, txoutproof) => {
+    return (dispatch) => {
+        dispatch(getWalletImportPrunedFundsLoading());
+        axios.get(`${API_URL}/wallet/importprunedfunds/${rawtransaction}/${txoutproof}`)
+            .then(response => {
+                dispatch(getWalletImportPrunedFundsSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletImportPrunedFundsFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletImportPrunedFundsLoading = () => ({
+    type: GET_WALLET_IMPORT_PRUNED_FUNDS
+});
+
+const getWalletImportPrunedFundsSuccess = (data) => ({
+    type: GET_WALLET_IMPORT_PRUNED_FUNDS_SUCCESS,
+    payload: data
+});
+
+const getWalletImportPrunedFundsFailure = () => ({
+    type: GET_WALLET_IMPORT_PRUNED_FUNDS_FAILURE
+});
+
+export const resetGetWalletImportPrunedFunds = () => ({
+    type: GET_WALLET_IMPORT_PRUNED_FUNDS_RESET
+});
+
+export const getWalletImportPubKey = (pubkey, label, rescan) => {
+    return (dispatch) => {
+        dispatch(getWalletImportPubKeyLoading());
+        axios.get(`${API_URL}/wallet/importpubkey/${pubkey}/${label}/${rescan}`)
+            .then(response => {
+                dispatch(getWalletImportPubKeySuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletImportPubKeyFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletImportPubKeyLoading = () => ({
+    type: GET_WALLET_IMPORT_PUB_KEY
+});
+
+const getWalletImportPubKeySuccess = (data) => ({
+    type: GET_WALLET_IMPORT_PUB_KEY_SUCCESS,
+    payload: data
+});
+
+const getWalletImportPubKeyFailure = () => ({
+    type: GET_WALLET_IMPORT_PUB_KEY_FAILURE
+});
+
+export const resetGetWalletImportPubKey = () => ({
+    type: GET_WALLET_IMPORT_PUB_KEY_RESET
+});
+
+export const getWalletKeyPoolRefill = (newsize) => {
+    return (dispatch) => {
+        dispatch(getWalletKeyPoolRefillLoading());
+        axios.get(`${API_URL}/wallet/keypoolrefill/${newsize}`)
+            .then(response => {
+                dispatch(getWalletKeyPoolRefillSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletKeyPoolRefillFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletKeyPoolRefillLoading = () => ({
+    type: GET_WALLET_KEY_POOL_REFILL
+});
+
+const getWalletKeyPoolRefillSuccess = (data) => ({
+    type: GET_WALLET_KEY_POOL_REFILL_SUCCESS,
+    payload: data
+});
+
+const getWalletKeyPoolRefillFailure = () => ({
+    type: GET_WALLET_KEY_POOL_REFILL_FAILURE
+});
+
+export const resetGetWalletKeyPoolRefill = () => ({
+    type: GET_WALLET_KEY_POOL_REFILL_RESET
+});
+
+export const getWalletListAddressGroupings = () => {
+    return (dispatch) => {
+        dispatch(getWalletListAddressGroupingsLoading());
+        axios.get(`${API_URL}/wallet/listaddressgroupings`)
+            .then(response => {
+                dispatch(getWalletListAddressGroupingsSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletListAddressGroupingsFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletListAddressGroupingsLoading = () => ({
+    type: GET_WALLET_LIST_ADDRESS_GROUPINGS
+});
+
+const getWalletListAddressGroupingsSuccess = (data) => ({
+    type: GET_WALLET_LIST_ADDRESS_GROUPINGS_SUCCESS,
+    payload: data
+});
+
+const getWalletListAddressGroupingsFailure = () => ({
+    type: GET_WALLET_LIST_ADDRESS_GROUPINGS_FAILURE
+});
+
+export const resetGetWalletListAddressGroupings = () => ({
+    type: GET_WALLET_LIST_ADDRESS_GROUPINGS_RESET
+});
+
+export const getWalletListLockUnspent = () => {
+    return (dispatch) => {
+        dispatch(getWalletListLockUnspentLoading());
+        axios.get(`${API_URL}/wallet/listlockunspent`)
+            .then(response => {
+                dispatch(getWalletListLockUnspentSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletListLockUnspentFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletListLockUnspentLoading = () => ({
+    type: GET_WALLET_LIST_LOCK_UNSPENT
+});
+
+const getWalletListLockUnspentSuccess = (data) => ({
+    type: GET_WALLET_LIST_LOCK_UNSPENT_SUCCESS,
+    payload: data
+});
+
+const getWalletListLockUnspentFailure = () => ({
+    type: GET_WALLET_LIST_LOCK_UNSPENT_FAILURE
+});
+
+export const resetGetWalletListLockUnspent = () => ({
+    type: GET_WALLET_LIST_LOCK_UNSPENT_RESET
+});
+
+export const getWalletListReceivedByAddress = (minconf, includeempty, includeWatchonly) => {
+    return (dispatch) => {
+        dispatch(getWalletListReceivedByAddressLoading());
+        axios.get(`${API_URL}/wallet/listreceivedbyaddress/${minconf}/${includeempty}/${includeWatchonly}`)
+            .then(response => {
+                dispatch(getWalletListReceivedByAddressSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletListReceivedByAddressFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletListReceivedByAddressLoading = () => ({
+    type: GET_WALLET_LIST_RECEIVED_BY_ADDRESS
+});
+
+const getWalletListReceivedByAddressSuccess = (data) => ({
+    type: GET_WALLET_LIST_RECEIVED_BY_ADDRESS_SUCCESS,
+    payload: data
+});
+
+const getWalletListReceivedByAddressFailure = () => ({
+    type: GET_WALLET_LIST_RECEIVED_BY_ADDRESS_FAILURE
+});
+
+export const resetGetWalletListReceivedByAddress = () => ({
+    type: GET_WALLET_LIST_RECEIVED_BY_ADDRESS_RESET
+});
+
+export const getWalletListSinceBlock = (blockhash, targetConfirmations, includeWatchonly) => {
+    return (dispatch) => {
+        dispatch(getWalletListSinceBlockLoading());
+        axios.get(`${API_URL}/wallet/listsinceblock/${blockhash}/${targetConfirmations}/${includeWatchonly}`)
+            .then(response => {
+                dispatch(getWalletListSinceBlockSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletListSinceBlockFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletListSinceBlockLoading = () => ({
+    type: GET_WALLET_LIST_SINCE_BLOCK
+});
+
+const getWalletListSinceBlockSuccess = (data) => ({
+    type: GET_WALLET_LIST_SINCE_BLOCK_SUCCESS,
+    payload: data
+});
+
+const getWalletListSinceBlockFailure = () => ({
+    type: GET_WALLET_LIST_SINCE_BLOCK_FAILURE
+});
+
+export const resetGetWalletListSinceBlock = () => ({
+    type: GET_WALLET_LIST_SINCE_BLOCK_RESET
+});
+
+export const getWalletListTransactions = (account, count, from, includeWatchonly) => {
+    return (dispatch) => {
+        dispatch(getWalletListTransactionsLoading());
+        axios.get(`${API_URL}/wallet/listtransactions/${account}/${count}/${from}/${includeWatchonly}`)
+            .then(response => {
+                dispatch(getWalletListTransactionsSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletListTransactionsFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletListTransactionsLoading = () => ({
+    type: GET_WALLET_LIST_TRANSACTIONS
+});
+
+const getWalletListTransactionsSuccess = (data) => ({
+    type: GET_WALLET_LIST_TRANSACTIONS_SUCCESS,
+    payload: data
+});
+
+const getWalletListTransactionsFailure = () => ({
+    type: GET_WALLET_LIST_TRANSACTIONS_FAILURE
+});
+
+export const resetGetWalletListTransactions = () => ({
+    type: GET_WALLET_LIST_TRANSACTIONS_RESET
+});
+
+export const getWalletListUnspent = (minconf, maxconf, addresses) => {
+    return (dispatch) => {
+        dispatch(getWalletListUnspentLoading());
+        axios.get(`${API_URL}/wallet/listunspent/${minconf}/${maxconf}/${addresses}`)
+            .then(response => {
+                dispatch(getWalletListUnspentSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletListUnspentFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletListUnspentLoading = () => ({
+    type: GET_WALLET_LIST_UNSPENT
+});
+
+const getWalletListUnspentSuccess = (data) => ({
+    type: GET_WALLET_LIST_UNSPENT_SUCCESS,
+    payload: data
+});
+
+const getWalletListUnspentFailure = () => ({
+    type: GET_WALLET_LIST_UNSPENT_FAILURE
+});
+
+export const resetGetWalletListUnspent = () => ({
+    type: GET_WALLET_LIST_UNSPENT_RESET
+});
+
+export const getWalletLockUnspent = (unlock, transactions) => {
+    return (dispatch) => {
+        dispatch(getWalletLockUnspentLoading());
+        axios.post(`${API_URL}/wallet/lockunspent`, { unlock, transactions })
+            .then(response => {
+                dispatch(getWalletLockUnspentSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletLockUnspentFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletLockUnspentLoading = () => ({
+    type: GET_WALLET_LOCK_UNSPENT
+});
+
+const getWalletLockUnspentSuccess = (data) => ({
+    type: GET_WALLET_LOCK_UNSPENT_SUCCESS,
+    payload: data
+});
+
+const getWalletLockUnspentFailure = () => ({
+    type: GET_WALLET_LOCK_UNSPENT_FAILURE
+});
+
+export const resetGetWalletLockUnspent = () => ({
+    type: GET_WALLET_LOCK_UNSPENT_RESET
+});
+
+export const getWalletRemovePrunedFunds = (txid) => {
+    return (dispatch) => {
+        dispatch(getWalletRemovePrunedFundsLoading());
+        axios.post(`${API_URL}/wallet/removeprunedfunds`, { txid })
+            .then(response => {
+                dispatch(getWalletRemovePrunedFundsSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletRemovePrunedFundsFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletRemovePrunedFundsLoading = () => ({
+    type: GET_WALLET_REMOVE_PRUNED_FUNDS
+});
+
+const getWalletRemovePrunedFundsSuccess = (data) => ({
+    type: GET_WALLET_REMOVE_PRUNED_FUNDS_SUCCESS,
+    payload: data
+});
+
+const getWalletRemovePrunedFundsFailure = () => ({
+    type: GET_WALLET_REMOVE_PRUNED_FUNDS_FAILURE
+});
+
+export const resetGetWalletRemovePrunedFunds = () => ({
+    type: GET_WALLET_REMOVE_PRUNED_FUNDS_RESET
+});
+
+export const getWalletSendMany = (fromaccount, amounts, minconf, comment, subtractfeefromamount) => {
+    return (dispatch) => {
+        dispatch(getWalletSendManyLoading());
+        axios.post(`${API_URL}/wallet/sendmany`, { fromaccount, amounts, minconf, comment, subtractfeefromamount })
+            .then(response => {
+                dispatch(getWalletSendManySuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletSendManyFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletSendManyLoading = () => ({
+    type: GET_WALLET_SEND_MANY
+});
+
+const getWalletSendManySuccess = (data) => ({
+    type: GET_WALLET_SEND_MANY_SUCCESS,
+    payload: data
+});
+
+const getWalletSendManyFailure = () => ({
+    type: GET_WALLET_SEND_MANY_FAILURE
+});
+
+export const resetGetWalletSendMany = () => ({
+    type: GET_WALLET_SEND_MANY_RESET
+});
+
+export const getWalletSendToAddress = (address, amount, comment, commentTo, subtractfeefromamount) => {
+    return (dispatch) => {
+        dispatch(getWalletSendToAddressLoading());
+        axios.post(`${API_URL}/wallet/sendtoaddress`, { address, amount, comment, commentTo, subtractfeefromamount })
+            .then(response => {
+                dispatch(getWalletSendToAddressSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletSendToAddressFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletSendToAddressLoading = () => ({
+    type: GET_WALLET_SEND_TO_ADDRESS
+});
+
+const getWalletSendToAddressSuccess = (data) => ({
+    type: GET_WALLET_SEND_TO_ADDRESS_SUCCESS,
+    payload: data
+});
+
+const getWalletSendToAddressFailure = () => ({
+    type: GET_WALLET_SEND_TO_ADDRESS_FAILURE
+});
+
+export const resetGetWalletSendToAddress = () => ({
+    type: GET_WALLET_SEND_TO_ADDRESS_RESET
+});
+
+export const getWalletSetAccount = (address, account) => {
+    return (dispatch) => {
+        dispatch(getWalletSetAccountLoading());
+        axios.post(`${API_URL}/wallet/setaccount`, { address, account })
+            .then(response => {
+                dispatch(getWalletSetAccountSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletSetAccountFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletSetAccountLoading = () => ({
+    type: GET_WALLET_SET_ACCOUNT
+});
+
+const getWalletSetAccountSuccess = (data) => ({
+    type: GET_WALLET_SET_ACCOUNT_SUCCESS,
+    payload: data
+});
+
+const getWalletSetAccountFailure = () => ({
+    type: GET_WALLET_SET_ACCOUNT_FAILURE
+});
+
+export const resetGetWalletSetAccount = () => ({
+    type: GET_WALLET_SET_ACCOUNT_RESET
+});
+
+export const getWalletSetTxFee = (amount) => {
+    return (dispatch) => {
+        dispatch(getWalletSetTxFeeLoading());
+        axios.post(`${API_URL}/wallet/settxfee`, { amount })
+            .then(response => {
+                dispatch(getWalletSetTxFeeSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletSetTxFeeFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletSetTxFeeLoading = () => ({
+    type: GET_WALLET_SET_TX_FEE
+});
+
+const getWalletSetTxFeeSuccess = (data) => ({
+    type: GET_WALLET_SET_TX_FEE_SUCCESS,
+    payload: data
+});
+
+const getWalletSetTxFeeFailure = () => ({
+    type: GET_WALLET_SET_TX_FEE_FAILURE
+});
+
+export const resetGetWalletSetTxFee = () => ({
+    type: GET_WALLET_SET_TX_FEE_RESET
+});
+
+export const getWalletSignMessage = (address, message) => {
+    return (dispatch) => {
+        dispatch(getWalletSignMessageLoading());
+        axios.post(`${API_URL}/wallet/signmessage`, { address, message })
+            .then(response => {
+                dispatch(getWalletSignMessageSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletSignMessageFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletSignMessageLoading = () => ({
+    type: GET_WALLET_SIGN_MESSAGE
+});
+
+const getWalletSignMessageSuccess = (data) => ({
+    type: GET_WALLET_SIGN_MESSAGE_SUCCESS,
+    payload: data
+});
+
+const getWalletSignMessageFailure = () => ({
+    type: GET_WALLET_SIGN_MESSAGE_FAILURE
+});
+
+export const resetGetWalletSignMessage = () => ({
+    type: GET_WALLET_SIGN_MESSAGE_RESET
+});
+
+export const getWalletWalletLock = () => {
+    return (dispatch) => {
+        dispatch(getWalletWalletLockLoading());
+        axios.post(`${API_URL}/wallet/walletlock`)
+            .then(response => {
+                dispatch(getWalletWalletLockSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletWalletLockFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletWalletLockLoading = () => ({
+    type: GET_WALLET_WALLET_LOCK
+});
+
+const getWalletWalletLockSuccess = (data) => ({
+    type: GET_WALLET_WALLET_LOCK_SUCCESS,
+    payload: data
+});
+
+const getWalletWalletLockFailure = () => ({
+    type: GET_WALLET_WALLET_LOCK_FAILURE
+});
+
+export const resetGetWalletWalletLock = () => ({
+    type: GET_WALLET_WALLET_LOCK_RESET
+});
+
+export const getWalletWalletPassphrase = (passphrase, timeout) => {
+    return (dispatch) => {
+        dispatch(getWalletWalletPassphraseLoading());
+        axios.post(`${API_URL}/wallet/walletpassphrase`, { passphrase, timeout })
+            .then(response => {
+                dispatch(getWalletWalletPassphraseSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletWalletPassphraseFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletWalletPassphraseLoading = () => ({
+    type: GET_WALLET_WALLET_PASSPHRASE
+});
+
+const getWalletWalletPassphraseSuccess = (data) => ({
+    type: GET_WALLET_WALLET_PASSPHRASE_SUCCESS,
+    payload: data
+});
+
+const getWalletWalletPassphraseFailure = () => ({
+    type: GET_WALLET_WALLET_PASSPHRASE_FAILURE
+});
+
+export const resetGetWalletWalletPassphrase = () => ({
+    type: GET_WALLET_WALLET_PASSPHRASE_RESET
+});
+
+export const getWalletWalletPassphraseChange = (oldpassphrase, newpassphrase) => {
+    return (dispatch) => {
+        dispatch(getWalletWalletPassphraseChangeLoading());
+        axios.post(`${API_URL}/wallet/walletpassphrasechange`, { oldpassphrase, newpassphrase })
+            .then(response => {
+                dispatch(getWalletWalletPassphraseChangeSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletWalletPassphraseChangeFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletWalletPassphraseChangeLoading = () => ({
+    type: GET_WALLET_WALLET_PASSPHRASE_CHANGE
+});
+
+const getWalletWalletPassphraseChangeSuccess = (data) => ({
+    type: GET_WALLET_WALLET_PASSPHRASE_CHANGE_SUCCESS,
+    payload: data
+});
+
+const getWalletWalletPassphraseChangeFailure = () => ({
+    type: GET_WALLET_WALLET_PASSPHRASE_CHANGE_FAILURE
+});
+
+export const resetGetWalletWalletPassphraseChange = () => ({
+    type: GET_WALLET_WALLET_PASSPHRASE_CHANGE_RESET
+});
+
+export const getWalletWalletPassphraseCheck = (passphrase) => {
+    return (dispatch) => {
+        dispatch(getWalletWalletPassphraseCheckLoading());
+        axios.post(`${API_URL}/wallet/walletpassphrasecheck`, { passphrase })
+            .then(response => {
+                dispatch(getWalletWalletPassphraseCheckSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletWalletPassphraseCheckFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletWalletPassphraseCheckLoading = () => ({
+    type: GET_WALLET_WALLET_PASSPHRASE_CHECK
+});
+
+const getWalletWalletPassphraseCheckSuccess = (data) => ({
+    type: GET_WALLET_WALLET_PASSPHRASE_CHECK_SUCCESS,
+    payload: data
+});
+
+const getWalletWalletPassphraseCheckFailure = () => ({
+    type: GET_WALLET_WALLET_PASSPHRASE_CHECK_FAILURE
+});
+
+export const resetGetWalletWalletPassphraseCheck = () => ({
+    type: GET_WALLET_WALLET_PASSPHRASE_CHECK_RESET
+});
