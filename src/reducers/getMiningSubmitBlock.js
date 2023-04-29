@@ -1,17 +1,12 @@
-//this is the getMiningSubmitBlock action creator
+//this is the getMiningSubmitBlock reducer
 
-import axios from "axios";
-import { GET_MINING_SUBMITBLOCK } from "./types";
-import { miningSubmitBlockURL } from "./urls";
+import { GET_MINING_SUBMITBLOCK } from '../actions/types';
 
-export const getMiningSubmitBlock = (hex, dummy) => (dispatch) => {
-    axios
-        .get(miningSubmitBlockURL(hex, dummy))
-        .then((res) => {
-            dispatch({
-                type: GET_MINING_SUBMITBLOCK,
-                payload: res.data,
-            });
-        })
-        .catch((err) => console.log(err));
+export default function(state = {}, action) {
+    switch (action.type) {
+        case GET_MINING_SUBMITBLOCK:
+        return action.payload;
+        default:
+        return state;
+    }
 }

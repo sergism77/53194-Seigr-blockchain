@@ -1,17 +1,12 @@
-//this is the getNetworkGetConnectionCount action creator:
+//this is the getNetworkGetConnectionCount reducer
 
-import axios from "axios";
-import { GET_NETWORK_GETCONNECTIONCOUNT } from "./types";
-import { networkGetConnectionCountURL } from "./urls";
+import { GET_NETWORK_GETCONNECTIONCOUNT } from '../actions/types';
 
-export const getNetworkGetConnectionCount = () => (dispatch) => {
-    axios
-        .get(networkGetConnectionCountURL)
-        .then((res) => {
-            dispatch({
-                type: GET_NETWORK_GETCONNECTIONCOUNT,
-                payload: res.data,
-            });
-        })
-        .catch((err) => console.log(err));
+export default function(state = {}, action) {
+    switch (action.type) {
+        case GET_NETWORK_GETCONNECTIONCOUNT:
+        return action.payload;
+        default:
+        return state;
+    }
 }

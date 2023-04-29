@@ -1,17 +1,12 @@
-//this is the getRawtransactionsDecodePsbt action
+//this is the getRawtransactionsDecodePsbt reducer
 
-import axios from "axios";
-import { GET_RAWTRANSACTIONS_DECODEPSBT } from "./types";
-import { rawtransactionsDecodePsbtURL } from "./urls";
+import { GET_RAWTRANSACTIONS_DECODEPSBT } from '../actions/types';
 
-export const getRawtransactionsDecodePsbt = () => (dispatch) => {
-    axios
-        .get(rawtransactionsDecodePsbtURL)
-        .then((res) => {
-            dispatch({
-                type: GET_RAWTRANSACTIONS_DECODEPSBT,
-                payload: res.data,
-            });
-        })
-        .catch((err) => console.log(err));
+export default function(state = {}, action) {
+    switch (action.type) {
+        case GET_RAWTRANSACTIONS_DECODEPSBT:
+        return action.payload;
+        default:
+        return state;
+    }
 }

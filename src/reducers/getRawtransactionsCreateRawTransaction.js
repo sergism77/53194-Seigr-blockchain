@@ -1,17 +1,12 @@
-//this is the getRawtransactionsCreateRawTransaction action
+//this is the getRawtransactionsCreateRawTransaction reducer
 
-import axios from "axios";
-import { GET_RAWTRANSACTIONS_CREATERAWTRANSACTION } from "./types";
-import { rawtransactionsCreateRawTransactionURL } from "./urls";
+import { GET_RAWTRANSACTIONS_CREATERAWTRANSACTION } from '../actions/types';
 
-export const getRawtransactionsCreateRawTransaction = () => (dispatch) => {
-    axios
-        .get(rawtransactionsCreateRawTransactionURL)
-        .then((res) => {
-            dispatch({
-                type: GET_RAWTRANSACTIONS_CREATERAWTRANSACTION,
-                payload: res.data,
-            });
-        })
-        .catch((err) => console.log(err));
+export default function(state = {}, action) {
+    switch (action.type) {
+        case GET_RAWTRANSACTIONS_CREATERAWTRANSACTION:
+        return action.payload;
+        default:
+        return state;
+    }
 }

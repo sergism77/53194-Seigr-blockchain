@@ -1,18 +1,12 @@
-//this is the getMiningGetMiningInfo action
+//this is the getMiningGetMiningInfo reducer
 
-import axios from "axios";
-import { GET_MINING_GETMININGINFO } from "./types";
-import { miningGetMiningInfoURL } from "./urls";
+import { GET_MINING_GETMININGINFO } from '../actions/types';
 
-export const getMiningGetMiningInfo = () => (dispatch) => {
-    axios
-        .get(miningGetMiningInfoURL)
-        .then((res) => {
-            dispatch({
-                type: GET_MINING_GETMININGINFO,
-                payload: res.data,
-            });
-        })
-        .catch((err) => console.log(err));
+export default function(state = {}, action) {
+    switch (action.type) {
+        case GET_MINING_GETMININGINFO:
+        return action.payload;
+        default:
+        return state;
+    }
 }
-

@@ -1,17 +1,12 @@
-//this is the getRawtransactionsConvertToPsbt action
+//this is the getRawtransactionsConvertToPsbt reducer
 
-import axios from "axios";
-import { GET_RAWTRANSACTIONS_CONVERTTOPSBT } from "./types";
-import { rawtransactionsConvertToPsbtURL } from "./urls";
+import { GET_RAWTRANSACTIONS_CONVERTTOPSBT } from '../actions/types';
 
-export const getRawtransactionsConvertToPsbt = () => (dispatch) => {
-    axios
-        .get(rawtransactionsConvertToPsbtURL)
-        .then((res) => {
-            dispatch({
-                type: GET_RAWTRANSACTIONS_CONVERTTOPSBT,
-                payload: res.data,
-            });
-        })
-        .catch((err) => console.log(err));
+export default function(state = {}, action) {
+    switch (action.type) {
+        case GET_RAWTRANSACTIONS_CONVERTTOPSBT:
+        return action.payload;
+        default:
+        return state;
+    }
 }

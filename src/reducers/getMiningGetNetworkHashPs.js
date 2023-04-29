@@ -1,17 +1,12 @@
-//this is the getMiningGetNetworkHashPs action creator
+//this is the getMiningGetNetworkHashPs reducer
 
-import axios from "axios";
-import { GET_MINING_GETNETWORKHASHPS } from "./types";
-import { miningGetNetworkHashPsURL } from "./urls";
+import { GET_MINING_GETNETWORKHASHPS } from '../actions/types';
 
-export const getMiningGetNetworkHashPs = () => (dispatch) => {
-    axios
-        .get(miningGetNetworkHashPsURL)
-        .then((res) => {
-            dispatch({
-                type: GET_MINING_GETNETWORKHASHPS,
-                payload: res.data,
-            });
-        })
-        .catch((err) => console.log(err));
+export default function(state = {}, action) {
+    switch (action.type) {
+        case GET_MINING_GETNETWORKHASHPS:
+        return action.payload;
+        default:
+        return state;
+    }
 }

@@ -1,17 +1,12 @@
-//this is the getNetworkSetBan action creator
+//this is the getNetworkSetBan reducer, it is used to set the ban of a node
 
-import axios from "axios";
-import { GET_NETWORK_SETBAN } from "./types";
-import { networkSetBanURL } from "./urls";
+import { GET_NETWORK_SETBAN } from '../actions/types';
 
-export const getNetworkSetBan = (ip, command, bantime, absolute) => (dispatch) => {
-    axios
-        .get(networkSetBanURL(ip, command, bantime, absolute))
-        .then((res) => {
-            dispatch({
-                type: GET_NETWORK_SETBAN,
-                payload: res.data,
-            });
-        })
-        .catch((err) => console.log(err));
+export default function(state = {}, action) {
+    switch (action.type) {
+        case GET_NETWORK_SETBAN:
+        return action.payload;
+        default:
+        return state;
+    }
 }

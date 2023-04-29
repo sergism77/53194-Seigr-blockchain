@@ -1,17 +1,13 @@
-//this is the getNetworkGetNetworkInfo action creator
+//this is the getNetworkGetNetworkInfo reducer
 
-import axios from "axios";
-import { GET_NETWORK_GETNETWORKINFO } from "./types";
-import { networkGetNetworkInfoURL } from "./urls";
 
-export const getNetworkGetNetworkInfo = () => (dispatch) => {
-    axios
-        .get(networkGetNetworkInfoURL)
-        .then((res) => {
-            dispatch({
-                type: GET_NETWORK_GETNETWORKINFO,
-                payload: res.data,
-            });
-        })
-        .catch((err) => console.log(err));
+import { GET_NETWORK_GETNETWORKINFO } from '../actions/types';
+
+export default function(state = {}, action) {
+    switch (action.type) {
+        case GET_NETWORK_GETNETWORKINFO:
+        return action.payload;
+        default:
+        return state;
+    }
 }

@@ -1,17 +1,12 @@
-//this is the getMiningPrioritiseTransaction action creator
+//this is the getMiningPrioritiseTransaction reducer;
 
-import axios from "axios";
-import { GET_MINING_PRIORITISETRANSACTION } from "./types";
-import { miningPrioritiseTransactionURL } from "./urls";
+import { GET_MINING_PRIORITISETRANSACTION } from '../actions/types';
 
-export const getMiningPrioritiseTransaction = (txid, dummy, feeDelta) => (dispatch) => {
-    axios
-        .get(miningPrioritiseTransactionURL(txid, dummy, feeDelta))
-        .then((res) => {
-            dispatch({
-                type: GET_MINING_PRIORITISETRANSACTION,
-                payload: res.data,
-            });
-        })
-        .catch((err) => console.log(err));
+export default function(state = {}, action) {
+    switch (action.type) {
+        case GET_MINING_PRIORITISETRANSACTION:
+        return action.payload;
+        default:
+        return state;
+    }
 }

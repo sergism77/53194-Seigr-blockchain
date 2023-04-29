@@ -1,17 +1,12 @@
-//this is the getNetworkGetPeerInfo action creator
+//this is the getNetworkGetPeerInfo reducer
 
-import axios from "axios";
-import { GET_NETWORK_GETPEERINFO } from "./types";
-import { networkGetPeerInfoURL } from "./urls";
+import { GET_NETWORK_GETPEERINFO } from '../actions/types';
 
-export const getNetworkGetPeerInfo = () => (dispatch) => {
-    axios
-        .get(networkGetPeerInfoURL)
-        .then((res) => {
-            dispatch({
-                type: GET_NETWORK_GETPEERINFO,
-                payload: res.data,
-            });
-        })
-        .catch((err) => console.log(err));
+export default function(state = {}, action) {
+    switch (action.type) {
+        case GET_NETWORK_GETPEERINFO:
+        return action.payload;
+        default:
+        return state;
+    }
 }

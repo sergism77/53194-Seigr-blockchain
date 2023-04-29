@@ -1,17 +1,12 @@
-//this is the getNetworkPing action creator
+//this is the getNetworkPing reducer
 
-import axios from "axios";
-import { GET_NETWORK_PING } from "./types";
-import { networkPingURL } from "./urls";
+import { GET_NETWORK_PING } from '../actions/types';
 
-export const getNetworkPing = () => (dispatch) => {
-    axios
-        .get(networkPingURL)
-        .then((res) => {
-            dispatch({
-                type: GET_NETWORK_PING,
-                payload: res.data,
-            });
-        })
-        .catch((err) => console.log(err));
+export default function(state = {}, action) {
+    switch (action.type) {
+        case GET_NETWORK_PING:
+        return action.payload;
+        default:
+        return state;
+    }
 }

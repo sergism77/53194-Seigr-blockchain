@@ -1,17 +1,12 @@
-//this is the getNetworkListBanned action creator
+//this is the getNetworkListBanned reducer
 
-import axios from "axios";
-import { GET_NETWORK_LISTBANNED } from "./types";
-import { networkListBannedURL } from "./urls";
+import { GET_NETWORK_LISTBANNED } from '../actions/types';
 
-export const getNetworkListBanned = () => (dispatch) => {
-    axios
-        .get(networkListBannedURL)
-        .then((res) => {
-            dispatch({
-                type: GET_NETWORK_LISTBANNED,
-                payload: res.data,
-            });
-        })
-        .catch((err) => console.log(err));
+export default function(state = {}, action) {
+    switch (action.type) {
+        case GET_NETWORK_LISTBANNED:
+        return action.payload;
+        default:
+        return state;
+    }
 }

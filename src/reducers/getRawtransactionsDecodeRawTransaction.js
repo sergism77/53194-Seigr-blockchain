@@ -1,17 +1,12 @@
-//this is the getRawtransactionsDecodeRawTransaction action
+//this is the getRawtransactionsDecodeRawTransaction reducer
 
-import axios from "axios";
-import { GET_RAWTRANSACTIONS_DECODERAWTRANSACTION } from "./types";
-import { rawtransactionsDecodeRawTransactionURL } from "./urls";
+import { GET_RAWTRANSACTIONS_DECODERAWTRANSACTION } from '../actions/types';
 
-export const getRawtransactionsDecodeRawTransaction = () => (dispatch) => {
-    axios
-        .get(rawtransactionsDecodeRawTransactionURL)
-        .then((res) => {
-            dispatch({
-                type: GET_RAWTRANSACTIONS_DECODERAWTRANSACTION,
-                payload: res.data,
-            });
-        })
-        .catch((err) => console.log(err));
+export default function(state = {}, action) {
+    switch (action.type) {
+        case GET_RAWTRANSACTIONS_DECODERAWTRANSACTION:
+        return action.payload;
+        default:
+        return state;
+    }
 }

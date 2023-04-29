@@ -1,17 +1,12 @@
-//this is the getNetworkAddNode action creator
+//this is the getNetworkAddNode reducer
 
-import axios from "axios";
-import { GET_NETWORK_ADDNODE } from "./types";
-import { networkAddNodeURL } from "./urls";
+import { GET_NETWORK_ADDNODE } from '../actions/types';
 
-export const getNetworkAddNode = (node, command) => (dispatch) => {
-    axios
-        .get(networkAddNodeURL(node, command))
-        .then((res) => {
-            dispatch({
-                type: GET_NETWORK_ADDNODE,
-                payload: res.data,
-            });
-        })
-        .catch((err) => console.log(err));
+export default function(state = {}, action) {
+    switch (action.type) {
+        case GET_NETWORK_ADDNODE:
+        return action.payload;
+        default:
+        return state;
+    }
 }

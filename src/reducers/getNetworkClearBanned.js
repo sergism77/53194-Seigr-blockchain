@@ -1,17 +1,12 @@
-//this is the getNetworkClearBanned action creator
+//this is the getNetworkClearBanned reducer
 
-import axios from "axios";
-import { GET_NETWORK_CLEARBANNED } from "./types";
-import { networkClearBannedURL } from "./urls";
+import { GET_NETWORK_CLEARBANNED } from '../actions/types';
 
-export const getNetworkClearBanned = () => (dispatch) => {
-    axios
-        .get(networkClearBannedURL)
-        .then((res) => {
-            dispatch({
-                type: GET_NETWORK_CLEARBANNED,
-                payload: res.data,
-            });
-        })
-        .catch((err) => console.log(err));
+export default function(state = {}, action) {
+    switch (action.type) {
+        case GET_NETWORK_CLEARBANNED:
+        return action.payload;
+        default:
+        return state;
+    }
 }

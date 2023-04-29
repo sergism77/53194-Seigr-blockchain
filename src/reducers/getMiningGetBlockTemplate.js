@@ -1,17 +1,12 @@
-//this is the getMiningGetBlockTemplate action creator
+//this is the getMiningGetBlockTemplate reducer
 
-import axios from "axios";
-import { GET_MINING_GETBLOCKTEMPLATE } from "./types";
-import { miningGetBlockTemplateURL } from "./urls";
+import { GET_MINING_GETBLOCKTEMPLATE } from '../actions/types';
 
-export const getMiningGetBlockTemplate = () => (dispatch) => {
-    axios
-        .get(miningGetBlockTemplateURL)
-        .then((res) => {
-            dispatch({
-                type: GET_MINING_GETBLOCKTEMPLATE,
-                payload: res.data,
-            });
-        })
-        .catch((err) => console.log(err));
+export default function(state = {}, action) {
+    switch (action.type) {
+        case GET_MINING_GETBLOCKTEMPLATE:
+        return action.payload;
+        default:
+        return state;
+    }
 }

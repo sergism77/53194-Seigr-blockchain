@@ -1,4 +1,3 @@
-//54. getRawtransactionsDecodeScript
 //55. getRawtransactionsFundRawTransaction
 //56. getRawtransactionsGetRawTransaction
 //57. getRawtransactionsSendRawTransaction

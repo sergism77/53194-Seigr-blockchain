@@ -1,20 +1,12 @@
-//this is the getNetworkSetNetworkActive action creator
+//this is the getNetworkSetNetworkActive reducer
 
-import axios from "axios";
-import { GET_NETWORK_SETNETWORKACTIVE } from "./types";
-import { networkSetNetworkActiveURL } from "./urls";
+import { GET_NETWORK_SETNETWORKACTIVE } from '../actions/types';
 
-export const getNetworkSetNetworkActive = (network, state) => (dispatch) => {
-    axios
-        .post(networkSetNetworkActiveURL, {
-            network: network,
-            state: state,
-        })
-        .then((res) => {
-            dispatch({
-                type: GET_NETWORK_SETNETWORKACTIVE,
-                payload: res.data,
-            });
-        })
-        .catch((err) => console.log(err));
+export default function(state = {}, action) {
+    switch (action.type) {
+        case GET_NETWORK_SETNETWORKACTIVE:
+        return action.payload;
+        default:
+        return state;
+    }
 }

@@ -1,17 +1,12 @@
-//this is the getNetworkGetNetTotals action creator
+//this is the getNetworkGetNetTotals reducer
 
-import axios from "axios";
-import { GET_NETWORK_GETNETTOTALS } from "./types";
-import { networkGetNetTotalsURL } from "./urls";
+import { GET_NETWORK_GETNETTOTALS } from '../actions/types';
 
-export const getNetworkGetNetTotals = () => (dispatch) => {
-    axios
-        .get(networkGetNetTotalsURL)
-        .then((res) => {
-            dispatch({
-                type: GET_NETWORK_GETNETTOTALS,
-                payload: res.data,
-            });
-        })
-        .catch((err) => console.log(err));
+export default function(state = {}, action) {
+    switch (action.type) {
+        case GET_NETWORK_GETNETTOTALS:
+        return action.payload;
+        default:
+        return state;
+    }
 }
