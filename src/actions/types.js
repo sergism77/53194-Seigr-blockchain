@@ -2096,3 +2096,304 @@ const getWalletWalletPassphraseCheckFailure = () => ({
 export const resetGetWalletWalletPassphraseCheck = () => ({
     type: GET_WALLET_WALLET_PASSPHRASE_CHECK_RESET
 });
+
+export const getWalletWalletProcessPsbt = (psbt, sign, sighashtype, bip32derivs) => {
+    return (dispatch) => {
+        dispatch(getWalletWalletProcessPsbtLoading());
+        axios.post(`${API_URL}/wallet/walletprocesspsbt`, { psbt, sign, sighashtype, bip32derivs })
+            .then(response => {
+                dispatch(getWalletWalletProcessPsbtSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletWalletProcessPsbtFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletWalletProcessPsbtLoading = () => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT
+});
+
+const getWalletWalletProcessPsbtSuccess = (data) => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_SUCCESS,
+    payload: data
+});
+
+const getWalletWalletProcessPsbtFailure = () => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_FAILURE
+});
+
+export const resetGetWalletWalletProcessPsbt = () => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_RESET
+});
+
+export const getWalletWalletCreateFundedPsbt = (inputs, outputs, locktime, replaceable, options) => {
+    return (dispatch) => {
+        dispatch(getWalletWalletCreateFundedPsbtLoading());
+        axios.post(`${API_URL}/wallet/walletcreatefundedpsbt`, { inputs, outputs, locktime, replaceable, options })
+            .then(response => {
+                dispatch(getWalletWalletCreateFundedPsbtSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletWalletCreateFundedPsbtFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletWalletCreateFundedPsbtLoading = () => ({
+    type: GET_WALLET_WALLET_CREATE_FUNDED_PSBT
+});
+
+const getWalletWalletCreateFundedPsbtSuccess = (data) => ({
+    type: GET_WALLET_WALLET_CREATE_FUNDED_PSBT_SUCCESS,
+    payload: data
+});
+
+const getWalletWalletCreateFundedPsbtFailure = () => ({
+    type: GET_WALLET_WALLET_CREATE_FUNDED_PSBT_FAILURE
+});
+
+export const resetGetWalletWalletCreateFundedPsbt = () => ({
+    type: GET_WALLET_WALLET_CREATE_FUNDED_PSBT_RESET
+});
+
+export const getWalletWalletProcessPsbtSign = (inputs, outputs, sign, sighashtype) => {
+    return (dispatch) => {
+        dispatch(getWalletWalletProcessPsbtSignLoading());
+        axios.post(`${API_URL}/wallet/walletprocesspsbt/sign`, { inputs, outputs, sign, sighashtype })
+            .then(response => {
+                dispatch(getWalletWalletProcessPsbtSignSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletWalletProcessPsbtSignFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletWalletProcessPsbtSignLoading = () => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_SIGN
+});
+
+const getWalletWalletProcessPsbtSignSuccess = (data) => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_SIGN_SUCCESS,
+    payload: data
+});
+
+const getWalletWalletProcessPsbtSignFailure = () => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_SIGN_FAILURE
+});
+
+export const resetGetWalletWalletProcessPsbtSign = () => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_SIGN_RESET
+});
+
+export const getWalletWalletProcessPsbtFinalize = (psbt) => {
+    return (dispatch) => {
+        dispatch(getWalletWalletProcessPsbtFinalizeLoading());
+        axios.post(`${API_URL}/wallet/walletprocesspsbt/finalize`, { psbt })
+            .then(response => {
+                dispatch(getWalletWalletProcessPsbtFinalizeSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletWalletProcessPsbtFinalizeFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletWalletProcessPsbtFinalizeLoading = () => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_FINALIZE
+});
+
+const getWalletWalletProcessPsbtFinalizeSuccess = (data) => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_FINALIZE_SUCCESS,
+    payload: data
+});
+
+const getWalletWalletProcessPsbtFinalizeFailure = () => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_FINALIZE_FAILURE
+});
+
+export const resetGetWalletWalletProcessPsbtFinalize = () => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_FINALIZE_RESET
+});
+
+export const getWalletWalletProcessPsbtExtract = (psbt) => {
+    return (dispatch) => {
+        dispatch(getWalletWalletProcessPsbtExtractLoading());
+        axios.post(`${API_URL}/wallet/walletprocesspsbt/extract`, { psbt })
+            .then(response => {
+                dispatch(getWalletWalletProcessPsbtExtractSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletWalletProcessPsbtExtractFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletWalletProcessPsbtExtractLoading = () => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_EXTRACT
+});
+
+const getWalletWalletProcessPsbtExtractSuccess = (data) => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_EXTRACT_SUCCESS,
+    payload: data
+});
+
+const getWalletWalletProcessPsbtExtractFailure = () => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_EXTRACT_FAILURE
+});
+
+export const resetGetWalletWalletProcessPsbtExtract = () => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_EXTRACT_RESET
+});
+
+export const getWalletWalletProcessPsbtConvert = (psbt, permitSigData) => {
+    return (dispatch) => {
+        dispatch(getWalletWalletProcessPsbtConvertLoading());
+        axios.post(`${API_URL}/wallet/walletprocesspsbt/convert`, { psbt, permitSigData })
+            .then(response => {
+                dispatch(getWalletWalletProcessPsbtConvertSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletWalletProcessPsbtConvertFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletWalletProcessPsbtConvertLoading = () => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_CONVERT
+});
+
+const getWalletWalletProcessPsbtConvertSuccess = (data) => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_CONVERT_SUCCESS,
+    payload: data
+});
+
+const getWalletWalletProcessPsbtConvertFailure = () => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_CONVERT_FAILURE
+});
+
+export const resetGetWalletWalletProcessPsbtConvert = () => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_CONVERT_RESET
+});
+
+export const getWalletWalletProcessPsbtCombine = (inputs) => {
+    return (dispatch) => {
+        dispatch(getWalletWalletProcessPsbtCombineLoading());
+        axios.post(`${API_URL}/wallet/walletprocesspsbt/combine`, { inputs })
+            .then(response => {
+                dispatch(getWalletWalletProcessPsbtCombineSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletWalletProcessPsbtCombineFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletWalletProcessPsbtCombineLoading = () => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_COMBINE
+});
+
+const getWalletWalletProcessPsbtCombineSuccess = (data) => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_COMBINE_SUCCESS,
+    payload: data
+});
+
+const getWalletWalletProcessPsbtCombineFailure = () => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_COMBINE_FAILURE
+});
+
+export const resetGetWalletWalletProcessPsbtCombine = () => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_COMBINE_RESET
+});
+
+export const getWalletWalletProcessPsbtFinalizeAll = (inputs) => {
+    return (dispatch) => {
+        dispatch(getWalletWalletProcessPsbtFinalizeAllLoading());
+        axios.post(`${API_URL}/wallet/walletprocesspsbt/finalizeall`, { inputs })
+            .then(response => {
+                dispatch(getWalletWalletProcessPsbtFinalizeAllSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletWalletProcessPsbtFinalizeAllFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletWalletProcessPsbtFinalizeAllLoading = () => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_FINALIZE_ALL
+});
+
+const getWalletWalletProcessPsbtFinalizeAllSuccess = (data) => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_FINALIZE_ALL_SUCCESS,
+    payload: data
+});
+
+const getWalletWalletProcessPsbtFinalizeAllFailure = () => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_FINALIZE_ALL_FAILURE
+});
+
+export const resetGetWalletWalletProcessPsbtFinalizeAll = () => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_FINALIZE_ALL_RESET
+});
+
+export const getWalletWalletProcessPsbtJoin = (inputs) => {
+    return (dispatch) => {
+        dispatch(getWalletWalletProcessPsbtJoinLoading());
+        axios.post(`${API_URL}/wallet/walletprocesspsbt/join`, { inputs })
+            .then(response => {
+                dispatch(getWalletWalletProcessPsbtJoinSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletWalletProcessPsbtJoinFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletWalletProcessPsbtJoinLoading = () => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_JOIN
+});
+
+const getWalletWalletProcessPsbtJoinSuccess = (data) => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_JOIN_SUCCESS,
+    payload: data
+});
+
+const getWalletWalletProcessPsbtJoinFailure = () => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_JOIN_FAILURE
+});
+
+export const resetGetWalletWalletProcessPsbtJoin = () => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_JOIN_RESET
+});
+
+export const getWalletWalletProcessPsbtCombineFinalize = (inputs) => {
+    return (dispatch) => {
+        dispatch(getWalletWalletProcessPsbtCombineFinalizeLoading());
+        axios.post(`${API_URL}/wallet/walletprocesspsbt/combinefinalize`, { inputs })
+            .then(response => {
+                dispatch(getWalletWalletProcessPsbtCombineFinalizeSuccess(response.data));
+            })
+            .catch(error => {
+                dispatch(getWalletWalletProcessPsbtCombineFinalizeFailure(error.response.data));
+            });
+    };
+}
+
+const getWalletWalletProcessPsbtCombineFinalizeLoading = () => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_COMBINE_FINALIZE
+});
+
+const getWalletWalletProcessPsbtCombineFinalizeSuccess = (data) => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_COMBINE_FINALIZE_SUCCESS,
+    payload: data
+});
+
+const getWalletWalletProcessPsbtCombineFinalizeFailure = () => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_COMBINE_FINALIZE_FAILURE
+});
+
+export const resetGetWalletWalletProcessPsbtCombineFinalize = () => ({
+    type: GET_WALLET_WALLET_PROCESS_PSBT_COMBINE_FINALIZE_RESET
+});
+
