@@ -1,10 +1,3 @@
-//67. getWalletAbortRescan
-//68. getWalletAddMultiSigAddress
-//69. getWalletBackupWallet
-//70. getWalletBumpFee
-//71. getWalletCreateWallet
-//72. getWalletDumpPrivKey
-//73. getWalletDumpWallet
 //74. getWalletEncryptWallet
 //75. getWalletGetAccount
 //76. getWalletGetAccountAddress
