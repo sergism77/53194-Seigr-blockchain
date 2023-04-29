@@ -1,15 +1,3 @@
-//55. getRawtransactionsFundRawTransaction
-//56. getRawtransactionsGetRawTransaction
-//57. getRawtransactionsSendRawTransaction
-//58. getRawtransactionsSignRawTransaction
-//59. getRawtransactionsTestMempoolAccept
-//60. getRawtransactionsUTXOUpdatePSBT
-//61. getUtilCreateMultiSig
-//62. getUtilEstimateSmartFee
-//63. getUtilEstimateSmartPriority
-//64. getUtilValidateAddress
-//65. getUtilVerifyMessage
-//66. getWalletAbandonTransaction
 //67. getWalletAbortRescan
 //68. getWalletAddMultiSigAddress
 //69. getWalletBackupWallet
