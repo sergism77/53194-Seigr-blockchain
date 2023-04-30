@@ -335,25 +335,204 @@ function fetchTransactionReceiptsByBlockAndTransactionAndAddress (blockNumber, t
 
 }
 
+function fetchTransactionReceiptsByBlockAndAddress (blockNumber, address) {
+    return fetch(`/api/transactionReceiptsByBlockAndAddress/${blockNumber}/${address}`)
+        .then(res => res.json())
+        .then(transactionReceipts => {
+        return transactionReceipts
+        })
+
+}
+
+function fetchTransactionReceiptsByTransactionAndAddress (transactionHash, address) {
+    return fetch(`/api/transactionReceiptsByTransactionAndAddress/${transactionHash}/${address}`)
+        .then(res => res.json())
+        .then(transactionReceipts => {
+        return transactionReceipts
+        })
+
+}
+
+function fetchTransactionReceiptsByBlockAndTransaction (blockNumber, transactionHash) {
+    return fetch(`/api/transactionReceiptsByBlockAndTransaction/${blockNumber}/${transactionHash}`)
+        .then(res => res.json())
+        .then(transactionReceipts => {
+        return transactionReceipts
+        })
+
+}
+
+function fetchTransactionReceiptsByBlockAndTransactionAndAddress (blockNumber, transactionHash, address) {
+    return fetch(`/api/transactionReceiptsByBlockAndTransactionAndAddress/${blockNumber}/${transactionHash}/${address}`)
+        .then(res => res.json())
+        .then(transactionReceipts => {
+        return transactionReceipts
+        })
+
+}
+
+function fetchTransactionReceiptsByBlockAndAddress (blockNumber, address) {
+    return fetch(`/api/transactionReceiptsByBlockAndAddress/${blockNumber}/${address}`)
+        .then(res => res.json())
+        .then(transactionReceipts => {
+        return transactionReceipts
+        })
+
+}
+
+function fetchTransactionReceiptsByTransactionAndAddress (transactionHash, address) {
+    return fetch(`/api/transactionReceiptsByTransactionAndAddress/${transactionHash}/${address}`)
+        .then(res => res.json())
+        .then(transactionReceipts => {
+        return transactionReceipts
+        })
+
+}
+
+function fetchTransactionReceiptsByBlockAndTransaction (blockNumber, transactionHash) {
+    return fetch(`/api/transactionReceiptsByBlockAndTransaction/${blockNumber}/${transactionHash}`)
+        .then(res => res.json())
+        .then(transactionReceipts => {
+        return transactionReceipts
+        })
+
+}
+
+function fetchTransactionReceiptsByBlockAndTransactionAndAddress (blockNumber, transactionHash, address) {
+    return fetch(`/api/transactionReceiptsByBlockAndTransactionAndAddress/${blockNumber}/${transactionHash}/${address}`)
+        .then(res => res.json())
+        .then(transactionReceipts => {
+        return transactionReceipts
+        })
+
+}
+
+function fetchTransactionReceiptsByBlockAndAddress (blockNumber, address) {
+    return fetch(`/api/transactionReceiptsByBlockAndAddress/${blockNumber}/${address}`)
+        .then(res => res.json())
+        .then(transactionReceipts => {
+        return transactionReceipts
+        })
+
+}
+
+function fetchTransactionReceiptsByTransactionAndAddress (transactionHash, address) {
+    return fetch(`/api/transactionReceiptsByTransactionAndAddress/${transactionHash}/${address}`)
+        .then(res => res.json())
+        .then(transactionReceipts => {
+        return transactionReceipts
+        })
+
+}
+
+function fetchTransactionReceiptsByBlockAndTransaction (blockNumber, transactionHash) {
+    return fetch(`/api/transactionReceiptsByBlockAndTransaction/${blockNumber}/${transactionHash}`)
+        .then(res => res.json())
+        .then(transactionReceipts => {
+        return transactionReceipts
+        })
+
+}
+
+function fetchTransactionReceiptsByBlockAndTransactionAndAddress (blockNumber, transactionHash, address) {
+    return fetch(`/api/transactionReceiptsByBlockAndTransactionAndAddress/${blockNumber}/${transactionHash}/${address}`)
+        .then(res => res.json())
+        .then(transactionReceipts => {
+        return transactionReceipts
+        })
+
+}
+
+function fetchTransactionReceiptsByBlockAndAddress (blockNumber, address) {
+    return fetch(`/api/transactionReceiptsByBlockAndAddress/${blockNumber}/${address}`)
+        .then(res => res.json())
+        .then(transactionReceipts => {
+        return transactionReceipts
+        })
+
+}
+
+function fetchTransactionReceiptsByTransactionAndAddress (transactionHash, address) {
+    return fetch(`/api/transactionReceiptsByTransactionAndAddress/${transactionHash}/${address}`)
+        .then(res => res.json())
+        .then(transactionReceipts => {
+        return transactionReceipts
+        })
+
+}
+
+function fetchTransactionReceiptsByBlockAndTransaction (blockNumber, transactionHash) {
+    return fetch(`/api/transactionReceiptsByBlockAndTransaction/${blockNumber}/${transactionHash}`)
+        .then(res => res.json())
+        .then(transactionReceipts => {
+        return transactionReceipts
+        })
+
+}
+
+function fetchTransactionReceiptsByBlockAndTransactionAndAddress (blockNumber, transactionHash, address) {
+    return fetch(`/api/transactionReceiptsByBlockAndTransactionAndAddress/${blockNumber}/${transactionHash}/${address}`)
+        .then(res => res.json())
+        .then(transactionReceipts => {
+        return transactionReceipts
+        })
+
+}
+
+function fetchTransactionReceiptsByBlockAndAddress (blockNumber, address) {
+    return fetch(`/api/transactionReceiptsByBlockAndAddress/${blockNumber}/${address}`)
+        .then(res => res.json())
+        .then(transactionReceipts => {
+        return transactionReceipts
+        })
+
+}
+
+function fetchTransactionReceiptsByTransactionAndAddress (transactionHash, address) {
+    return fetch(`/api/transactionReceiptsByTransactionAndAddress/${transactionHash}/${address}`)
+        .then(res => res.json())
+        .then(transactionReceipts => {
+        return transactionReceipts
+        })
+
+}
+
+function fetchTransactionReceiptsByBlockAndTransaction (blockNumber, transactionHash) {
+    return fetch(`/api/transactionReceiptsByBlockAndTransaction/${blockNumber}/${transactionHash}`)
+        .then(res => res.json())
+        .then(transactionReceipts => {
+        return transactionReceipts
+        })
+
+}
+
+function fetchWallets () {
+    return fetch(`/api/wallets`)
+        .then(res => res.json())
+        .then(wallets => {
+        return wallets
+        })
+
+}
+
+function fetchWalletsByAddress (address) {
+    return fetch(`/api/walletsByAddress/${address}`)
+        .then(res => res.json())    
+        .then(wallets => {
+        return wallets
+        })
+
+}
+
+function fetchWalletsByAddressAndToken (address, token) {
+    return fetch(`/api/walletsByAddressAndToken/${address}/${token}`)
+        .then(res => res.json())
+        .then(wallets => {
+        return wallets
+        })
+
+}
 
 
+module.exports = { fetchBlock, fetchBlocks, fetchBlocksByAddress, fetchBlocksByTransaction, fetchBlocksByAddressAndTransaction, fetchBlocksByAddressAndTransactionAndBlock, fetchBlocksByAddressAndTransactionAndBlockAndTransaction, fetchBlocksByAddressAndTransactionAndBlockAndTransactionAndAddress, fetchBlocksByAddressAndTransactionAndBlockAndTransactionAndAddressAndToken, fetchBlocksByAddressAndTransactionAndBlockAndTransactionAndAddressAndTokenAndToken, fetchWallets, fetchWalletsByAddress, fetchWalletsByAddressAndToken, fetchToken, fetchTokens, fetchTokensByAddress, fetchTokensByAddressAndToken, fetchTokensByAddressAndTokenAndBlock, fetchTokensByAddressAndTokenAndTransaction, fetchTokensByAddressAndTokenAndBlockAndTransaction, fetchTokensByAddressAndTokenAndBlockAndTransactionAndAddress, fetchTokensByAddressAndTokenAndBlockAndTransactionAndAddressAndToken, fetchTransaction, fetchTransactions, fetchTransactionsByBlock, fetchTransactionsByAddress, fetchTransactionsByBlockAndAddress, fetchTransactionsByBlockAndTransaction, fetchTransactionsByBlockAndTransactionAndAddress, fetchTransactionsByBlockAndAddressAndTransaction, fetchTransactionsByAddressAndTransaction, fetchTransactionsByAddressAndTransactionAndBlock, fetchTransactionsByAddressAndTransactionAndBlockAndTransaction, fetchTransactionsByAddressAndTransactionAndBlockAndTransactionAndAddress, fetchTransactionsByAddressAndTransactionAndBlockAndTransactionAndAddressAndToken, fetchTransactionReceipt, fetchTransactionReceipts, fetchTransactionReceiptsByBlock, fetchTransactionReceiptsByTransaction, fetchTransactionReceiptsByBlockAndTransaction, fetchTransactionReceiptsByBlockAndTransactionAndAddress, fetchTransactionReceiptsByBlockAndAddress, fetchTransactionReceiptsByTransactionAndAddress, fetchTransactionReceiptsByBlockAndTransaction, fetchTransactionReceiptsByBlockAndTransactionAndAddress, fetchTransactionReceiptsByBlockAndAddress, fetchTransactionReceiptsByTransactionAndAddress, fetchTransactionReceiptsByBlockAndTransaction, fetchTransactionReceiptsByBlockAndTransactionAndAddress, fetchTransactionReceiptsByBlockAndAddress, fetchTransactionReceiptsByTransactionAndAddress, fetchTransactionReceiptsByBlockAndTransaction, fetchTransactionReceiptsByBlockAndTransactionAndAddress, fetchTransactionReceiptsByBlockAndAddress, fetchTransactionReceiptsByTransactionAndAddress, fetchTransactionReceiptsByBlockAndTransaction, fetchTransactionReceiptsByBlockAndTransactionAndAddress, fetchTransactionReceiptsByBlockAndAddress, fetchTransactionReceiptsByTransactionAndAddress, fetchTransactionReceiptsByBlockAndTransaction, fetchTransactionReceiptsByBlockAndTransactionAndAddress, fetchTransactionReceiptsByBlockAndAddress, fetchTransactionReceiptsByTransactionAndAddress, fetchTransactionReceiptsByBlockAndTransaction, fetchTransactionReceiptsByBlockAndTransactionAndAddress, fetchTransactionReceiptsByBlockAndAddress, fetchTransactionReceiptsByTransactionAndAddress, fetchTransactionReceiptsByBlockAndTransaction, fetchTransactionReceiptsByBlockAndTransactionAndAddress }
 
-
-//15. tokenHoldersByAddress.js
-//16. tokenTransfersByToken.js
-//17. tokenBalancesByToken.js
-//18. tokenHoldersByToken.js
-//19. tokenTransfersByAddressAndToken.js
-//20. tokenBalancesByAddressAndToken.js
-//21. tokenHoldersByAddressAndToken.js
-//22. tokenTransfersByAddressAndTokenAndBlock.js
-//23. tokenBalancesByAddressAndTokenAndBlock.js
-//24. tokenHoldersByAddressAndTokenAndBlock.js
-//25. tokenTransfersByAddressAndTokenAndTransaction.js
-//26. tokenBalancesByAddressAndTokenAndTransaction.js
-//27. tokenHoldersByAddressAndTokenAndTransaction.js
-//28. tokenTransfersByAddressAndTokenAndBlockAndTransaction.js
-//29. tokenBalancesByAddressAndTokenAndBlockAndTransaction.js
-//30. tokenHoldersByAddressAndTokenAndBlockAndTransaction.js
-//31. tokenTransfersByAddressAndTokenAndBlockAndTransactionAndAddress.js
-//32. tokenBalancesByAddressAndTokenAndBlockAndTransactionAndAddress.js
