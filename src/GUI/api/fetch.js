@@ -263,10 +263,82 @@ function fetchTransactionReceiptsByBlockAndTransactionAndAddress (blockNumber, t
         })
 }
 
+function fetchTransactionReceiptsByBlockAndAddress (blockNumber, address) {
+    return fetch(`/api/transactionReceiptsByBlockAndAddress/${blockNumber}/${address}`)
+        .then(res => res.json())
+        .then(transactionReceipts => {
+        return transactionReceipts
+        })
 
-//12. tokenHolders.js
-//13. tokenTransfersByAddress.js
-//14. tokenBalancesByAddress.js
+}
+
+function fetchTransactionReceiptsByTransactionAndAddress (transactionHash, address) {
+    return fetch(`/api/transactionReceiptsByTransactionAndAddress/${transactionHash}/${address}`)
+        .then(res => res.json())
+        .then(transactionReceipts => {
+        return transactionReceipts
+        })
+
+}
+
+function fetchTransactionReceiptsByBlockAndTransaction (blockNumber, transactionHash) {
+    return fetch(`/api/transactionReceiptsByBlockAndTransaction/${blockNumber}/${transactionHash}`)
+        .then(res => res.json())
+        .then(transactionReceipts => {
+        return transactionReceipts
+        })
+
+}
+
+function fetchTransactionReceiptsByBlockAndTransactionAndAddress (blockNumber, transactionHash, address) {
+    return fetch(`/api/transactionReceiptsByBlockAndTransactionAndAddress/${blockNumber}/${transactionHash}/${address}`)
+        .then(res => res.json())
+        .then(transactionReceipts => {
+        return transactionReceipts
+        })
+
+}
+
+function fetchTransactionReceiptsByBlockAndAddress (blockNumber, address) {
+    return fetch(`/api/transactionReceiptsByBlockAndAddress/${blockNumber}/${address}`)
+        .then(res => res.json())
+        .then(transactionReceipts => {
+        return transactionReceipts
+        })
+
+}
+
+function fetchTransactionReceiptsByTransactionAndAddress (transactionHash, address) {
+    return fetch(`/api/transactionReceiptsByTransactionAndAddress/${transactionHash}/${address}`)
+        .then(res => res.json())
+        .then(transactionReceipts => {
+        return transactionReceipts
+        })
+
+}
+
+function fetchTransactionReceiptsByBlockAndTransaction (blockNumber, transactionHash) {
+    return fetch(`/api/transactionReceiptsByBlockAndTransaction/${blockNumber}/${transactionHash}`)
+        .then(res => res.json())
+        .then(transactionReceipts => {
+        return transactionReceipts
+        })
+
+}
+
+function fetchTransactionReceiptsByBlockAndTransactionAndAddress (blockNumber, transactionHash, address) {
+    return fetch(`/api/transactionReceiptsByBlockAndTransactionAndAddress/${blockNumber}/${transactionHash}/${address}`)
+        .then(res => res.json())
+        .then(transactionReceipts => {
+        return transactionReceipts
+        })
+
+}
+
+
+
+
+
 //15. tokenHoldersByAddress.js
 //16. tokenTransfersByToken.js
 //17. tokenBalancesByToken.js
