@@ -1,4 +1,7 @@
 
+const fetch = require('node-fetch')
+
+
 function fetchBlock (blockNumber) {
   return fetch(`/api/block/${blockNumber}`)
     .then(res => res.json())
@@ -534,5 +537,37 @@ function fetchWalletsByAddressAndToken (address, token) {
 }
 
 
-module.exports = { fetchBlock, fetchBlocks, fetchBlocksByAddress, fetchBlocksByTransaction, fetchBlocksByAddressAndTransaction, fetchBlocksByAddressAndTransactionAndBlock, fetchBlocksByAddressAndTransactionAndBlockAndTransaction, fetchBlocksByAddressAndTransactionAndBlockAndTransactionAndAddress, fetchBlocksByAddressAndTransactionAndBlockAndTransactionAndAddressAndToken, fetchBlocksByAddressAndTransactionAndBlockAndTransactionAndAddressAndTokenAndToken, fetchWallets, fetchWalletsByAddress, fetchWalletsByAddressAndToken, fetchToken, fetchTokens, fetchTokensByAddress, fetchTokensByAddressAndToken, fetchTokensByAddressAndTokenAndBlock, fetchTokensByAddressAndTokenAndTransaction, fetchTokensByAddressAndTokenAndBlockAndTransaction, fetchTokensByAddressAndTokenAndBlockAndTransactionAndAddress, fetchTokensByAddressAndTokenAndBlockAndTransactionAndAddressAndToken, fetchTransaction, fetchTransactions, fetchTransactionsByBlock, fetchTransactionsByAddress, fetchTransactionsByBlockAndAddress, fetchTransactionsByBlockAndTransaction, fetchTransactionsByBlockAndTransactionAndAddress, fetchTransactionsByBlockAndAddressAndTransaction, fetchTransactionsByAddressAndTransaction, fetchTransactionsByAddressAndTransactionAndBlock, fetchTransactionsByAddressAndTransactionAndBlockAndTransaction, fetchTransactionsByAddressAndTransactionAndBlockAndTransactionAndAddress, fetchTransactionsByAddressAndTransactionAndBlockAndTransactionAndAddressAndToken, fetchTransactionReceipt, fetchTransactionReceipts, fetchTransactionReceiptsByBlock, fetchTransactionReceiptsByTransaction, fetchTransactionReceiptsByBlockAndTransaction, fetchTransactionReceiptsByBlockAndTransactionAndAddress, fetchTransactionReceiptsByBlockAndAddress, fetchTransactionReceiptsByTransactionAndAddress, fetchTransactionReceiptsByBlockAndTransaction, fetchTransactionReceiptsByBlockAndTransactionAndAddress, fetchTransactionReceiptsByBlockAndAddress, fetchTransactionReceiptsByTransactionAndAddress, fetchTransactionReceiptsByBlockAndTransaction, fetchTransactionReceiptsByBlockAndTransactionAndAddress, fetchTransactionReceiptsByBlockAndAddress, fetchTransactionReceiptsByTransactionAndAddress, fetchTransactionReceiptsByBlockAndTransaction, fetchTransactionReceiptsByBlockAndTransactionAndAddress, fetchTransactionReceiptsByBlockAndAddress, fetchTransactionReceiptsByTransactionAndAddress, fetchTransactionReceiptsByBlockAndTransaction, fetchTransactionReceiptsByBlockAndTransactionAndAddress, fetchTransactionReceiptsByBlockAndAddress, fetchTransactionReceiptsByTransactionAndAddress, fetchTransactionReceiptsByBlockAndTransaction, fetchTransactionReceiptsByBlockAndTransactionAndAddress, fetchTransactionReceiptsByBlockAndAddress, fetchTransactionReceiptsByTransactionAndAddress, fetchTransactionReceiptsByBlockAndTransaction, fetchTransactionReceiptsByBlockAndTransactionAndAddress, fetchTransactionReceiptsByBlockAndAddress, fetchTransactionReceiptsByTransactionAndAddress, fetchTransactionReceiptsByBlockAndTransaction, fetchTransactionReceiptsByBlockAndTransactionAndAddress }
-
+module.exports = {
+    fetchBlock,
+    fetchBlocks,
+    fetchBlocksByAddress,
+    fetchBlocksByTransaction,
+    fetchBlocksByAddressAndTransaction,
+    fetchBlocksByAddressAndTransactionAndBlock,
+    fetchWallets,
+    fetchWalletsByAddress,
+    fetchWalletsByAddressAndToken,
+    fetchToken,
+    fetchTokens,
+    fetchTokensByAddress,
+    fetchTokensByAddressAndToken,
+    fetchTokensByAddressAndTokenAndBlock,
+    fetchTransaction,
+    fetchTransactions,
+    fetchTransactionsByBlock,
+    fetchTransactionsByAddress,
+    fetchTransactionsByBlockAndAddress,
+    fetchTransactionsByBlockAndTransaction, 
+    fetchTransactionsByBlockAndTransactionAndAddress,
+    fetchTransactionsByBlockAndAddressAndTransaction,
+    fetchTransactionsByAddressAndTransaction,
+    fetchTransactionsByAddressAndTransactionAndBlock,
+    fetchTransactionReceipt,
+    fetchTransactionReceipts,
+    fetchTransactionReceiptsByBlock,
+    fetchTransactionReceiptsByTransaction,
+    fetchTransactionReceiptsByBlockAndTransaction,
+    fetchTransactionReceiptsByBlockAndTransactionAndAddress,
+    fetchTransactionReceiptsByBlockAndAddress,
+    fetchTransactionReceiptsByTransactionAndAddress
+}

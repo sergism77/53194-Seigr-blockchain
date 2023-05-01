@@ -356,4 +356,3 @@ const blockModelList = seigr.block.createBlockModelList();
 const transactionModelList = seigr.transaction.createTransactionModelList();
 const minerModelList = seigr.miner.createMinerModelList();
 const networkModelList = seigr.network.createNetworkModelList();
-

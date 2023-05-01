@@ -1,5 +1,6 @@
 //this is the api file for the Seigr blockchain that will be used on the GUI
 
+
 import axios from 'axios';
 
 const API_URL = 'http://localhost:53194/api';
@@ -95,3 +96,4 @@ export default class API {
 }
 
 export { API_URL };
+

@@ -79,6 +79,62 @@ class CPUMap {
         this.cpu = cpu;
         this.cpuitem = cpuitem;
     }
+
+    addCPU({ cpu }) {
+        this.cpu.push(cpu);
+    }
+
+    static isValidCPU(cpu) {
+        if (JSON.stringify(cpu[0]) !== JSON.stringify(CPU.genesis())) {
+        return false;
+        }
+
+        for (let i = 1; i < cpu.length; i++) {
+        const { timestamp, lastHash, hash, data, nonce, difficulty } = cpu[i];
+
+        const actualLastHash = cpu[i - 1].hash;
+
+        if (lastHash !== actualLastHash) return false;
+
+        const validatedHash = cryptoHash(
+            timestamp,
+            lastHash,
+            data,
+            nonce,
+            difficulty
+        );
+
+        if (hash !== validatedHash) return false;
+        }
+
+        return true;
+    }
+
+    replaceCPU(cpu) {
+        if (cpu.length <= this.cpu.length) {
+        console.error('The incoming cpu must be longer');
+        return;
+        }
+
+        if (!CPU.isValidCPU(cpu)) {
+        console.error('The incoming cpu must be valid');
+        return;
+        }
+
+        console.log('replacing cpu with', cpu);
+        this.cpu = cpu;
+    }
+
+    static genesis() {
+        return new this({
+        timestamp: 'Genesis time',
+        lastHash: '-----',
+        hash: 'hash-one',
+        data: []
+        });
+    }
+
+    
 }
 
 module.exports = { CPU, CPUMap };

@@ -30,4 +30,88 @@ import { faArrowCircleRight } from '@fortawesome/free-solid-svg-icons';
 import { faArrowCircleLeft } from '@fortawesome/free-solid-svg-icons';
 
 class Footer extends React.Component {
-    
+    constructor(props) {
+        super(props);
+        this.state = {
+        syncing: false,
+        mining: false,
+        connected: false
+        };
+    }
+
+    componentDidMount() {
+        this.setState({
+            syncing: this.props.syncing,
+            mining: this.props.mining,
+            connected: this.props.connected
+        });
+    }
+
+    componentDidUpdate(prevProps) {
+        if (this.props.syncing !== prevProps.syncing) {
+            this.setState({
+                syncing: this.props.syncing
+            });
+        }
+        if (this.props.mining !== prevProps.mining) {
+            this.setState({
+                mining: this.props.mining
+            });
+        }
+        if (this.props.connected !== prevProps.connected) {
+            this.setState({
+                connected: this.props.connected
+            });
+        }
+    }
+
+    render() {
+        return (
+            <div className="footer">
+                <Container>
+                    <Row>
+                        <Col xs="12" sm="12" md="12" lg="12" xl="12">
+                            <div className="footer-content">
+                                <Button className="footer-button" color="primary" size="lg" block onClick={this.props.send}>
+                                    <FontAwesomeIcon icon={faArrowCircleUp} className="fa-lg fa-fw" /> Send
+                                </Button>
+                                <Button className="footer-button" color="primary" size="lg" block onClick={this.props.receive}>
+                                    <FontAwesomeIcon icon={faArrowCircleDown} className="fa-lg fa-fw" /> Receive
+                                </Button>
+                                <Button className="footer-button" color="primary" size="lg" block onClick={this.props.history}>
+                                    <FontAwesomeIcon icon={faHistory} className="fa-lg fa-fw" /> History
+                                </Button>
+                                {this.state.connected ? (
+                                    <div>
+                                        <Progress className="sync-progress" animated color="warning" value={this.props.syncProgress} />
+                                        <div className="sync-progress-text">
+                                            {this.props.syncProgress}%
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div></div>
+                                )}
+                                <div className="footer-icons">
+                                    {this.state.connected ? (
+                                        <FontAwesomeIcon icon={faCheckCircle} className="fa-lg fa-fw" />
+                                    ) : (
+                                        <FontAwesomeIcon icon={faTimesCircle} className="fa-lg fa-fw" />
+                                    )}
+                                    {this.state.mining ? (
+                                        <FontAwesomeIcon icon={faCheckCircle} className="fa-lg fa-fw" />
+                                    ) : (
+                                        <FontAwesomeIcon icon={faTimesCircle} className="fa-lg fa-fw" />
+                                    )}
+                                </div>
+
+
+                            </div>
+                        </Col>
+                    </Row>
+                </Container>
+            </div>
+        );
+    }
+}
+
+export default Footer;
