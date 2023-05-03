@@ -1,183 +1,61 @@
+//this is the wallet.js that will be loaded when user clicks on the wallet menu
 
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import { Button, Form, FormGroup, Label, Input, FormText, Container, Row, Col } from 'reactstrap';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { getWallets, getWallet, createWallet, getBalance, rescanBlockchain } from '../actions/walletActions';
-import { getTransactions } from '../actions/transactionActions';
-import { getBlocks } from '../actions/blockActions';
-import { getPeers } from '../actions/peerActions';
-import { getMempool } from '../actions/mempoolActions';
-import { getBlockchainInfo } from '../actions/blockchainActions';
-import { getMiningInfo } from '../actions/miningActions';
-import { getNetworkInfo } from '../actions/networkActions';
-import { getNetTotals } from '../actions/netTotalsActions';
-import { getWalletInfo } from '../actions/walletInfoActions';
-import { getWalletTransactions } from '../actions/walletTransactionsActions';
-import { getWalletUtxos } from '../actions/walletUtxosActions';
-import { getWalletAddresses } from '../actions/walletAddressesActions';
-import { getWalletBalance } from '../actions/walletBalanceActions';
-import { getWalletKeys } from '../actions/walletKeysActions';
-import { getWalletNewAddress } from '../actions/walletNewAddressActions';
-import { getWalletChangeAddress } from '../actions/walletChangeAddressActions';
-import { getWalletCreateFundedPsbt } from '../actions/walletCreateFundedPsbtActions';
-import { getWalletProcessPsbt } from '../actions/walletProcessPsbtActions';
-import { getWalletSignPsbt } from '../actions/walletSignPsbtActions';
+const { ipcRenderer } = require('electron');
+const fs = require('fs');
+const path = require('path');
+const seigrBlockchainDir = path.join(__dirname, '..', '..', 'seigr-blockchain');
+const seigrConfFile = path.join(seigrBlockchainDir, 'seigr.conf');
+const homedir = require('os').homedir();
+const seigrWalletDir = path.join(homedir, 'SeigrWallet');
+const seigrWalletConfFile = path.join(seigrWalletDir, 'seigr.conf');
+const seigrWalletDataDir = path.join(seigrWalletDir, 'data');
+const seigrWalletDataFile = path.join(seigrWalletDataDir, 'wallet.dat');
+const seigrWalletTxDir = path.join(seigrWalletDir, 'tx');
+const seigrWalletTxFile = path.join(seigrWalletTxDir, 'tx.dat');
+const seigrWalletAddrDir = path.join(seigrWalletDir, 'addr');
+const seigrWalletAddrFile = path.join(seigrWalletAddrDir, 'addr.dat');
+const seigrWalletTxIndexDir = path.join(seigrWalletDir, 'txindex');
+const seigrWalletTxIndexFile = path.join(seigrWalletTxIndexDir, 'txindex.dat');
+const seigrWalletBlkIndexDir = path.join(seigrWalletDir, 'blkindex');
+const seigrWalletBlkIndexFile = path.join(seigrWalletBlkIndexDir, 'blkindex.dat');
+const seigrWalletBlkDir = path.join(seigrWalletDir, 'blk');
+const seigrWalletBlkFile = path.join(seigrWalletBlkDir, 'blk.dat');
 
-class Wallet extends Component {
-    constructor(props){
-        super(props);
-        this.state = {
-            wallet: '',
-            walletName: '',
-            walletPassword: '',
-            privateKey: '',
-            privateKeyPassword: '',
-            walletBalance: '',
-            walletBalanceError: '',
-            walletBalanceSuccess: '',
-            walletBalanceLoading: false,
-            walletBalanceLoadingError: '',
-            walletBalanceLoadingSuccess: ''
-        }
-        this.handleChange = this.handleChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.handlePrivateKeySubmit = this.handlePrivateKeySubmit.bind(this);
-        this.handleWalletBalanceSubmit = this.handleWalletBalanceSubmit.bind(this);
-        this.handleWalletBalanceRescan = this.handleWalletBalanceRescan.bind(this);
-    }
-
-    componentDidMount(){
-        this.props.getWallets();
-    }
-
-    handleChange(event){
-        this.setState({[event.target.name]: event.target.value});
-    }
-
-    handleSubmit(event){
-        event.preventDefault();
-        this.props.getWallet(this.state.wallet);
-    }
-
-    handlePrivateKeySubmit(event){
-        event.preventDefault();
-        this.props.getWallet(this.state.privateKey);
-    }
-
-    handleWalletBalanceSubmit(event){
-        event.preventDefault();
-        this.setState({walletBalanceLoading: true});
-        this.props.getBalance(this.state.walletBalance);
-    }
-
-    handleWalletBalanceRescan(event){
-        event.preventDefault();
-        this.setState({walletBalanceLoading: true});
-        this.props.rescanBlockchain(this.state.walletBalance);
-    }
-
-    render() {
-        const { wallets } = this.props.wallets;
-        const { wallet } = this.props.wallet;
-        const { walletBalance } = this.props.walletBalance;
-        const { walletBalanceError } = this.props.walletBalanceError;
-        const { walletBalanceSuccess } = this.props.walletBalanceSuccess;
-        const { walletBalanceLoading } = this.props.walletBalanceLoading;
-        const { walletBalanceLoadingError } = this.props.walletBalanceLoadingError;
-        const { walletBalanceLoadingSuccess } = this.props.walletBalanceLoadingSuccess;
-        return (
-            <div>
-                <Container>
-                    <Row>
-                        <Col>
-                            <h1>Wallet</h1>
-                            <p>From this page you can see your wallet and its balance.</p>
-                            <p>From this page you can create a new wallet and switch between all wallets available in the SeigrBlockchain/Wallets folder in your home directory.</p>
-                            <p>Users will be able to retrieve their wallet by entering their private key.</p>
-                            <p>Users will be able to see private key and public key of their wallet.</p>
-                            <p>User will be able to rescan the blockchain to see if there are any transactions related to his wallet.</p>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col>
-                            <Form onSubmit={this.handleSubmit}>
-                                <FormGroup>
-                                    <Label for="wallet">Wallet</Label>
-                                    <Input type="text" name="wallet" id="wallet" placeholder="Wallet" onChange={this.handleChange} />
-                                </FormGroup>
-                                <Button>Submit</Button>
-                            </Form>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col>
-                            <Form onSubmit={this.handlePrivateKeySubmit}>
-                                <FormGroup>
-                                    <Label for="privateKey">Private Key</Label>
-                                    <Input type="text" name="privateKey" id="privateKey" placeholder="Private Key" onChange={this.handleChange} />
-                                </FormGroup>
-                                <Button>Submit</Button>
-                            </Form>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col>
-                            <Form onSubmit={this.handleWalletBalanceSubmit}>
-                                <FormGroup>
-                                    <Label for="walletBalance">Wallet Balance</Label>
-                                    <Input type="text" name="walletBalance" id="walletBalance" placeholder="Wallet Balance" onChange={this.handleChange} />
-                                </FormGroup>
-                                <Button>Submit</Button>
-                            </Form>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col>
-                            <Button onClick={this.handleWalletBalanceRescan}>Rescan</Button>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col>
-                            <p>{walletBalanceLoading ? 'Loading...' : ''}</p>
-                            <p>{walletBalanceLoadingError ? walletBalanceLoadingError : ''}</p>
-                            <p>{walletBalanceLoadingSuccess ? walletBalanceLoadingSuccess : ''}</p>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col>
-                            <p>{walletBalanceError ? walletBalanceError : ''}</p>
-                            <p>{walletBalanceSuccess ? walletBalanceSuccess : ''}</p>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col>
-                            <p>{wallet ? wallet : ''}</p>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col>
-                            <p>{wallets ? wallets : ''}</p>
-                        </Col>
-                    </Row>
-                </Container>
-            </div>
-        )
-    }
+//we need to check if the user already has a wallet or not. If the user doesn't have a wallet yet, we will create one and store it in the wallet directory. If the user already owns one or more wallets, we will ask the password to unlock it
+//we will check if the wallet directory exists inside the SeigrBlockchain folder, if not we will create it
+if (!fs.existsSync(seigrWalletDir)) {
+    fs.mkdirSync(seigrWalletDir);
 }
 
-Wallet.propTypes = {
-    getWallets: PropTypes.func.isRequired,
-    getWallet: PropTypes.func.isRequired,
-    getBalance: PropTypes.func.isRequired,
-    rescanBlockchain: PropTypes.func.isRequired,
-    wallets: PropTypes.object.isRequired,
-    wallet: PropTypes.object.isRequired,
-    walletBalance: PropTypes.object.isRequired,
-    walletBalanceError: PropTypes.object.isRequired,
-    walletBalanceSuccess: PropTypes.object.isRequired,
-    walletBalanceLoading: PropTypes.object.isRequired,
-    walletBalanceLoadingError: PropTypes.object.isRequired,
-    walletBalanceLoadingSuccess: PropTypes.object.isRequired
+//we will check if there are wallets saved in the wallet directory, if not we will create one in interactive mode
+    //we will create the wallet in interactive mode. We will create a wallet and ask the user to add a password for this wallet. We will create a wallet.dat file in the wallet directory and store the wallet in it. We will show the generated passphrase and private key. The wallet will be encrypted with the password the user chose. If they loose the password they will be able to recover the wallet with the passphrase or the private key. 
+    //We will also show the public key and the address of the wallet. All the wallet's info will be encripted and saved in the wallet directory so the app will be able to load the wallet when the user opens the app. The user will be able to create as many wallets as they want. They will be able to choose which wallet they want to use when they open the app.
+
+//is there a .json file in the wallet directory containing a wallet?
+if (fs.existsSync(seigrWalletConfFile)) {
+    //if there is a wallet, we will ask the user to enter the password to unlock it
+    ipcRenderer.send('unlock-wallet');
+    ipcRenderer.on('unlock-wallet', (event, arg) => {
+        //we will check if the password is correct
+        const seigrWalletConf = JSON.parse(fs.readFileSync(seigrWalletConfFile));
+        if (arg === seigrWalletConf.password) {
+            //we will load the wallet
+            //we will send the wallet to the main process
+            const seigrWallet = JSON.parse(fs.readFileSync(seigrWalletDataFile));
+            ipcRenderer.send('wallet', seigrWallet);
+            //we will render the wallet page
+            ipcRenderer.send('render-page', 'src/GUI/wallet.html');
+        } else {
+            //we will show an error message
+            ipcRenderer.send('error-message', 'Wrong password');
+        }
+    });
+}
+
+else {
+    ipcRenderer.send('create-wallet');
+    ipcRenderer.on('create-wallet', (event, arg) => {
+        ipcRenderer.send('wallet', arg);
+        ipcRenderer.send('render-page', 'src/GUI/wallet.html');
+    });
 }

@@ -5,3 +5,10 @@ body {
   max-width: 38rem;
   padding: 2rem;
 }
+
+code {
+  background: #fafafa;
+  border-radius: 5px;
+  padding: 0.75rem;
+}
+
