@@ -2,7 +2,7 @@
   "name": "Seigr",
   "productName": "Seigr",
   "version": "1.0.0",
-  "description": "Your portalll to Seigr network",
+  "description": "Your portal to Seigr network",
   "main": "src/index.js",
   "scripts": {
     "dev": "electron-forge start",

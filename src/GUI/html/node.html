@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel = "stylesheet" 
+         href = "./bower_components/bootstrap/dist/css/bootstrap.min.css" />
+    <meta charset="UTF-8" />
+    <title>Node</title>
+    </head>
+    <body>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <h1>Node</h1>
+          <p>Here you can see your node</p>
+        </div>
+
+        <div>
+            <p>Node type: </p>
+            <p>Sync status: </p>
+            <p>Number of peers: </p>
+            <p>Maximum number of peers: </p>
+            <p>In traffic: </p>
+            <p>Out traffic: </p>
+            <button id="startNode">Start node</button>
+            <button id="stopNode">Stop node</button>
+        </div>
+
+
+    <script src="./bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="src/GUI/js/node.js"></script>
+    <script src="src/GUI/js/nodeStart.js"></script>
+    <script src="src/GUI/js/nodeStop.js"></script>
+    <script src="src/GUI/js/nodeChangeType.js"></script>
+    <script src="src/GUI/js/nodeChangeMaxPeers.js"></script>
+    <script src="src/GUI/js/nodeSyncStatus.js"></script>
+    <script src="src/GUI/js/nodeNumberOfPeers.js"></script>
+    </body>
+</html>

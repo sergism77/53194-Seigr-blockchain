@@ -1,12 +1,33 @@
-//this is the Seigr blockchain core code
-//how do we use sh-3 in our blockchain.js file? answer: we use the cryptoHash function in our blockchain.js file to hash the block data
 const Block = require('./block');
 const { cryptoHash } = require('./utils');
 const { REWARD_INPUT, MINING_REWARD } = require('./config');
+const blockchainHeader = require('./blockchainHeader');
+const blockchainBody = require('./blockchainBody');
+const blockHeader = require('./blockHeader');
+const blockBody = require('./blockBody');
+const transaction = require('./transaction');
 
 class Blockchain {
     constructor() {
         this.chain = [Block.genesis()];
+
+        this.blockchainHeader = blockchainHeader;
+        this.blockchainBody = blockchainBody;
+        this.blockHeader = blockHeader;
+        this.blockBody = blockBody;
+        this.transaction = transaction;
+
+        this.addBlock = this.addBlock.bind(this);
+        this.replaceChain = this.replaceChain.bind(this);
+        this.validTransactionData = this.validTransactionData.bind(this);
+        this.clear = this.clear.bind(this);
+
+        this.clear();
+
+        this.toString = this.toString.bind(this);
+
+        this.toString();
+
     }
     
     addBlock({ data }) {
@@ -16,6 +37,10 @@ class Blockchain {
         });
     
         this.chain.push(newBlock);
+
+        
+        return newBlock;
+
     }
     
     static isValidChain(chain) {
@@ -42,6 +67,7 @@ class Blockchain {
         }
     
         return true;
+
     }
     
     replaceChain(chain) {
@@ -57,6 +83,7 @@ class Blockchain {
     
         console.log('replacing chain with', chain);
         this.chain = chain;
+
     }
     
     validTransactionData({ chain }) {
@@ -105,6 +132,7 @@ class Blockchain {
             }
 
 
+
         }
 
         if (hasConductedTransaction) {
@@ -113,6 +141,7 @@ class Blockchain {
         }
 
         return true;
+
     }
 
     replaceChain(chain, validateTransactions, onSuccess) {
@@ -134,6 +163,21 @@ class Blockchain {
         if (onSuccess) onSuccess();
         console.log('replacing chain with', chain);
         this.chain = chain;
+
+    }
+
+    clear() {
+        this.chain = [Block.genesis()];
+    }
+
+    toString() {
+        return "Blockchain: \n" +
+            "Chain: " + this.chain + "\n" +
+            "Blockchain Header: " + this.blockchainHeader + "\n" +
+            "Blockchain Body: " + this.blockchainBody + "\n" +
+            "Block Header: " + this.blockHeader + "\n" +
+            "Block Body: " + this.blockBody + "\n" +
+            "Transaction: " + this.transaction + "\n";
     }
 
 }
