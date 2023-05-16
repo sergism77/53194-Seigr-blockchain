@@ -1,13 +1,12 @@
-//how do we set up socket url in this file? answer: we don't. we use the config.js file to set up the socket url. How do we do that? answer: 
-
 class config {
     constructor() {
         this.chainID = 53194;
         this.chainName = 'Seigr';
         this.mineRate = 60000;
         this.initialDifficulty = 2;
+        this.timestamp = Date.now();
         this.genesisData = {
-            timestamp: 1,
+            timestamp: 0,
             lastHash: '-----',
             hash: 'hash-one',
             difficulty: this.initialDifficulty,

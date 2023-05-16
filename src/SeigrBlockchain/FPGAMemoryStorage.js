@@ -1,3 +1,8 @@
+const { FPGAMemoryStorage } = require('./FPGAMemoryStorage');
+const { FPGAMemoryStorageMap } = require('./FPGAMemoryStorage');
+const { FPGAMemoryStorageSet } = require('./FPGAMemoryStorage');
+const { FPGAMemoryStorageArray } = require('./FPGAMemoryStorage');
+
 class FPGAMemoryStorage {
     constructor() {
         this._storage = new Uint8Array(0x1000000);

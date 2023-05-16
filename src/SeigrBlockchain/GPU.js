@@ -1,4 +1,5 @@
-
+const Block = require('./block');
+const cryptoHash = require('./utils');
 class GPU {
     constructor() {
         this.name = "GPU";

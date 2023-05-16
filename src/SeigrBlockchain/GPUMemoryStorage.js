@@ -18,6 +18,7 @@ class GPUMemoryStorage {
   clear() {
     this._storage.clear();
   }
+
 }
 
 class GPUMemoryStorageMap {
@@ -40,6 +41,7 @@ class GPUMemoryStorageMap {
   clear() {
     this._storage.clear();
   }
+
 }
 
 class GPUMemoryStorageSet {
@@ -62,6 +64,7 @@ class GPUMemoryStorageSet {
     clear() {
         this._storage.clear();
     }
-    }
+
+}
 
 module.exports = { GPUMemoryStorage, GPUMemoryStorageMap, GPUMemoryStorageSet };

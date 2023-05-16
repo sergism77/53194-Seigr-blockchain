@@ -1,4 +1,21 @@
 //this is the memory storage for the blockchain
+//do we need to import anything here? answer: yes, we need to import the blockchain, transactionPool, transactionMiner, SEIGToken, SEIGTokenPool, and SEIGTokenMiner
+
+const Blockchain = require('./blockchain');
+const TransactionPool = require('./transaction');
+const TransactionPoolMap = require('./transaction');
+
+const TransactionMiner = require('./transaction');
+const TransactionMinerMap = require('./transaction');
+
+const SEIGToken = require('./SEIGToken');
+
+const SEIGTokenPool = require('./SEIGTokenPool');
+const SEIGTokenPoolMap = require('./SEIGTokenPool');
+
+const SEIGTokenMiner = require('./SEIGTokenMiner');
+const SEIGTokenMinerMap = require('./SEIGTokenMiner');
+
 
 class MemoryStorage {
     constructor() {

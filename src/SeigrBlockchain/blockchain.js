@@ -16,17 +16,15 @@ class Blockchain {
         this.blockHeader = blockHeader;
         this.blockBody = blockBody;
         this.transaction = transaction;
-
         this.addBlock = this.addBlock.bind(this);
         this.replaceChain = this.replaceChain.bind(this);
         this.validTransactionData = this.validTransactionData.bind(this);
         this.clear = this.clear.bind(this);
-
         this.clear();
-
         this.toString = this.toString.bind(this);
-
         this.toString();
+        this.getBalance = this.getBalance.bind(this);
+
 
     }
     
@@ -169,6 +167,36 @@ class Blockchain {
     clear() {
         this.chain = [Block.genesis()];
     }
+
+    getBalance({ address }) {
+        let balance = 0;
+
+        for (let i = 1; i < this.chain.length; i++) {
+        const block = this.chain[i];
+
+        for (let transaction of block.data) {
+
+            const trueBalance = Wallet.calculateBalance({
+            chain: this.chain,
+            address
+            });
+
+            if (transaction.input.address === address) {
+            balance = transaction.outputMap[address];
+            } else if (address in transaction.outputMap) {
+            balance = transaction.outputMap[address];
+
+
+            }
+
+        }
+
+        }
+
+        return balance;
+
+    }
+
 
     toString() {
         return "Blockchain: \n" +

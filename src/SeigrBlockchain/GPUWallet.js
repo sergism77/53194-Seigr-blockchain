@@ -1,3 +1,6 @@
+const { Wallet } = require('ethers');
+const { Transaction } = require('./transaction');
+
 class GPUWallet {
   constructor() {
     this.wallet = new Wallet();

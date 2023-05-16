@@ -1,3 +1,5 @@
+const cryptoHash = require('./utils');
+
 class CPUMemoryStorage {
     constructor() {
         this._storage = new Map();
@@ -154,7 +156,6 @@ class CPUMemoryStorageMap {
     }
 
 
-
 }
 
 class CPUMemoryStorageSingleton {
@@ -192,6 +193,13 @@ class CPUMemoryStorageSingleton {
         this.getInstance().clear();
     }
 
+    replaceCPU(cpu) {
+        this.getInstance().replaceCPU(cpu);
+    }
+
+    static isValidCPU(cpu) {
+        return this.getInstance().isValidCPU(cpu);
+    }
         
 }
 

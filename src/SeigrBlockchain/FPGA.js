@@ -1,3 +1,6 @@
+const Block = require('./Block');
+const cryptoHash = require('./cryptoHash');
+
 class FPGA {
     constructor() {
         this._name = "FPGA";

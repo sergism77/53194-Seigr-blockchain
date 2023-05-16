@@ -4,9 +4,6 @@ const { cryptoHash } = require('./utils');
 const Stake = require('./stake');
 const Transaction = require('./transaction');
 const { REWARD_INPUT, MINING_REWARD } = require('./config');
-const { ec } = require('../Wallet');
-const secp256k1 = require('secp256k1');
-const { verifySignature } = require('../Wallet');
 const BlockHeader = require('./blockHeader');
 const blockBody = require('./blockBody');
 
@@ -263,6 +260,286 @@ class Block {
         }
 
         return true;
+    }
+
+    static adjustDifficulty({ originalBlock, timestamp }) {
+        const { difficulty } = originalBlock;
+
+        if (difficulty < 1) return 1;
+
+        if ((timestamp - originalBlock.timestamp) > MINE_RATE) return difficulty - 1;
+
+        return difficulty + 1;
+    }
+
+    static mineBlock({ lastBlock, beneficiary, data }) {
+        let hash, timestamp;
+        let { difficulty } = lastBlock;
+        let nonce = 0;
+
+        do {
+            nonce++;
+            timestamp = Date.now();
+            difficulty = Block.adjustDifficulty({ originalBlock: lastBlock, timestamp });
+            hash = cryptoHash(timestamp, lastBlock.hash, data, nonce, difficulty);
+        } while (hexToBinary(hash).substring(0, difficulty) !== '0'.repeat(difficulty));
+
+        return new this({ timestamp, lastHash: lastBlock.hash, data, difficulty, nonce, hash, beneficiary });
+    }
+
+    static mineBlockHeader({ lastBlock, beneficiary }) {
+        let hash, timestamp;
+        let { difficulty } = lastBlock;
+        let nonce = 0;
+
+        do {
+            nonce++;
+            timestamp = Date.now();
+            difficulty = Block.adjustDifficulty({ originalBlock: lastBlock, timestamp });
+            hash = cryptoHash(timestamp, lastBlock.hash, nonce, difficulty);
+        } while (hexToBinary(hash).substring(0, difficulty) !== '0'.repeat(difficulty));
+
+        return new this({ timestamp, lastHash: lastBlock.hash, difficulty, nonce, hash, beneficiary });
+    }
+
+    static mineBlockBody({ lastBlock, beneficiary, data }) {
+        let timestamp = Date.now();
+        let { difficulty } = lastBlock;
+        let nonce = 0;
+        let hash = cryptoHash(timestamp, lastBlock.hash, data, nonce, difficulty);
+
+        return new this({ timestamp, lastHash: lastBlock.hash, data, difficulty, nonce, hash, beneficiary });
+    }
+
+    static genesis() {
+        return new this(GENESIS_DATA);
+    }
+
+    static blockHash(block) {
+        const { timestamp, lastHash, data, nonce, difficulty } = block;
+
+        return cryptoHash(timestamp, lastHash, data, nonce, difficulty);
+    }
+
+    static blockHeaderHash(block) {
+        const { timestamp, lastHash, nonce, difficulty } = block;
+
+        return cryptoHash(timestamp, lastHash, nonce, difficulty);
+    }
+
+    static blockBodyHash(block) {
+        const { data } = block;
+
+        return cryptoHash(data);
+    }
+
+    static blockHashes(block) {
+        const { timestamp, lastHash, data, nonce, difficulty } = block;
+
+        return [cryptoHash(timestamp, lastHash, data, nonce, difficulty), cryptoHash(timestamp, lastHash, nonce, difficulty), cryptoHash(data)];
+    }
+
+    static blockHeaderHashes(block) {
+        const { timestamp, lastHash, nonce, difficulty } = block;
+
+        return [cryptoHash(timestamp, lastHash, nonce, difficulty)];
+    }
+
+    static blockBodyHashes(block) {
+        const { data } = block;
+
+        return [cryptoHash(data)];
+    }
+
+    static blockHashesMatch(block) {
+        const hash = Block.blockHash(block);
+
+        return hash === block.hash;
+    }
+
+    static blockHeaderHashesMatch(block) {
+        const hash = Block.blockHeaderHash(block);
+
+        return hash === block.hash;
+    }
+
+    static blockBodyHashesMatch(block) {    
+        const hash = Block.blockBodyHash(block);
+
+        return hash === block.hash;
+    }
+
+    static blockHashesMatchChain(chain) {
+        for (let i = 1; i < chain.length; i++) {
+            const block = chain[i];
+
+            if (!Block.blockHashesMatch(block)) return false;
+        }
+
+        return true;
+    }
+
+    static blockHeaderHashesMatchChain(chain) {
+        for (let i = 1; i < chain.length; i++) {
+            const block = chain[i];
+
+            if (!Block.blockHeaderHashesMatch(block)) return false;
+        }
+
+        return true;
+    }
+
+    static blockBodyHashesMatchChain(chain) {
+        for (let i = 1; i < chain.length; i++) {
+            const block = chain[i];
+
+            if (!Block.blockBodyHashesMatch(block)) return false;
+        }
+
+        return true;
+    }
+
+    static blockHashesMatchChainHeader(chain) {
+        for (let i = 1; i < chain.length; i++) {
+            const block = chain[i];
+
+            if (!Block.blockHashesMatch(block)) return false;
+        }
+
+        return true;
+    }
+
+    static blockHeaderHashesMatchChainHeader(chain) {
+        for (let i = 1; i < chain.length; i++) {
+            const block = chain[i];
+
+            if (!Block.blockHeaderHashesMatch(block)) return false;
+        }
+
+        return true;
+    }
+
+    static blockBodyHashesMatchChainHeader(chain) {
+        for (let i = 1; i < chain.length; i++) {
+            const block = chain[i];
+
+            if (!Block.blockBodyHashesMatch(block)) return false;
+        }
+
+        return true;
+    }
+
+    static blockHashesMatchChainBody(chain) {
+        for (let i = 1; i < chain.length; i++) {
+            const block = chain[i];
+
+            if (!Block.blockHashesMatch(block)) return false;
+        }
+
+        return true;
+    }
+
+    static blockHeaderHashesMatchChainBody(chain) {
+        for (let i = 1; i < chain.length; i++) {
+            const block = chain[i];
+
+            if (!Block.blockHeaderHashesMatch(block)) return false;
+        }
+
+        return true;
+    }
+
+    static blockBodyHashesMatchChainBody(chain) {
+        for (let i = 1; i < chain.length; i++) {
+            const block = chain[i];
+
+            if (!Block.blockBodyHashesMatch(block)) return false;
+        }
+
+        return true;
+    }
+
+    static validBlock(block) {
+        const { timestamp, lastHash, hash, data, nonce, difficulty } = block;
+
+        if (Block.blockHash(block) !== hash) return false;
+
+        if (Math.abs(lastHash.length - hash.length) > 1) return false;
+
+        if (lastHash === hash) return false;
+
+        if (Block.blockHash({ timestamp, lastHash, data, nonce, difficulty }) !== hash) return false;
+
+        if (hexToBinary(hash).substring(0, difficulty) !== '0'.repeat(difficulty)) return false;
+
+        return true;
+
+    }
+
+    static validBlockHeader(block) {
+
+        const { timestamp, lastHash, hash, nonce, difficulty } = block;
+
+        if (Block.blockHeaderHash(block) !== hash) return false;
+
+        if (Math.abs(lastHash.length - hash.length) > 1) return false;
+
+        if (lastHash === hash) return false;
+
+        if (Block.blockHeaderHash({ timestamp, lastHash, nonce, difficulty }) !== hash) return false;
+
+        if (hexToBinary(hash).substring(0, difficulty) !== '0'.repeat(difficulty)) return false;
+
+        return true;
+
+    }
+
+    static validBlockBody(block) {
+            
+            const { timestamp, lastHash, hash, data, nonce, difficulty } = block;
+    
+            if (Block.blockBodyHash(block) !== hash) return false;
+    
+            if (Math.abs(lastHash.length - hash.length) > 1) return false;
+    
+            if (lastHash === hash) return false;
+    
+            if (Block.blockBodyHash({ data }) !== hash) return false;
+    
+            if (hexToBinary(hash).substring(0, difficulty) !== '0'.repeat(difficulty)) return false;
+    
+            return true;
+    
+    }
+
+    static adjustDifficulty({ originalBlock, timestamp }) {
+        const { difficulty } = originalBlock;
+
+        if (difficulty < 1) return 1;
+
+        if ((timestamp - originalBlock.timestamp) > MINE_RATE) return difficulty - 1;
+
+        return difficulty + 1;
+    }
+
+    static adjustDifficultyHeader({ originalBlock, timestamp }) {
+        const { difficulty } = originalBlock;
+
+        if (difficulty < 1) return 1;
+
+        if ((timestamp - originalBlock.timestamp) > MINE_RATE) return difficulty - 1;
+
+        return difficulty + 1;
+    }
+
+    static adjustDifficultyBody({ originalBlock, timestamp }) {
+        const { difficulty } = originalBlock;
+
+        if (difficulty < 1) return 1;
+
+        if ((timestamp - originalBlock.timestamp) > MINE_RATE) return difficulty - 1;
+
+        return difficulty + 1;
     }
 
 }

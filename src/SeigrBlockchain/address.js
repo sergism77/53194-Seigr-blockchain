@@ -1,10 +1,9 @@
-//this is the address file where we create new unique ethereum compatible addresses
-
-const { v1: uuidv1 } = require('uuid');
-const { verifySignature } = require('../util');
-const { REWARD_INPUT, MINING_REWARD } = require('../config');
+const { v4: uuidv4 } = require('uuid');
+const { verifySignature } = require('./utils');
+const { REWARD_INPUT, MINING_REWARD } = require('./config');
 const EC = require('elliptic').ec;
 const ec = new EC('secp256k1');
+const cryptoHash = require('./utils');
 
 class address {
     constructor() {
@@ -20,11 +19,22 @@ class address {
             dataHash
         );
     }
-
+        
     static createAddress() {
-        return ec.keyFromPrivate(uuidv1()).getPublic('hex');
+        return ec.genKeyPair();
     }
 
+    static createHash(data) {
+        return cryptoHash(
+            timestamp,
+            lastHash,
+            data,
+            nonce,
+            difficulty
+        );
+    }
+
+    
     static signAddress(dataHash, privateKey) {
         return ec.keyFromPrivate(privateKey).sign(dataHash);
     }
@@ -35,7 +45,7 @@ class address {
         }
 
         return new this({
-            id: uuidv1(),
+            id: uuidv4(),
             input: {
                 timestamp: Date.now(),
                 address: senderWallet.address,
