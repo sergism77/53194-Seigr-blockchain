@@ -12,13 +12,13 @@ class transaction {
         this.input = input;
         this.outputs = outputs;
 
-        this.transaction = new Transaction();
-        this.transactionMap = new TransactionMap();
-        this.transactionPool = new TransactionPool();
-        this.transactionPoolMap = new TransactionPoolMap();
+        this.transaction = new transaction();
+        this.transactionMap = new transactionMap();
+        this.transactionPool = new transactionPool();
+        this.transactionPoolMap = new transactionPoolMap();
 
-        this.transactionMiner = new TransactionMiner();
-        this.transactionMinerMap = new TransactionMinerMap();
+        this.transactionMiner = new transactionMiner();
+        this.transactionMinerMap = new transactionMinerMap();
 
     }
 

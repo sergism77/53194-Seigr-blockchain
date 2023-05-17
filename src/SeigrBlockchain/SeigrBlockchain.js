@@ -211,12 +211,11 @@ class SeigrBlockchain {
 
             fs.writeFileSync(GENESIS_TRANSACTION_POOL_FILE, JSON.stringify(GENESIS_TRANSACTION_POOL_DATA));
         }
+        //if (!fs.existsSync(GENESIS_TRANSACTION_FILE)) {
+            //fs.writeFileSync(GENESIS_TRANSACTION_FILE, JSON.stringify(GENESIS_TRANSACTION_DATA)); 
+        //}
 
-        if (!fs.existsSync(GENESIS_TRANSACTION_FILE)) {
-            fs.writeFileSync(GENESIS_TRANSACTION_FILE, JSON.stringify(GENESIS_TRANSACTION_DATA));
-        }
-
-        this.blockchain = [createGenesisBlock()];
+        this.blockchain = [new createGenesisBlock()];
         this.transactionPool = createGenesisTransactionPool();
         this.wallets = createGenesisWallet();
     }
@@ -508,7 +507,7 @@ class SeigrBlockchain {
 
         if (fs.existsSync(BLOCKCHAIN_DIR)) {
 
-            blockchain.blockchain = JSON.parse(fs.readFileSync(GENESIS_BLOCKCHAIN_FILE));
+            blockchain.blockchain = JSON.parse(fs.readFileSync(GENESIS_BLOCK_FILE));
         }
 
         return blockchain;
