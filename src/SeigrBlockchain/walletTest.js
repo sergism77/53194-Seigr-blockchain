@@ -1,5 +1,7 @@
 
 const Wallet = require('./wallet');
+const { newWallet } = require('./newWallet');
+const { saveWallet } = require('./saveWallet');
 const Transaction = require('./transaction');
 const Blockchain = require('../SeigrBlockchain/blockchain');
 const { verifySignature } = require('../SeigrBlockchain/util');

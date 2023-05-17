@@ -9,7 +9,7 @@ const GENESIS_DATA = {
         maxSupply: 0,
         burnable: true,
         mintable: true,
-        owner: '0s0000000000000000000000000000000000000000'
+        owner: 'genesisWallet.publicKey'
     },
 
     timestamp: 0,
@@ -45,7 +45,7 @@ const GENESIS_DATA = {
         }
     ],
 
-    coinbaseAddress: '0s0000000000000000000000000000000000000000'
+    coinbaseAddress: 'genesisWallet.publicKey'
 };
 
 module.exports = { GENESIS_DATA };

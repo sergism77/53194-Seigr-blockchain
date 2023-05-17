@@ -84,7 +84,6 @@ class createWallet {
         this.wallet.publicKey = '';
         this.wallet.address = '';
         this.wallet.wallet = '';
-
     }
 
     createGenesisWallet() {

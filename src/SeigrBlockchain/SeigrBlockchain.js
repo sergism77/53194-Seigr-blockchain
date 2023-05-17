@@ -4,11 +4,10 @@ const os = require('os');
 
 const createBlock = require('./createBlock');
 const createTransaction = require('./createTransaction');
-const createWallet = require('./createWallet');
+const { createGenesisWallet } = require('./createWallet');
 const createTransactionPool = require('./createTransactionPool');
 const createGenesisBlock = require('./createGenesisBlock');
 const createGenesisTransaction = require('./createGenesisTransaction').default;
-const createGenesisWallet = require('./createGenesisWallet');
 const createGenesisTransactionPool = require('./createGenesisTransactionPool');
 
 const { cryptoHash } = require('./utils');
@@ -35,7 +34,7 @@ class SeigrBlockchain {
     constructor() {
         this.blockchain = [new createGenesisBlock()];
         this.transactionPool = createGenesisTransactionPool();
-        this.wallets = createGenesisWallet();
+        this.createGenesisWallet = createGenesisWallet;
         this.clear = this.clear.bind(this);
         this.clear();
         this.toString = this.toString.bind(this);
@@ -46,6 +45,13 @@ class SeigrBlockchain {
         this.getWalletsMap = this.getWalletsMap.bind(this);
         
     }
+    createGenesisWallet() {
+        const genesisWallet = new this();
+        genesisWallet.address = 'genesis-wallet';
+
+        return genesisWallet;
+    }
+
 
     addBlock({ data }) {
         const newBlock = createBlock({
@@ -217,7 +223,7 @@ class SeigrBlockchain {
 
         this.blockchain = [new createGenesisBlock()];
         this.transactionPool = createGenesisTransactionPool();
-        this.wallets = createGenesisWallet();
+        this.createGenesisWallet = createGenesisWallet();
     }
 
     static getBlockchain() {
