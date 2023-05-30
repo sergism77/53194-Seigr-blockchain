@@ -1,10 +1,11 @@
 const { REWARD_INPUT, MINING_REWARD } = require('./config');
 const { Transaction } = require('./transaction');
-const CreateTransaction = require('./createTransaction');
-const CreateWallet = require('./createWallet');
+const createTransaction = require('./createTransaction');
+const createWallet = require('./walletUtils');
 const { cryptoHash } = require('./utils');
 const GENESIS_DATA = require('./genesis');
 const GENESIS_TRANSACTION_DATA = require('./genesisTransaction');
+const createGenesisTransactionPool = require('./genesisTransactionPool');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
@@ -28,7 +29,7 @@ class genesisTransaction {
         return new this(GENESIS_TRANSACTION_DATA);
     }
 
-    static mineGenesisTransaction({ timestamp, input, output, hash, signature, publicKey, amount, address }) {
+    static mineGenesisTransaction() {
         return new this({
             timestamp,
             input,
@@ -39,6 +40,39 @@ class genesisTransaction {
             amount,
             address
         });
+
+    }
+
+
+
+
+
+
+
+    static createTransaction({ timestamp, input, output, hash, signature, publicKey, amount, address }) {
+        return new this({
+            timestamp,
+            input,
+            output,
+            hash,
+            signature,
+            publicKey,
+            amount,
+            address
+        });
+
+    }
+
+    static saveTransaction({ transaction }) {
+        const transactionPath = path.join(os.homedir(), 'SeigrBlockchain', 'transaction.json');
+        fs.writeFileSync(transactionPath, JSON.stringify(transaction));
+    }
+
+    static loadTransaction({ transaction }) {
+        const transactionPath = path.join(os.homedir(), 'SeigrBlockchain', 'transaction.json'); 
+        const transactionJSON = fs.readFileSync(transactionPath);
+        const transaction1 = JSON.parse(transactionJSON); 
+        return transaction;
     }
 
     static rewardTransaction({ minerWallet }) {
@@ -69,7 +103,7 @@ class genesisTransaction {
         }
         senderOutput.amount = senderOutput.amount - amount;
         transaction.output.push({ address: recipient, amount });
-        transaction.input = CreateTransaction.createInput({ senderWallet, outputMap: transaction.output });
+        transaction.input = createTransaction.createInput({ senderWallet, outputMap: transaction.output });
         transaction.hash = cryptoHash(Date.now(), transaction.input, transaction.output);
         return transaction;
     }
@@ -79,55 +113,55 @@ class genesisTransaction {
             console.log(`Amount: ${amount} exceeds balance.`);
             return;
         }
-        return CreateTransaction.createTransaction({ senderWallet, recipient, amount });
+        return createTransaction.createTransaction({ senderWallet, recipient, amount });
     }
 
     static createWallet() {
-        return CreateWallet.createWallet();
+        return createWallet.createWallet();
     }
 
     static saveWallet({ wallet }) {
-        return CreateWallet.saveWallet({ wallet });
+        return createWallet.saveWallet({ wallet });
     }
 
     static loadWallet({ publicKey }) {
-        return CreateWallet.loadWallet({ publicKey });
+        return createWallet.loadWallet({ publicKey });
     }
 
     static getBalance({ publicKey }) {
-        return CreateWallet.getBalance({ publicKey });
+        return createWallet.getBalance({ publicKey });
     }
 
     static getPublicKey({ privateKey }) {
-        return CreateWallet.getPublicKey({ privateKey });
+        return createWallet.getPublicKey({ privateKey });
     }
 
     static getWallet({ publicKey }) {
-        return CreateWallet.getWallet({ publicKey });
+        return createWallet.getWallet({ publicKey });
     }
 
     static getWallets() {
-        return CreateWallet.getWallets();
+        return createWallet.getWallets();
     }
 
     static getWalletsPath() {
-        return CreateWallet.getWalletsPath();
+        return createWallet.getWalletsPath();
     }
 
     static getWalletsFiles() {
-        return CreateWallet.getWalletsFiles();
+        return createWallet.getWalletsFiles();
     }
 
     static getWalletsFilesPath() {
-        return CreateWallet.getWalletsFilesPath();
+        return createWallet.getWalletsFilesPath();
     }
 
     static getWalletsFilesNames() {
-        return CreateWallet.getWalletsFilesNames();
+        return createWallet.getWalletsFilesNames();
     }
 
     static getWalletsFilesNamesPath() {
-        return CreateWallet.getWalletsFilesNamesPath();
+        return createWallet.getWalletsFilesNamesPath();
     }
 
     static saveGenesisTransaction({ genesisTransaction }) {

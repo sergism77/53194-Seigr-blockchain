@@ -1,10 +1,97 @@
 //this is the transaction class
 
-const { v1: uuidv1 } = require('uuid');
+const { v4: uuidv4 } = require('uuid');
 const { verifySignature } = require('./utils.js');
 const { REWARD_INPUT, MINING_REWARD } = require('./config');
 const EC = require('elliptic').ec;
 const ec = new EC('secp256k1');
+
+
+class createTransaction {
+    constructor({ senderWallet, recipient, amount, outputMap, input }) {
+        this.id = uuidv4();
+        this.outputMap = outputMap || this.createOutputMap({ senderWallet, recipient, amount });
+        this.input = input || this.createInput({ senderWallet, outputMap: this.outputMap });
+    }
+
+    createOutputMap({ senderWallet, recipient, amount }) {
+        const outputMap = {};
+        outputMap[recipient] = amount;
+        outputMap[senderWallet.publicKey] = senderWallet.balance - amount;
+        return outputMap;
+    }
+
+    createInput({ senderWallet, outputMap }) {
+        return {
+            timestamp: Date.now(),
+            amount: senderWallet.balance,
+            address: senderWallet.publicKey,
+            signature: senderWallet.sign(outputMap)
+        };
+    }
+
+    static validTransaction(transaction) {
+        const { input: { address, amount, signature }, outputMap } = transaction;
+        const outputTotal = Object.values(outputMap).reduce((total, outputAmount) => total + outputAmount);
+        if (amount !== outputTotal) {
+            console.error(`Invalid transaction from ${address}`);
+            return false;
+        }
+        if (!verifySignature({ publicKey: address, data: outputMap, signature })) {
+            console.error(`Invalid signature from ${address}`);
+            return false;
+        }
+
+        return true;
+    }
+
+    static rewardTransaction({ minerWallet }) {
+        return new this({
+            input: REWARD_INPUT,
+            outputMap: { [minerWallet.publicKey]: MINING_REWARD }
+        });
+    }
+
+    update({ senderWallet, recipient, amount }) {
+        if (amount > this.outputMap[senderWallet.publicKey]) {
+            throw new Error('Amount exceeds balance');
+        }
+        if (!this.outputMap[recipient]) {
+            this.outputMap[recipient] = amount;
+        } else {
+            this.outputMap[recipient] = this.outputMap[recipient] + amount;
+        }
+        this.outputMap[senderWallet.publicKey] = this.outputMap[senderWallet.publicKey] - amount;
+        this.input = this.createInput({ senderWallet, outputMap: this.outputMap });
+    }
+
+    static transactionWithOutputs(senderWallet, outputs) {
+        const transaction = new this();
+        transaction.outputs.push(...outputs);
+        transaction.signTransaction(senderWallet);
+        return transaction;
+    }
+
+    static newTransaction(senderWallet, recipient, amount) {
+        if (amount > senderWallet.balance) {
+            console.log(`Amount: ${amount} exceeds balance.`);
+            return;
+        }
+        return transaction.transactionWithOutputs(senderWallet, [
+            { amount: senderWallet.balance - amount, address: senderWallet.publicKey },
+            { amount, address: recipient }
+        ]);
+    }
+
+    signTransaction(senderWallet) {
+        this.input = {
+            timestamp: Date.now(),
+            amount: senderWallet.balance,
+            address: senderWallet.publicKey,
+            signature: senderWallet.sign(this.outputMap)
+        }
+    }
+}
 
 class transaction {
     constructor() {
@@ -115,6 +202,233 @@ class transaction {
         return transaction.transactionPool;
     }
 
+
+}
+
+
+class saveTransaction {
+    constructor() {
+        this.transaction = new Transaction();
+        this.transactionMap = new TransactionMap();
+
+        this.transactionPool = new TransactionPool();
+        this.transactionPoolMap = new TransactionPoolMap();
+
+        this.transactionMiner = new TransactionMiner();
+        this.transactionMinerMap = new TransactionMinerMap();
+    }
+
+    saveTransaction(transaction) {
+        this.transaction = transaction;
+    }
+
+    saveTransactionMap(transaction) {
+        this.transactionMap = transaction;
+    }
+
+    saveTransactionPool(transaction) {
+        this.transactionPool = transaction;
+    }
+
+    saveTransactionPoolMap(transaction) {
+        this.transactionPoolMap = transaction;
+    }
+
+    saveTransactionMiner(transaction) {
+        this.transactionMiner = transaction;
+    }
+
+    saveTransactionMinerMap(transaction) {
+        this.transactionMinerMap = transaction;
+    }
+
+    saveAll(transaction) {
+        this.transaction = transaction;
+        this.transactionMap = transaction;
+        this.transactionPool = transaction;
+        this.transactionPoolMap = transaction;
+        this.transactionMiner = transaction;
+        this.transactionMinerMap = transaction;
+    }
+
+    saveAllMap(transaction) {
+        this.transaction = transaction;
+        this.transactionMap = transaction;
+        this.transactionPool = transaction;
+        this.transactionPoolMap = transaction;
+        this.transactionMiner = transaction;
+        this.transactionMinerMap = transaction;
+    }
+
+    saveAllPool(transaction) {
+        this.transaction = transaction;
+        this.transactionMap = transaction;
+        this.transactionPool = transaction;
+        this.transactionPoolMap = transaction;
+        this.transactionMiner = transaction;
+        this.transactionMinerMap = transaction;
+    }
+
+    saveAllPoolMap(transaction) {
+        this.transaction = transaction;
+        this.transactionMap = transaction;
+        this.transactionPool = transaction;
+        this.transactionPoolMap = transaction;
+        this.transactionMiner = transaction;
+        this.transactionMinerMap = transaction;
+    }
+
+    saveAllMiner(transaction) {
+        this.transaction = transaction;
+        this.transactionMap = transaction;
+        this.transactionPool = transaction;
+        this.transactionPoolMap = transaction;
+        this.transactionMiner = transaction;
+        this.transactionMinerMap = transaction;
+    }
+
+    saveAllMinerMap(transaction) {
+        this.transaction = transaction;
+        this.transactionMap = transaction;
+        this.transactionPool = transaction;
+        this.transactionPoolMap = transaction;
+        this.transactionMiner = transaction;
+        this.transactionMinerMap = transaction;
+    }
+
+    saveAllTransaction(transaction) {
+        this.transaction = transaction;
+        this.transactionMap = transaction;
+        this.transactionPool = transaction;
+        this.transactionPoolMap = transaction;
+        this.transactionMiner = transaction;
+        this.transactionMinerMap = transaction;
+    }
+
+    saveAllTransactionMap(transaction) {
+        this.transaction = transaction;
+        this.transactionMap = transaction;
+        this.transactionPool = transaction;
+        this.transactionPoolMap = transaction;
+        this.transactionMiner = transaction;
+        this.transactionMinerMap = transaction;
+    }
+
+
+
+}
+
+class loadTransaction{
+    constructor() {
+        this.transaction = new Transaction();
+        this.transactionMap = new TransactionMap();
+
+        this.transactionPool = new TransactionPool();
+        this.transactionPoolMap = new TransactionPoolMap();
+
+        this.transactionMiner = new TransactionMiner();
+        this.transactionMinerMap = new TransactionMinerMap();
+    }
+
+    loadTransaction(transaction) {
+        this.transaction = transaction;
+    }
+
+    loadTransactionMap(transaction) {
+        this.transactionMap = transaction;
+    }
+
+    loadTransactionPool(transaction) {
+        this.transactionPool = transaction;
+    }
+
+    loadTransactionPoolMap(transaction) {
+        this.transactionPoolMap = transaction;
+    }
+
+    loadTransactionMiner(transaction) {
+        this.transactionMiner = transaction;
+    }
+
+    loadTransactionMinerMap(transaction) {
+        this.transactionMinerMap = transaction;
+    }
+
+    loadAll(transaction) {
+        this.transaction = transaction;
+        this.transactionMap = transaction;
+        this.transactionPool = transaction;
+        this.transactionPoolMap = transaction;
+        this.transactionMiner = transaction;
+        this.transactionMinerMap = transaction;
+    }
+
+    loadAllMap(transaction) {
+        this.transaction = transaction;
+        this.transactionMap = transaction;
+        this.transactionPool = transaction;
+        this.transactionPoolMap = transaction;
+        this.transactionMiner = transaction;
+        this.transactionMinerMap = transaction;
+    }
+
+    loadAllPool(transaction) {
+        this.transaction = transaction;
+        this.transactionMap = transaction;
+        this.transactionPool = transaction;
+        this.transactionPoolMap = transaction;
+        this.transactionMiner = transaction;
+        this.transactionMinerMap = transaction;
+    }
+
+    loadAllPoolMap(transaction) {
+        this.transaction = transaction;
+        this.transactionMap = transaction;
+        this.transactionPool = transaction;
+        this.transactionPoolMap = transaction;
+        this.transactionMiner = transaction;
+        this.transactionMinerMap = transaction;
+    }
+
+    loadAllMiner(transaction) {
+        this.transaction = transaction;
+        this.transactionMap = transaction;
+        this.transactionPool = transaction;
+        this.transactionPoolMap = transaction;
+        this.transactionMiner = transaction;
+        this.transactionMinerMap = transaction;
+
+    }
+
+    loadAllMinerMap(transaction) {
+        this.transaction = transaction;
+        this.transactionMap = transaction;
+        this.transactionPool = transaction;
+        this.transactionPoolMap = transaction;
+        this.transactionMiner = transaction;
+        this.transactionMinerMap = transaction;
+
+    }
+
+    loadAllTransaction(transaction) {
+        this.transaction = transaction;
+        this.transactionMap = transaction;
+        this.transactionPool = transaction;
+        this.transactionPoolMap = transaction;
+        this.transactionMiner = transaction;
+        this.transactionMinerMap = transaction;
+
+    }
+
+    loadAllTransactionMap(transaction) {
+        this.transaction = transaction;
+        this.transactionMap = transaction;
+        this.transactionPool = transaction;
+        this.transactionPoolMap = transaction;
+        this.transactionMiner = transaction;
+        this.transactionMinerMap = transaction;
+
+    }
 
 }
 
@@ -801,7 +1115,7 @@ class transactionMinerMap {
     mineTransactionMap() {
         const validTransactions = this.validTransactionsMap();
         validTransactions.push(
-            Transaction.rewardTransaction(this)
+            transaction.rewardTransaction(this)
         );
         return validTransactions;
     }
@@ -837,4 +1151,4 @@ class transactionMinerMap {
     
 }
 
-module.exports = { transaction, transactionPool, transactionMiner, transactionMap, transactionPoolMap, transactionMinerMap };
+module.exports = { createTransaction, transaction, saveTransaction, loadTransaction, transactionPool, transactionMiner, transactionMap, transactionPoolMap, transactionMinerMap };

@@ -3,33 +3,43 @@ const { STARTING_BALANCE } = require('./config');
 const { cryptoHash } = require('./utils');
 const ec = require('elliptic').ec;
 const ecInstance = new ec('secp256k1');
+const wallet = require('./wallet');
+const createWallet = require('./walletUtils');
 
 class createTransaction {
-    constructor({ senderWallet, recipient, amount }) {
-        this.transaction = transaction;
+    constructor({ senderWallet, recipient, amount, signature, hash, publicKey, address, timestamp, output }) { 
         this.senderWallet = senderWallet;
         this.recipient = recipient;
         this.amount = amount;
-        this.outputMap = this.createOutputMap();
-        this.input = this.createInput();
+        this.signature = signature;
+        this.hash = hash;
+        this.publicKey = publicKey;
+        this.address = address;
+        this.amount = amount;
+        this.timestamp = timestamp;
+        this.output = output;
+        this.outputMap = this.createOutputMap({ senderWallet, recipient, amount }); 
+        this.input = this.createInput({ senderWallet, outputMap: this.outputMap });
+
     }
 
-    createOutputMap() {
+    createOutputMap({ senderWallet, recipient, amount }) {
         const outputMap = {};
-        outputMap[this.recipient] = this.amount;
-        outputMap[this.senderWallet.publicKey] = this.senderWallet.balance - this.amount;
+        outputMap[recipient] = amount;
+        outputMap[senderWallet.publicKey] = senderWallet.balance - amount;
         return outputMap;
     }
 
-    createInput() {
-        const input = {
+    createInput({ senderWallet, outputMap }) {
+        return {
             timestamp: Date.now(),
-            amount: this.senderWallet.balance,
-            address: this.senderWallet.publicKey,
-            signature: this.senderWallet.sign(this.outputMap)
-        };
-        return input;
+            amount: senderWallet.balance,
+            address: senderWallet.publicKey,
+            signature: senderWallet.sign(outputMap)
+        }
     }
+
+
 
     static validTransaction(transaction) {
         const { input: { address, amount, signature }, outputMap } = transaction;
