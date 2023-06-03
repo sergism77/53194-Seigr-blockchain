@@ -21,6 +21,87 @@ class createGenesisWallet {
     }
 }
 
+class saveGenesisWallet {
+    constructor(genesisWallet) {
+        fs.writeFileSync(
+            path.join(walletDirectory, `${genesisWallet.address}.json`),
+            JSON.stringify(genesisWallet)
+        );
+    }
+
+    loadGenesisWallet() {
+        const genesisWallet = JSON.parse(fs.readFileSync(path.join(walletDirectory, `${this.address}.json`)));
+        return genesisWallet;
+    }
+
+    saveGenesisWalletPool() {
+        fs.writeFileSync(
+            path.join(walletDirectory, `${this.address}.json`),
+            JSON.stringify(this)
+        );
+
+    }
+
+    loadGenesisWalletPool() {
+        const genesisWalletPool = JSON.parse(fs.readFileSync(path.join(walletDirectory, `${this.address}.json`)));
+        return genesisWalletPool;
+
+    }
+
+    saveWalletPool() {
+        fs.writeFileSync(
+            path.join(walletDirectory, `${this.address}.json`),
+            JSON.stringify(this)
+        );
+
+    }
+
+    loadWalletPool() {
+        const walletPool = JSON.parse(fs.readFileSync(path.join(walletDirectory, `${this.address}.json`)));
+        return walletPool;
+
+    }
+
+}
+
+class loadGenesisWallet {
+    constructor(address) {
+        const genesisWallet = JSON.parse(fs.readFileSync(path.join(walletDirectory, `${this.address}.json`)));
+        return genesisWallet;
+    }
+
+    saveGenesisWalletPool() {
+        fs.writeFileSync(
+            path.join(walletDirectory, `${this.address}.json`),
+            JSON.stringify(this)
+        );
+
+    }
+
+    loadGenesisWalletPool() {
+        const genesisWalletPool = JSON.parse(fs.readFileSync(path.join(walletDirectory, `${this.address}.json`)));
+        return genesisWalletPool;
+
+    }
+
+    saveWalletPool() {
+        fs.writeFileSync(
+            path.join(walletDirectory, `${this.address}.json`),
+            JSON.stringify(this)
+
+        );
+
+    }
+
+    loadWalletPool() {
+        const walletPool = JSON.parse(fs.readFileSync(path.join(walletDirectory, `${this.address}.json`)));
+
+        return walletPool;
+
+    }
+
+}
+
 class createWallet {
     constructor() {
         this.balance = STARTING_BALANCE;
@@ -94,4 +175,4 @@ class loadWallet {
 }
 
 
-module.exports = { createGenesisWallet, createWallet, saveWallet, loadWallet };
+module.exports = { createGenesisWallet, saveGenesisWallet, loadGenesisWallet, createWallet, saveWallet, loadWallet };
