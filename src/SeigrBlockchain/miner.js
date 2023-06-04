@@ -1,7 +1,7 @@
 
 const Block = require('./block');
-const Transaction = require('../wallet/transaction');
-const Wallet = require('../wallet/wallet');
+const Transaction = require('./transaction');
+const Wallet = require('./wallet');
 const config = require('./config');
 
 class Miner {

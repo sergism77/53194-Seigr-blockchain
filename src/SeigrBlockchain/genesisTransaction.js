@@ -254,4 +254,112 @@ class genesisTransaction {
 
 }
 
-module.exports = genesisTransaction;
+class mineGenesisTransaction extends createTransaction {
+    constructor({ timestamp, input, output, hash, signature, publicKey, amount, address }) {
+        super({ timestamp, input, output, hash, signature, publicKey, amount, address });
+    }
+
+    static mineGenesisTransaction({ genesisTransaction }) {
+        const { timestamp, input, output, hash, signature, publicKey, amount, address } = genesisTransaction;
+        return new this({
+            timestamp,
+            input,
+            output,
+            hash,
+            signature,
+            publicKey,
+            amount,
+            address
+        });
+    }
+
+    static saveGenesisTransaction({ genesisTransaction }) {
+        const genesisTransactionPath = path.join(__dirname, 'transactionPool', 'genesisTransaction.json');
+        fs.writeFileSync(genesisTransactionPath, JSON.stringify(genesisTransaction));
+    }
+
+    static loadGenesisTransaction() {
+        const genesisTransactionPath = path.join(__dirname, 'transactionPool', 'genesisTransaction.json');
+        const genesisTransaction = JSON.parse(fs.readFileSync(genesisTransactionPath));
+        return genesisTransaction;
+    }
+
+    static getGenesisTransactionPath() {
+        const genesisTransactionPath = path.join(__dirname, 'transactionPool', 'genesisTransaction.json');
+        return genesisTransactionPath;
+    }
+
+    static getGenesisTransaction() {
+        const genesisTransaction = this.loadGenesisTransaction();
+        return genesisTransaction;
+    }
+
+    static getGenesisTransactionHash() {
+        const genesisTransaction = this.loadGenesisTransaction();
+        return genesisTransaction.hash;
+    }
+
+    static getGenesisTransactionSignature() {
+        const genesisTransaction = this.loadGenesisTransaction();
+        return genesisTransaction.signature;
+    }
+
+    static getGenesisTransactionPublicKey() {
+        const genesisTransaction = this.loadGenesisTransaction();
+        return genesisTransaction.publicKey;
+    }
+
+    static getGenesisTransactionAmount() {
+        const genesisTransaction = this.loadGenesisTransaction();
+        return genesisTransaction.amount;
+    }
+
+    static getGenesisTransactionAddress() {
+        const genesisTransaction = this.loadGenesisTransaction();
+        return genesisTransaction.address;
+    }
+
+    static getGenesisTransactionOutput() {
+        const genesisTransaction = this.loadGenesisTransaction();
+        return genesisTransaction.output;
+    }
+
+    static getGenesisTransactionOutputAddress() {
+        const genesisTransaction = this.loadGenesisTransaction();
+        return genesisTransaction.output.address;
+    }
+
+    static getGenesisTransactionOutputAmount() {
+        const genesisTransaction = this.loadGenesisTransaction();
+        return genesisTransaction.output.amount;
+    }
+
+    static getGenesisTransactionTimestamp() {
+        const genesisTransaction = this.loadGenesisTransaction();
+        return genesisTransaction
+    }
+
+    static getGenesisTransactionInput() {
+        const genesisTransaction = this.loadGenesisTransaction();
+        return genesisTransaction.input;
+    }
+
+    static getGenesisTransactionInputAddress() {
+        const genesisTransaction = this.loadGenesisTransaction();
+        return genesisTransaction.input.address;
+    }
+
+    static getGenesisTransactionInputSignature() {
+        const genesisTransaction = this.loadGenesisTransaction();
+        return genesisTransaction.input.signature;
+    }
+
+    static getGenesisTransactionInputPublicKey() {
+        const genesisTransaction = this.loadGenesisTransaction();
+        return genesisTransaction.input.publicKey;
+    }
+
+}
+
+
+module.exports = { genesisTransaction, mineGenesisTransaction };

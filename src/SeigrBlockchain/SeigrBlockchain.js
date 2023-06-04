@@ -5,19 +5,13 @@ const os = require('os');
 const { cryptoHash, verifySignature } = require('./utils');
 const { STARTING_BALANCE } = require('./config');
 const ec = require('elliptic').ec('secp256k1');
-const { createGenesisWallet,
-    saveGenesisWallet,
-    loadGenesisWallet,
-    createWallet,
+const { createWallet,
     saveWallet,
     loadWallet } = require('./walletUtils');
 const wallet = require('./wallet');
-const { mineGenesisWalletPool,
-    saveGenesisWalletPool,
-    loadGenesisWalletPool,
-    genesisWalletPool } = require('./genesisWalletPool');
+
 const { createBlock, block, saveBlock, loadBlock } = require('./block.js');
-const { mineGenesisBlock, saveGenesisBlock, loadGenesisBlock } = require('./genesisBlock.js');
+const { genesisBlock, mineGenesisBlock, saveGenesisBlock, loadGenesisBlock } = require('./genesisBlock.js');
 const { createTransactionPool, 
     saveTransactionPool,
     loadTransactionPool,
@@ -36,8 +30,7 @@ const { createTransactionPool,
         mineGenesisTransactionPoolRewardAmount,
         mineGenesisTransactionPoolRewardAddress } = require('./genesisTransactionPool.js');
 const { genesisTransaction,
-    createGenesisTransactionPool,
-    createGenesisTransaction,
+    mineGenesisTransaction,
     saveGenesisTransaction,
     loadGenesisTransaction } = require('./genesisTransaction.js');
 const { createBlockchain,
@@ -53,11 +46,20 @@ const { createWalletPool,
     loadWalletPool } = require('./walletPool.js');
 const { createBlockPool, blockPool, saveBlockPool, loadBlockPool } = require('./blockPool.js');
 const { mineGenesisBlockPool, saveGenesisBlockPool, loadGenesisBlockPool } = require('./genesisBlockPool.js');
-const genesisWallet = new createGenesisWallet();
-const genesisBlock = new mineGenesisBlock({ genesisWallet });
+//const genesisBlock = new mineGenesisBlock({ genesisBlock }); 
 const genesisBlockchain = mineGenesisBlockchain({ genesisBlock });
 const genesisBlockPool = mineGenesisBlockPool({ genesisBlock });
-const p2pServer = require('./p2pServer');
+const genesisTransactionPool = new mineGenesisTransactionPool({ genesisTransaction });
+//const genesisTransaction = new createGenesisTransaction({ genesisWallet }); 
+//const genesisWalletPool = new mineGenesisWalletPool({ genesisWallet });
+const genesisTransactionPoolRewardTimestamp = new mineGenesisTransactionPoolRewardTimestamp({ genesisTransactionPool });
+const genesisTransactionPoolRewardInput = new mineGenesisTransactionPoolRewardInput({ genesisTransactionPool });
+const genesisTransactionPoolRewardOutput = new mineGenesisTransactionPoolRewardOutput({ genesisTransactionPool });
+const genesisTransactionPoolRewardHash = new mineGenesisTransactionPoolRewardHash({ genesisTransactionPool });
+const genesisTransactionPoolRewardSignature = new mineGenesisTransactionPoolRewardSignature({ genesisTransactionPool });
+
+
+const { P2pServer, listen, connectToPeers } = require('./p2pServer.js');
 
 
 const walletDirectory = path.join(os.homedir(), 'Seigr', 'wallets');
@@ -67,15 +69,13 @@ const blockchainDirectory = path.join(os.homedir(), 'Seigr', 'blockchain');
 const walletPoolDirectory = path.join(os.homedir(), 'Seigr', 'walletPools');
 const blockPoolDirectory = path.join(os.homedir(), 'Seigr', 'blockPools');
 const transactionPoolDirectory = path.join(os.homedir(), 'Seigr', 'transactionPools');
-const genesisWalletDirectory = path.join(os.homedir(), 'Seigr', 'genesisWallet');
 const p2pDirectory = path.join(os.homedir(), 'Seigr', 'p2p');
-const miner = path.join(os.homedir(), 'Seigr', 'miner');
+const minerDirectory = path.join(os.homedir(), 'Seigr', 'miner');
+const genesisBlockDirectory = path.join(os.homedir(), 'Seigr', 'genesisBlock');
 
 
 
 
-
-//we need to check if all the seigr directories exist, if not, create them. If they do, do nothing.
 if (!fs.existsSync(walletDirectory)) {
     fs.mkdirSync(walletDirectory, { recursive: true });
 }
@@ -97,15 +97,27 @@ if (!fs.existsSync(blockPoolDirectory)) {
 if (!fs.existsSync(transactionPoolDirectory)) {
     fs.mkdirSync(transactionPoolDirectory, { recursive: true });
 }
-if (!fs.existsSync(genesisWalletDirectory)) {
-    fs.mkdirSync(genesisWalletDirectory, { recursive: true });
-}
+
 if (!fs.existsSync(p2pDirectory)) {
     fs.mkdirSync(p2pDirectory, { recursive: true });
 }
-if (!fs.existsSync(miner)) {
-    fs.mkdirSync(miner, { recursive: true });
+if (!fs.existsSync(minerDirectory)) {
+    fs.mkdirSync(minerDirectory, { recursive: true });
 }
+if (!fs.existsSync(genesisBlockDirectory)) {
+    fs.mkdirSync(genesisBlockDirectory, { recursive: true });
+}
+
+
+//we want to start the p2p server
+const p2pServer = new P2pServer({ blockchain, walletPool, blockPool, transactionPool });
+p2pServer.listen();
+
+
+
+
+
+
 
 
 const SeigrBlockchain = {
@@ -116,12 +128,11 @@ const SeigrBlockchain = {
     createWalletPool,
     createBlockPool,
     createTransactionPool,
-    createGenesisWallet,
     mineGenesisBlock,
-    createGenesisTransactionPool,
-    createGenesisTransaction,
+    mineGenesisTransactionPool,
+    mineGenesisTransaction,
     mineGenesisBlockchain,
-    mineGenesisWalletPool,
+    //mineGenesisWalletPool,
     mineGenesisBlockPool,
     saveWallet,
     saveBlock,
@@ -129,11 +140,9 @@ const SeigrBlockchain = {
     saveBlockchain,
     saveWalletPool,
     saveBlockPool,
-    saveGenesisWallet,
     saveGenesisBlock,
     saveGenesisTransaction,
     saveGenesisBlockchain,
-    saveGenesisWalletPool,
     saveGenesisBlockPool,
     loadWallet,
     loadBlock,
@@ -141,11 +150,10 @@ const SeigrBlockchain = {
     loadBlockchain,
     loadWalletPool,
     loadBlockPool,
-    loadGenesisWallet,
+    //loadGenesisWallet,
     loadGenesisBlock,
     loadGenesisTransaction,
     loadGenesisBlockchain,
-    loadGenesisWalletPool,
     loadGenesisBlockPool,
     cryptoHash,
     verifySignature,
@@ -159,11 +167,9 @@ const SeigrBlockchain = {
     blockchain,
     walletPool,
     blockPool,
-    genesisWallet,
     genesisBlock,
     genesisTransaction,
     genesisBlockchain,
-    genesisWalletPool,
     genesisBlockPool,
     transactionPool,
     p2pServer,
@@ -171,9 +177,18 @@ const SeigrBlockchain = {
     mineGenesisTransactionPoolRewardTimestamp,
     mineGenesisTransactionPoolRewardInput,
     mineGenesisTransactionPoolRewardOutput,
-
-
+    mineGenesisTransactionPoolRewardHash,
+    mineGenesisTransactionPoolRewardSignature,
+    mineGenesisTransactionPoolRewardPublicKey,
+    mineGenesisTransactionPoolRewardAmount,
+    mineGenesisTransactionPoolRewardAddress,
+    mineGenesisTransaction
 
 };
 
+
+
 module.exports = { SeigrBlockchain };
+
+//should the genesis wallet and genesis block be the same? answer: yes
+//should we remove genesis wallet from our project? answer: yes

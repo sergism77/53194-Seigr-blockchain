@@ -11,7 +11,7 @@ class P2pServer {
     }
 
     //this is the method that will start the server
-    listen() {
+    listen() {  
         const server = new Websocket.Server({ port: P2P_PORT }); //this is the server that will be listening on the P2P_PORT
 
         //this is the event listener that will be listening for a connection
@@ -23,7 +23,7 @@ class P2pServer {
     }
 
     //this is the method that will connect to peers
-    connectToPeers() {
+    connectToPeers() { 
         peers.forEach(peer => {
             //ws://localhost:53194
             const socket = new Websocket(peer);
@@ -63,4 +63,63 @@ class P2pServer {
     }
 }
 
-module.exports = P2pServer;
+class listen {
+    constructor() {
+        this.sockets = [];
+    }
+
+    listen() {
+        const server = new Websocket.Server({ port: P2P_PORT });
+
+        server.on('connection', socket => this.connectSocket(socket));
+
+        console.log(`Listening for peer-to-peer connections on: ${P2P_PORT}`);
+    }
+
+    connectSocket(socket) {
+        this.sockets.push(socket);
+        console.log('Socket connected');
+
+        this.messageHandler(socket);
+    }
+
+    messageHandler(socket) {
+        socket.on('message', message => {
+            const data = JSON.parse(message);
+
+            console.log(data);
+        });
+    }
+}
+
+class connectToPeers {
+    constructor() {
+        this.sockets = [];
+    }
+
+    connectToPeers() {
+        peers.forEach(peer => {
+            //ws://localhost:53194
+            const socket = new Websocket(peer);
+
+            socket.on('open', () => this.connectSocket(socket));
+        });
+    }
+
+    connectSocket(socket) {
+        this.sockets.push(socket);
+        console.log('Socket connected');
+
+        this.messageHandler(socket);
+    }
+
+    messageHandler(socket) {
+        socket.on('message', message => {
+            const data = JSON.parse(message);
+
+            console.log(data);
+        });
+    }
+}
+
+module.exports = { P2pServer, listen, connectToPeers }

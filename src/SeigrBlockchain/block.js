@@ -1,8 +1,6 @@
-//this file will export createBlock, saveBlock, loadBlock
-//this file will be used to create, save and load blocks
-
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 const { cryptoHash } = require('./utils');
 const { STARTING_BALANCE } = require('./config');
 const ec = require('elliptic').ec('secp256k1');
@@ -10,8 +8,8 @@ const { verifySignature } = require('./utils');
 const { createGenesisWallet, createWallet, saveWallet, loadWallet } = require('./walletUtils');
 const { createGenesisBlock, saveGenesisBlock, loadGenesisBlock } = require('./genesisBlock.js');
 
-const walletDirectory = path.join(__dirname, 'wallets');
-const chainDirectory = path.join(__dirname, 'chain');
+const walletDirectory = path.join(os.homedir(), 'Seigr', 'wallets');
+const blockchainDirectory = path.join(os.homedir(), 'Seigr', 'blockchain');
 
 
 const createBlock = ({ index, timestamp, previousHash, lastHash, hash, data, nonce, difficulty, transactions, miner  }) => {
@@ -117,13 +115,13 @@ class block {
 
 const saveBlock = (block) => {
     fs.writeFileSync(
-        path.join(chainDirectory, `${block.hash}.json`),
+        path.join(blockchainDirectory, `${block.hash}.json`),
         JSON.stringify(block)
     );
 }
 
 const loadBlock = (hash) => {
-    const block = JSON.parse(fs.readFileSync(path.join(chainDirectory, `${hash}.json`)));
+    const block = JSON.parse(fs.readFileSync(path.join(blockchainDirectory, `${hash}.json`)));
     return block;
 }
 

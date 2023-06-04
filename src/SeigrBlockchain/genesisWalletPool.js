@@ -1,7 +1,18 @@
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 const { ec } = require('./utils');
-const { walletDirectory } = require('./config');
+const walletDirectory = path.join(os.homedir(), 'Seigr', 'wallets');
+const blockDirectory = path.join(os.homedir(), 'Seigr', 'blocks');
+const transactionDirectory = path.join(os.homedir(), 'Seigr', 'transactions');
+const blockchainDirectory = path.join(os.homedir(), 'Seigr', 'blockchain');
+const walletPoolDirectory = path.join(os.homedir(), 'Seigr', 'walletPools');
+const blockPoolDirectory = path.join(os.homedir(), 'Seigr', 'blockPools');
+const transactionPoolDirectory = path.join(os.homedir(), 'Seigr', 'transactionPools');
+const genesisWalletDirectory = path.join(os.homedir(), 'Seigr', 'genesisWallet');
+const p2pDirectory = path.join(os.homedir(), 'Seigr', 'p2p');
+const minerDirectory = path.join(os.homedir(), 'Seigr', 'miner');
+const genesisBlockDirectory = path.join(os.homedir(), 'Seigr', 'genesisBlock');
 
 class mineGenesisWalletPool {
     constructor(address) {
