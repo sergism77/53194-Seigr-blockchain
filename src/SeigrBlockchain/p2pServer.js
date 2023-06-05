@@ -259,6 +259,119 @@ class P2pServer {
             console.log('new block pool broadcasted to network');
 
             //create a new block pool block
+            console.log('creating new block pool block');
+            createBlockPoolBlock({ blockPool });
+            console.log('new block pool block created');
+            console.log('broadcasting new block pool block to network');
+            P2pServer.broadcastBlockPoolBlock(blockPool);
+            console.log('new block pool block broadcasted to network');
+
+            //create a new block pool block header
+            console.log('creating new block pool block header');
+            createBlockPoolBlockHeader({ blockPool });
+            console.log('new block pool block header created');
+            console.log('broadcasting new block pool block header to network');
+            P2pServer.broadcastBlockPoolBlockHeader(blockPool);
+            console.log('new block pool block header broadcasted to network');
+
+            //create a new block pool block header hash
+            console.log('creating new block pool block header hash');
+            createBlockPoolBlockHeaderHash({ blockPool });
+            console.log('new block pool block header hash created');
+            console.log('broadcasting new block pool block header hash to network');
+            P2pServer.broadcastBlockPoolBlockHeaderHash(blockPool);
+            console.log('new block pool block header hash broadcasted to network');
+
+            //create a new block pool block header previous hash
+            console.log('creating new block pool block header previous hash');
+            createBlockPoolBlockHeaderPreviousHash({ blockPool });
+            console.log('new block pool block header previous hash created');
+            console.log('broadcasting new block pool block header previous hash to network');
+            P2pServer.broadcastBlockPoolBlockHeaderPreviousHash(blockPool);
+            console.log('new block pool block header previous hash broadcasted to network');
+
+
+            //create a new block pool block header timestamp
+            console.log('creating new block pool block header timestamp');
+            createBlockPoolBlockHeaderTimestamp({ blockPool });
+            console.log('new block pool block header timestamp created');
+            console.log('broadcasting new block pool block header timestamp to network');
+            P2pServer.broadcastBlockPoolBlockHeaderTimestamp(blockPool);
+            console.log('new block pool block header timestamp broadcasted to network');
+
+            //create a new block pool block header merkle root
+            console.log('creating new block pool block header merkle root');
+            createBlockPoolBlockHeaderMerkleRoot({ blockPool });
+            console.log('new block pool block header merkle root created');
+            console.log('broadcasting new block pool block header merkle root to network');
+            P2pServer.broadcastBlockPoolBlockHeaderMerkleRoot(blockPool);
+            console.log('new block pool block header merkle root broadcasted to network');
+
+            //create a new block pool block header difficulty target
+            console.log('creating new block pool block header difficulty target');
+            createBlockPoolBlockHeaderDifficultyTarget({ blockPool });
+            console.log('new block pool block header difficulty target created');
+            console.log('broadcasting new block pool block header difficulty target to network');
+            P2pServer.broadcastBlockPoolBlockHeaderDifficultyTarget(blockPool);
+            console.log('new block pool block header difficulty target broadcasted to network');
+
+            //create a new block pool block header nonce
+            console.log('creating new block pool block header nonce');
+            createBlockPoolBlockHeaderNonce({ blockPool });
+            console.log('new block pool block header nonce created');
+            console.log('broadcasting new block pool block header nonce to network');
+            P2pServer.broadcastBlockPoolBlockHeaderNonce(blockPool);
+            console.log('new block pool block header nonce broadcasted to network');
+
+            //create a new block pool block body
+            console.log('creating new block pool block body');
+            createBlockPoolBlockBody({ blockPool });
+            console.log('new block pool block body created');
+            console.log('broadcasting new block pool block body to network');
+            P2pServer.broadcastBlockPoolBlockBody(blockPool);
+            console.log('new block pool block body broadcasted to network');
+
+            //create a new block pool block body transaction
+            console.log('creating new block pool block body transaction');
+            createBlockPoolBlockBodyTransaction({ blockPool });
+            console.log('new block pool block body transaction created');
+            console.log('broadcasting new block pool block body transaction to network');
+            P2pServer.broadcastBlockPoolBlockBodyTransaction(blockPool);
+            console.log('new block pool block body transaction broadcasted to network');
+
+            //create a new block pool block body transaction id
+            console.log('creating new block pool block body transaction id');
+            createBlockPoolBlockBodyTransactionId({ blockPool });
+            console.log('new block pool block body transaction id created');
+            console.log('broadcasting new block pool block body transaction id to network');
+            P2pServer.broadcastBlockPoolBlockBodyTransactionId(blockPool);
+            console.log('new block pool block body transaction id broadcasted to network');
+
+            //create a new block pool block body transaction input
+            console.log('creating new block pool block body transaction input');
+            createBlockPoolBlockBodyTransactionInput({ blockPool });
+            console.log('new block pool block body transaction input created');
+            console.log('broadcasting new block pool block body transaction input to network');
+            P2pServer.broadcastBlockPoolBlockBodyTransactionInput(blockPool);
+            console.log('new block pool block body transaction input broadcasted to network');
+
+            //create a new block pool block body transaction input id
+            console.log('creating new block pool block body transaction input id');
+            createBlockPoolBlockBodyTransactionInputId({ blockPool });
+            console.log('new block pool block body transaction input id created');
+            console.log('broadcasting new block pool block body transaction input id to network');
+            P2pServer.broadcastBlockPoolBlockBodyTransactionInputId(blockPool);
+            console.log('new block pool block body transaction input id broadcasted to network');
+
+            //create a new block pool block body transaction input unlock script
+            console.log('creating new block pool block body transaction input unlock script');
+            createBlockPoolBlockBodyTransactionInputUnlockScript({ blockPool });
+            console.log('new block pool block body transaction input unlock script created');
+            console.log('broadcasting new block pool block body transaction input unlock script to network');
+            P2pServer.broadcastBlockPoolBlockBodyTransactionInputUnlockScript(blockPool);
+            console.log('new block pool block body transaction input unlock script broadcasted to network');
+
+            //create a new block pool block body transaction input unlock script signature
 
 
 
