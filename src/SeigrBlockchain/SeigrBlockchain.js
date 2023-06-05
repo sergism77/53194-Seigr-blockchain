@@ -17,18 +17,30 @@ const { createTransactionPool,
     loadTransactionPool,
     transaction, 
     transactionPool, 
+    createTransactionPoolRewardTimestamp,
+    createTransactionPoolRewardInput,
+    createTransactionPoolRewardOutput,
     createTransaction, 
     saveTransaction, 
     loadTransaction } = require('./transaction.js');
-    const { mineGenesisTransactionPool,
-        mineGenesisTransactionPoolRewardTimestamp,
-        mineGenesisTransactionPoolRewardInput,
-        mineGenesisTransactionPoolRewardOutput,
-        mineGenesisTransactionPoolRewardHash,
-        mineGenesisTransactionPoolRewardSignature,
-        mineGenesisTransactionPoolRewardPublicKey,
-        mineGenesisTransactionPoolRewardAmount,
-        mineGenesisTransactionPoolRewardAddress } = require('./genesisTransactionPool.js');
+const { mineGenesisTransactionPool,
+    mineGenesisTransactionPoolReward,
+    mineGenesisTransactionPoolRewardTransaction,
+    mineGenesisTransactionPoolRewardTimestamp,
+    mineGenesisTransactionPoolRewardInput,
+    mineGenesisTransactionPoolRewardTransactionSignature,
+    mineGenesisTransactionPoolRewardTransactionInput,
+    mineGenesisTransactionPoolRewardTransactionOutput,
+    mineGenesisTransactionPoolRewardTransactionHash,
+    mineGenesisTransactionPoolRewardOutput,
+    mineGenesisTransactionPoolRewardHash,
+    mineGenesisTransactionPoolRewardSignature,
+    mineGenesisTransactionPoolRewardPublicKey,
+    mineGenesisTransactionPoolRewardTransactionPublicKey,
+    mineGenesisTransactionPoolRewardTransactionAmount,
+    mineGenesisTransactionPoolRewardTransactionAddress,
+    mineGenesisTransactionPoolRewardAmount,
+    mineGenesisTransactionPoolRewardAddress } = require('./genesisTransactionPool.js');
 const { genesisTransaction,
     mineGenesisTransaction,
     saveGenesisTransaction,
@@ -173,7 +185,6 @@ const SeigrBlockchain = {
     genesisBlockPool,
     transactionPool,
     p2pServer,
-    mineGenesisTransactionPool,
     mineGenesisTransactionPoolRewardTimestamp,
     mineGenesisTransactionPoolRewardInput,
     mineGenesisTransactionPoolRewardOutput,
@@ -181,14 +192,9 @@ const SeigrBlockchain = {
     mineGenesisTransactionPoolRewardSignature,
     mineGenesisTransactionPoolRewardPublicKey,
     mineGenesisTransactionPoolRewardAmount,
-    mineGenesisTransactionPoolRewardAddress,
-    mineGenesisTransaction
-
+    mineGenesisTransactionPoolRewardAddress
 };
 
 
 
 module.exports = { SeigrBlockchain };
-
-//should the genesis wallet and genesis block be the same? answer: yes
-//should we remove genesis wallet from our project? answer: yes

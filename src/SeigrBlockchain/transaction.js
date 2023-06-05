@@ -746,6 +746,24 @@ class transactionPool {
 
 }
 
+class createTransactionPoolRewardTimestamp {
+    constructor() {
+        this.createTransactionPoolRewardTimestamp = [];
+    }
+
+    setTransactionPoolRewardTimestamp(timestamp) {
+        this.createTransactionPoolRewardTimestamp.push(timestamp);
+    }
+
+    clearTransactionPoolRewardTimestamp() {
+        this.createTransactionPoolRewardTimestamp = [];
+    }
+
+    clearAll() {
+        this.createTransactionPoolRewardTimestamp = [];
+    }
+}
+
 class transactionMiner {
     constructor() {
         this.transactionMiner = [];
@@ -1151,4 +1169,28 @@ class transactionMinerMap {
     
 }
 
-module.exports = { createTransaction, transaction, saveTransaction, loadTransaction, transactionPool, transactionMiner, transactionMap, transactionPoolMap, transactionMinerMap };
+class createTransactionPoolRewardInput {
+    constructor({ transactionPoolMap }) {
+        this.address = '*authorized-reward*';
+        this.amount = transactionPoolMap.reward;
+    }
+
+    static createTransactionPoolRewardInput({ transactionPoolMap }) {
+        return new this({ transactionPoolMap });
+    }
+
+}
+
+class createTransactionPoolRewardOutput {
+    constructor({ transactionPoolMap, ownerWallet }) {
+        this.amount = transactionPoolMap.reward;
+        this.address = ownerWallet.publicKey;
+    }
+
+    static createTransactionPoolRewardOutput({ transactionPoolMap, ownerWallet }) {
+        return new this({ transactionPoolMap, ownerWallet });
+    }
+
+}
+
+module.exports = { createTransaction, transaction, saveTransaction, loadTransaction, transactionPool, createTransactionPoolRewardTimestamp, createTransactionPoolRewardInput, createTransactionPoolRewardOutput, transactionMiner, transactionMap, transactionPoolMap, transactionMinerMap };
