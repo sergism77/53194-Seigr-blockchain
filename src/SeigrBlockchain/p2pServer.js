@@ -372,7 +372,105 @@ class P2pServer {
             console.log('new block pool block body transaction input unlock script broadcasted to network');
 
             //create a new block pool block body transaction input unlock script signature
+            console.log('creating new block pool block body transaction input unlock script signature');
+            createBlockPoolBlockBodyTransactionInputUnlockScriptSignature({ blockPool });
+            console.log('new block pool block body transaction input unlock script signature created');
+            console.log('broadcasting new block pool block body transaction input unlock script signature to network');
+            P2pServer.broadcastBlockPoolBlockBodyTransactionInputUnlockScriptSignature(blockPool);
+            console.log('new block pool block body transaction input unlock script signature broadcasted to network');
 
+            //create a new block pool block body transaction output
+            console.log('creating new block pool block body transaction output');
+            createBlockPoolBlockBodyTransactionOutput({ blockPool });
+            console.log('new block pool block body transaction output created');
+            console.log('broadcasting new block pool block body transaction output to network');
+            P2pServer.broadcastBlockPoolBlockBodyTransactionOutput(blockPool);
+            console.log('new block pool block body transaction output broadcasted to network');
+
+            //create a new block pool block body transaction output id
+            console.log('creating new block pool block body transaction output id');
+            createBlockPoolBlockBodyTransactionOutputId({ blockPool });
+            console.log('new block pool block body transaction output id created');
+            console.log('broadcasting new block pool block body transaction output id to network');
+            P2pServer.broadcastBlockPoolBlockBodyTransactionOutputId(blockPool);
+            console.log('new block pool block body transaction output id broadcasted to network');
+
+            //create a new block pool block body transaction output lock script
+            console.log('creating new block pool block body transaction output lock script');
+            createBlockPoolBlockBodyTransactionOutputLockScript({ blockPool });
+            console.log('new block pool block body transaction output lock script created');
+            console.log('broadcasting new block pool block body transaction output lock script to network');
+            P2pServer.broadcastBlockPoolBlockBodyTransactionOutputLockScript(blockPool);
+            console.log('new block pool block body transaction output lock script broadcasted to network');
+
+            //create a new block pool block body transaction output lock script public key hash
+            console.log('creating new block pool block body transaction output lock script public key hash');
+            createBlockPoolBlockBodyTransactionOutputLockScriptPublicKeyHash({ blockPool });
+            console.log('new block pool block body transaction output lock script public key hash created');
+            console.log('broadcasting new block pool block body transaction output lock script public key hash to network');
+            P2pServer.broadcastBlockPoolBlockBodyTransactionOutputLockScriptPublicKeyHash(blockPool);
+            console.log('new block pool block body transaction output lock script public key hash broadcasted to network');
+
+            //create a new block pool block body transaction output lock script signature
+            console.log('creating new block pool block body transaction output lock script signature');
+            createBlockPoolBlockBodyTransactionOutputLockScriptSignature({ blockPool });
+            console.log('new block pool block body transaction output lock script signature created');
+            console.log('broadcasting new block pool block body transaction output lock script signature to network');
+            P2pServer.broadcastBlockPoolBlockBodyTransactionOutputLockScriptSignature(blockPool);
+            console.log('new block pool block body transaction output lock script signature broadcasted to network');
+
+            //create a new block pool block body transaction output lock script signature public key
+            console.log('creating new block pool block body transaction output lock script signature public key');
+            createBlockPoolBlockBodyTransactionOutputLockScriptSignaturePublicKey({ blockPool });
+            console.log('new block pool block body transaction output lock script signature public key created');
+            console.log('broadcasting new block pool block body transaction output lock script signature public key to network');
+            P2pServer.broadcastBlockPoolBlockBodyTransactionOutputLockScriptSignaturePublicKey(blockPool);
+            console.log('new block pool block body transaction output lock script signature public key broadcasted to network');
+
+            //create a new block pool block body transaction output lock script signature public key hash
+            console.log('creating new block pool block body transaction output lock script signature public key hash');
+            createBlockPoolBlockBodyTransactionOutputLockScriptSignaturePublicKeyHash({ blockPool });
+            console.log('new block pool block body transaction output lock script signature public key hash created');
+            console.log('broadcasting new block pool block body transaction output lock script signature public key hash to network');
+            P2pServer.broadcastBlockPoolBlockBodyTransactionOutputLockScriptSignaturePublicKeyHash(blockPool);
+            console.log('new block pool block body transaction output lock script signature public key hash broadcasted to network');
+
+        }
+
+
+        //create a new block pool block body transaction output lock script signature public key hash signature
+        console.log('creating new block pool block body transaction output lock script signature public key hash signature');
+        createBlockPoolBlockBodyTransactionOutputLockScriptSignaturePublicKeyHashSignature({ blockPool });
+        console.log('new block pool block body transaction output lock script signature public key hash signature created');
+        console.log('broadcasting new block pool block body transaction output lock script signature public key hash signature to network');
+        P2pServer.broadcastBlockPoolBlockBodyTransactionOutputLockScriptSignaturePublicKeyHashSignature(blockPool);
+        console.log('new block pool block body transaction output lock script signature public key hash signature broadcasted to network');
+
+        //create a new block pool block body transaction output lock script signature public key hash signature r value
+        console.log('creating new block pool block body transaction output lock script signature public key hash signature r value');
+        createBlockPoolBlockBodyTransactionOutputLockScriptSignaturePublicKeyHashSignatureRValue({ blockPool });
+        console.log('new block pool block body transaction output lock script signature public key hash signature r value created');
+        console.log('broadcasting new block pool block body transaction output lock script signature public key hash signature r value to network');
+        P2pServer.broadcastBlockPoolBlockBodyTransactionOutputLockScriptSignaturePublicKeyHashSignatureRValue(blockPool);
+        console.log('new block pool block body transaction output lock script signature public key hash signature r value broadcasted to network');
+
+        //create a new block pool block body transaction output lock script signature public key hash signature s value
+        console.log('creating new block pool block body transaction output lock script signature public key hash signature s value');
+        createBlockPoolBlockBodyTransactionOutputLockScriptSignaturePublicKeyHashSignatureSValue({ blockPool });
+        console.log('new block pool block body transaction output lock script signature public key hash signature s value created');
+        console.log('broadcasting new block pool block body transaction output lock script signature public key hash signature s value to network');
+        P2pServer.broadcastBlockPoolBlockBodyTransactionOutputLockScriptSignaturePublicKeyHashSignatureSValue(blockPool);
+        console.log('new block pool block body transaction output lock script signature public key hash signature s value broadcasted to network');
+
+        //create a new block pool block body transaction output lock script signature public key hash signature recovery parameter
+        console.log('creating new block pool block body transaction output lock script signature public key hash signature recovery parameter');
+        createBlockPoolBlockBodyTransactionOutputLockScriptSignaturePublicKeyHashSignatureRecoveryParameter({ blockPool });
+        console.log('new block pool block body transaction output lock script signature public key hash signature recovery parameter created');
+        console.log('broadcasting new block pool block body transaction output lock script signature public key hash signature recovery parameter to network');
+        P2pServer.broadcastBlockPoolBlockBodyTransactionOutputLockScriptSignaturePublicKeyHashSignatureRecoveryParameter(blockPool);
+        console.log('new block pool block body transaction output lock script signature public key hash signature recovery parameter broadcasted to network');
+
+    }
 
 
 }

@@ -12,20 +12,99 @@ const walletDirectory = path.join(os.homedir(), 'Seigr', 'wallets');
 const blockchainDirectory = path.join(os.homedir(), 'Seigr', 'blockchain');
 
 
-const createBlock = ({ index, timestamp, previousHash, lastHash, hash, data, nonce, difficulty, transactions, miner  }) => {
-    const block = new this();
-    block.index = index;
-    block.timestamp = timestamp;
-    block.previousHash = previousHash;
-    block.lastHash = lastHash;
-    block.hash = hash;
-    block.data = data;
-    block.nonce = nonce;
-    block.difficulty = difficulty;
-    block.transactions = transactions;
-    block.miner = miner;
-    block.saveBlock();
-    return block;
+class createBlock {
+    constructor({ index, timestamp, previousHash, lastHash, hash, data, nonce, difficulty, transactions, miner }) {
+        this.index = index;
+        this.timestamp = timestamp;
+        this.previousHash = previousHash;
+        this.lastHash = lastHash;
+        this.hash = hash;
+        this.data = data;
+        this.nonce = nonce;
+        this.difficulty = difficulty;
+        this.transactions = transactions;
+        this.miner = miner;
+    }
+
+    saveBlock() {
+        const blockPath = path.join(blockchainDirectory, `${this.hash}.json`);
+        fs.writeFileSync(blockPath, JSON.stringify(this));
+    }
+
+    static loadBlock(hash) {
+        const blockPath = path.join(blockchainDirectory, `${hash}.json`);
+        const blockJson = JSON.parse(fs.readFileSync(blockPath));
+        return new this(blockJson);
+    }
+
+    static mineGenesisBlock() {
+        const timestamp = Date.now();
+        const index = 0;
+        const lastHash = null;
+        const data = [];
+        const nonce = 0;
+        const difficulty = 1;
+        const hash = cryptoHash(index, timestamp, lastHash, data, nonce, difficulty);
+        const miner = ec.genKeyPair().getPublic().encode('hex');
+        return new this({ index, timestamp, lastHash, data, nonce, difficulty, hash, miner });
+    }
+
+    static saveGenesisBlock() {
+        const genesisBlock = this.mineGenesisBlock();
+        genesisBlock.saveBlock();
+    }
+
+    static loadGenesisBlock() {
+        const genesisBlockPath = path.join(blockchainDirectory, 'genesisBlock.json');
+        const genesisBlockJson = JSON.parse(fs.readFileSync(genesisBlockPath));
+        return new this(genesisBlockJson);
+
+    }
+
+    static mineBlock({ lastBlock, data }) {
+        const timestamp = Date.now();
+        const lastHash = lastBlock.hash;
+        const index = lastBlock.index + 1;
+        const difficulty = lastBlock.difficulty;
+        let nonce = 0;
+        let hash, miner;
+        do {
+            nonce++;
+            hash = cryptoHash(index, timestamp, lastHash, data, nonce, difficulty);
+            miner = ec.genKeyPair().getPublic().encode('hex');
+        } while (hash.substring(0, difficulty) !== '0'.repeat(difficulty));
+        return new this({ index, timestamp, lastHash, data, nonce, difficulty, hash, miner });
+    }
+
+    static saveBlock(block) {
+        block.saveBlock();
+    }
+
+    static loadBlock(hash) {
+        return this.loadBlock(hash);
+    }
+
+    static mineGenesisBlock() {
+        return this.mineGenesisBlock();
+    }
+
+    static saveGenesisBlock() {
+        this.saveGenesisBlock();
+    }
+
+    static loadGenesisBlock() {
+        return this.loadGenesisBlock();
+    }
+
+    static mineBlock({ lastBlock, data }) {
+        return this.mineBlock({ lastBlock, data });
+    }
+
+    static saveBlock(block) {
+        this.saveBlock(block);
+    }
+
+
 
 }
 

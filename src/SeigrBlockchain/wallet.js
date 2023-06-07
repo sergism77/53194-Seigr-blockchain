@@ -12,6 +12,43 @@ class Wallet {
         this.createWallet = createWallet;
         this.saveWallet = saveWallet;
     }
+    publicKey() {
+        return this.keyPair.getPublic().encode('hex');
+    }
+    sign(data) {
+        return this.keyPair.sign(cryptoHash(data));
+    }
+    createTransaction({ recipient, amount, chain }) {
+        if (chain) {
+            this.balance = Wallet.calculateBalance({
+                chain,
+                address: this.publicKey
+            });
+        }
+        if (amount > this.balance) {
+            throw new Error('Amount exceeds balance');
+        }
+
+        return new transaction({ senderWallet: this, recipient, amount });
+    }
+    static verifyTransaction({ transaction }) {
+        const { input: { address, signature }, outputMap } = transaction;
+        const outputTotal = Object.values(outputMap).reduce((total, outputAmount) => total + outputAmount);
+        if (outputTotal !== transaction.input.amount) {
+            console.error(`Invalid transaction from ${address}`);
+            return false;
+
+        }
+        if (!verifySignature({ publicKey: address, data: outputMap, signature })) {
+            console.error(`Invalid signature from ${address}`);
+            return false;
+        }
+
+        return true;
+    }
+
+
+
     static calculateBalance({ chain, address }) {
         let hasConductedTransaction = false;
         let outputsTotal = 0;
@@ -158,4 +195,48 @@ class Wallet {
 
 }
 
-module.exports = { Wallet };
+class publicKey  {
+    constructor() {
+        this.balance = STARTING_BALANCE;
+        this.keyPair = ec.genKeyPair();
+        this.address = this.keyPair.getPublic().encode('hex');
+        this.createGenesisWallet = createGenesisWallet;
+        this.createWallet = createWallet;
+
+    }
+    sign(data) {
+        return this.keyPair.sign(cryptoHash(data));
+    }
+    createTransaction({ recipient, amount, chain }) {
+        if (chain) {
+            this.balance = Wallet.calculateBalance({
+                chain,
+                address: this.publicKey
+            });
+        }
+        if (amount > this.balance) {
+            throw new Error('Amount exceeds balance');
+        }
+        return new transaction({ senderWallet: this, recipient, amount });
+    }
+    static verifyTransaction({ transaction }) {
+        const { input: { address, signature }, outputMap } = transaction;
+        const outputTotal = Object.values(outputMap).reduce((total, outputAmount) => total + outputAmount);
+
+        if (outputTotal !== transaction.input.amount) {
+            console.error(`Invalid transaction from ${address}`);
+            return false;
+
+        }
+        if (!verifySignature({ publicKey: address, data: outputMap, signature })) {
+            console.error(`Invalid signature from ${address}`);
+            return false;
+        }
+
+        return true;
+    }
+
+}
+
+
+module.exports = { Wallet, publicKey };

@@ -20,7 +20,6 @@ const { createTransactionPool,
     createTransactionPoolRewardTimestamp,
     createTransactionPoolRewardInput,
     createTransactionPoolRewardOutput,
-    createTransaction, 
     saveTransaction, 
     loadTransaction } = require('./transaction.js');
 const { mineGenesisTransactionPool,
@@ -58,6 +57,10 @@ const { createWalletPool,
     loadWalletPool } = require('./walletPool.js');
 const { createBlockPool, blockPool, saveBlockPool, loadBlockPool } = require('./blockPool.js');
 const { mineGenesisBlockPool, saveGenesisBlockPool, loadGenesisBlockPool } = require('./genesisBlockPool.js');
+const { Miner } = require('./miner.js');
+const { P2pServer, listen, connectToPeers } = require('./p2pServer.js');
+
+
 //const genesisBlock = new mineGenesisBlock({ genesisBlock }); 
 const genesisBlockchain = mineGenesisBlockchain({ genesisBlock });
 const genesisBlockPool = mineGenesisBlockPool({ genesisBlock });
@@ -70,8 +73,6 @@ const genesisTransactionPoolRewardOutput = new mineGenesisTransactionPoolRewardO
 const genesisTransactionPoolRewardHash = new mineGenesisTransactionPoolRewardHash({ genesisTransactionPool });
 const genesisTransactionPoolRewardSignature = new mineGenesisTransactionPoolRewardSignature({ genesisTransactionPool });
 
-
-const { P2pServer, listen, connectToPeers } = require('./p2pServer.js');
 
 
 const walletDirectory = path.join(os.homedir(), 'Seigr', 'wallets');
@@ -121,9 +122,31 @@ if (!fs.existsSync(genesisBlockDirectory)) {
 }
 
 
-//we want to start the p2p server
-const p2pServer = new P2pServer({ blockchain, walletPool, blockPool, transactionPool });
-p2pServer.listen();
+//we want to start the p2p server and start listening for peers and creating blocks
+new listen({ P2pServer });
+new connectToPeers({ P2pServer });
+
+
+//we want to start the wallet and start creating wallets when needed
+new createWallet({ wallet });
+
+
+//we want to start the block and start creating blocks
+new createBlock({ block });
+
+//we want to start the transaction and start creating transactions
+new transaction({ transaction });
+
+//we want to start the blockchain and start creating blockchains
+createBlockchain({ blockchain }); 
+
+//we want to start the walletPool and start creating walletPools
+createWalletPool({ walletPool });
+
+
+
+
+
 
 
 

@@ -5,23 +5,27 @@ const { verifySignature } = require('./utils.js');
 const { REWARD_INPUT, MINING_REWARD } = require('./config');
 const EC = require('elliptic').ec;
 const ec = new EC('secp256k1');
+const { cryptoHash, VerifySignature } = require('./utils.js');
+const config = require('./config.js');
+const { Wallet, publicKey } = require('./wallet.js');
+const outputMap = require('./outputMap.js');
 
-
-class createTransaction {
-    constructor({ senderWallet, recipient, amount, outputMap, input }) {
+class transaction {
+    constructor({ senderWallet, recipient, amount, outputMap, input }) { 
         this.id = uuidv4();
-        this.outputMap = outputMap || this.createOutputMap({ senderWallet, recipient, amount });
-        this.input = input || this.createInput({ senderWallet, outputMap: this.outputMap });
-    }
+        this.outputMap = outputMap || this.outputMap({ senderWallet, recipient, amount }); 
+        this.senderWallet = senderWallet;
 
-    createOutputMap({ senderWallet, recipient, amount }) {
+    }
+    //create a new outputMap class
+    outputMap({ senderWallet, recipient, amount }) {
         const outputMap = {};
         outputMap[recipient] = amount;
         outputMap[senderWallet.publicKey] = senderWallet.balance - amount;
         return outputMap;
     }
-
-    createInput({ senderWallet, outputMap }) {
+    //create a new input class
+    input({ senderWallet, outputMap }) {
         return {
             timestamp: Date.now(),
             amount: senderWallet.balance,
@@ -30,192 +34,28 @@ class createTransaction {
         };
     }
 
-    static validTransaction(transaction) {
-        const { input: { address, amount, signature }, outputMap } = transaction;
-        const outputTotal = Object.values(outputMap).reduce((total, outputAmount) => total + outputAmount);
-        if (amount !== outputTotal) {
-            console.error(`Invalid transaction from ${address}`);
-            return false;
-        }
-        if (!verifySignature({ publicKey: address, data: outputMap, signature })) {
-            console.error(`Invalid signature from ${address}`);
-            return false;
-        }
 
-        return true;
-    }
-
-    static rewardTransaction({ minerWallet }) {
-        return new this({
-            input: REWARD_INPUT,
-            outputMap: { [minerWallet.publicKey]: MINING_REWARD }
-        });
-    }
-
-    update({ senderWallet, recipient, amount }) {
-        if (amount > this.outputMap[senderWallet.publicKey]) {
+    senderWallet({ senderWallet, recipient, amount }) {
+        if (amount > senderWallet.balance) {
             throw new Error('Amount exceeds balance');
         }
-        if (!this.outputMap[recipient]) {
-            this.outputMap[recipient] = amount;
-        } else {
-            this.outputMap[recipient] = this.outputMap[recipient] + amount;
-        }
-        this.outputMap[senderWallet.publicKey] = this.outputMap[senderWallet.publicKey] - amount;
-        this.input = this.createInput({ senderWallet, outputMap: this.outputMap });
-    }
-
-    static transactionWithOutputs(senderWallet, outputs) {
-        const transaction = new this();
-        transaction.outputs.push(...outputs);
-        transaction.signTransaction(senderWallet);
-        return transaction;
-    }
-
-    static newTransaction(senderWallet, recipient, amount) {
-        if (amount > senderWallet.balance) {
-            console.log(`Amount: ${amount} exceeds balance.`);
-            return;
-        }
-        return transaction.transactionWithOutputs(senderWallet, [
-            { amount: senderWallet.balance - amount, address: senderWallet.publicKey },
-            { amount, address: recipient }
-        ]);
-    }
-
-    signTransaction(senderWallet) {
-        this.input = {
-            timestamp: Date.now(),
-            amount: senderWallet.balance,
-            address: senderWallet.publicKey,
-            signature: senderWallet.sign(this.outputMap)
-        }
+        return new this({ senderWallet, recipient, amount });
     }
 }
 
-class transaction {
-    constructor() {
-        this.id = id;
-        this.input = input;
-        this.outputs = outputs;
 
+
+
+class saveTransaction {
+    constructor() {
         this.transaction = new transaction();
         this.transactionMap = new transactionMap();
+
         this.transactionPool = new transactionPool();
         this.transactionPoolMap = new transactionPoolMap();
 
         this.transactionMiner = new transactionMiner();
         this.transactionMinerMap = new transactionMinerMap();
-
-    }
-
-    update(senderWallet, recipient, amount) {
-        const senderOutput = this.outputs.find(output => output.address === senderWallet.publicKey);
-
-        if (amount > senderOutput.amount) {
-            console.log(`Amount: ${amount} exceeds balance.`);
-            return;
-        }
-
-        senderOutput.amount = senderOutput.amount - amount;
-        this.outputs.push({ amount, address: recipient });
-        transaction.signTransaction(this, senderWallet);
-
-        return this;
-    }
-
-    static transactionWithOutputs(senderWallet, outputs) {
-        const transaction = new this();
-        transaction.outputs.push(...outputs);
-        transaction.signTransaction(senderWallet);
-        return transaction;
-    }
-
-    static newTransaction(senderWallet, recipient, amount) {
-        if (amount > senderWallet.balance) {
-            console.log(`Amount: ${amount} exceeds balance.`);
-            return;
-        }
-
-        return transaction.transactionWithOutputs(senderWallet, [
-            { amount: senderWallet.balance - amount, address: senderWallet.publicKey },
-            { amount, address: recipient }
-        ]);
-    }
-
-    static rewardTransaction(minerWallet, blockchainWallet) {
-        return transaction.transactionWithOutputs(blockchainWallet, [
-            { amount: MINING_REWARD, address: minerWallet.publicKey }
-        ]);
-    }
-
-    static signTransaction(transaction, senderWallet) {
-        transaction.input = {
-            timestamp: Date.now(),
-            amount: senderWallet.balance,
-            address: senderWallet.publicKey,
-            signature: senderWallet.sign(transaction.outputs)
-        }
-    }
-
-    static verifyTransaction(transaction) {
-        return verifySignature(
-            transaction.input.address,
-            transaction.input.signature,
-            transaction.outputs
-        );
-    }
-
-    static transactionMap(transaction) {
-        return transaction.transactionMap;
-    }
-
-    static transactionPoolMap(transaction) {
-        return transaction.transactionPoolMap;
-    }
-
-    static transactionMinerMap(transaction) {
-        return transaction.transactionMinerMap;
-    }
-
-    static transactionPool(transaction) {
-        return transaction.transactionPool;
-    }
-
-    static transactionMiner(transaction) {
-        return transaction.transactionMiner;
-    }
-
-    static transaction(transaction) {
-        return transaction.transaction;
-    }
-
-    static transactionPoolMap(transaction) {
-        return transaction.transactionPoolMap;
-    }
-
-    static transactionMinerMap(transaction) {
-        return transaction.transactionMinerMap;
-    }
-
-    static transactionPool(transaction) {
-        return transaction.transactionPool;
-    }
-
-
-}
-
-
-class saveTransaction {
-    constructor() {
-        this.transaction = new Transaction();
-        this.transactionMap = new TransactionMap();
-
-        this.transactionPool = new TransactionPool();
-        this.transactionPoolMap = new TransactionPoolMap();
-
-        this.transactionMiner = new TransactionMiner();
-        this.transactionMinerMap = new TransactionMinerMap();
     }
 
     saveTransaction(transaction) {
@@ -320,14 +160,14 @@ class saveTransaction {
 
 class loadTransaction{
     constructor() {
-        this.transaction = new Transaction();
-        this.transactionMap = new TransactionMap();
+        this.transaction = new transaction();
+        this.transactionMap = new transactionMap();
 
-        this.transactionPool = new TransactionPool();
-        this.transactionPoolMap = new TransactionPoolMap();
+        this.transactionPool = new transactionPool();
+        this.transactionPoolMap = new transactionPoolMap();
 
-        this.transactionMiner = new TransactionMiner();
-        this.transactionMinerMap = new TransactionMinerMap();
+        this.transactionMiner = new transactionMiner();
+        this.transactionMinerMap = new transactionMinerMap();
     }
 
     loadTransaction(transaction) {
@@ -435,14 +275,18 @@ class loadTransaction{
 class transactionPool {
     constructor() {
         this.transactionPool = [];
-        this.transactionPoolMap = new TransactionPoolMap();
+        this.transactionPoolMap = new transactionPoolMap();
 
-        this.transaction = new Transaction();
-        this.transactionMap = new TransactionMap();
+        this.transaction = new transaction();
+        this.transactionMap = new transactionMap();
 
-        this.transactionMiner = new TransactionMiner();
-        this.transactionMinerMap = new TransactionMinerMap();
+        this.transactionMiner = new transactionMiner();
+        this.transactionMinerMap = new transactionMinerMap();
     
+    }
+
+    senderWallet(transaction) {
+        return this.transactionPool.find(transaction => transaction.input.address === address);
     }
 
     clear() {
@@ -767,7 +611,7 @@ class createTransactionPoolRewardTimestamp {
 class transactionMiner {
     constructor() {
         this.transactionMiner = [];
-        this.transactionMinerMap = new TransactionMinerMap();
+        this.transactionMinerMap = new transactionMinerMap();
     }
 
     clear() {
@@ -888,7 +732,7 @@ class transactionMiner {
         const validTransactions = this.validTransactions();
         const senderWallet = Wallet.blockchainWallet();
         validTransactions.push(
-            Transaction.rewardTransaction(this)
+            transaction.rewardTransaction(this)
         );
         return validTransactions;
 
@@ -907,7 +751,7 @@ class transactionMiner {
         const validTransactions = this.validTransactionsAll();
         const senderWallet = Wallet.blockchainWallet();
         validTransactions.push(
-            Transaction.rewardTransaction(this)
+            transaction.rewardTransaction(this)
         );
         return validTransactions;
     }
@@ -1193,4 +1037,4 @@ class createTransactionPoolRewardOutput {
 
 }
 
-module.exports = { createTransaction, transaction, saveTransaction, loadTransaction, transactionPool, createTransactionPoolRewardTimestamp, createTransactionPoolRewardInput, createTransactionPoolRewardOutput, transactionMiner, transactionMap, transactionPoolMap, transactionMinerMap };
+module.exports = { transaction, saveTransaction, loadTransaction, transactionPool, createTransactionPoolRewardTimestamp, createTransactionPoolRewardInput, createTransactionPoolRewardOutput, transactionMiner, transactionMap, transactionPoolMap, transactionMinerMap };
