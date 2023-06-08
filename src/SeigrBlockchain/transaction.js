@@ -21,7 +21,7 @@ class transaction {
     outputMap({ senderWallet, recipient, amount }) {
         const outputMap = {};
         outputMap[recipient] = amount;
-        outputMap[senderWallet.publicKey] = senderWallet.balance - amount;
+        outputMap[senderWallet.publicKey] = senderWallet.balance - amount; 
         return outputMap;
     }
     //create a new input class
@@ -33,7 +33,13 @@ class transaction {
             signature: senderWallet.sign(outputMap)
         };
     }
-
+    
+    ownerWallet({ senderWallet, recipient, amount }) {
+        if (amount > senderWallet.balance) {
+            throw new Error('Amount exceeds balance');
+        }
+        return new this({ senderWallet, recipient, amount });
+    }
 
     senderWallet({ senderWallet, recipient, amount }) {
         if (amount > senderWallet.balance) {
@@ -41,8 +47,60 @@ class transaction {
         }
         return new this({ senderWallet, recipient, amount });
     }
-}
+    
+    update({ senderWallet, recipient, amount }) {
+        if (amount > this.outputMap[senderWallet.publicKey]) {
+            throw new Error('Amount exceeds balance');
+        }
+        if (!this.outputMap[recipient]) {
+            this.outputMap[recipient] = amount;
+        } else {
+            this.outputMap[recipient] = this.outputMap[recipient] + amount;
+        }
+        this.outputMap[senderWallet.publicKey] = this.outputMap[senderWallet.publicKey] - amount;
+        this.input = this.input({ senderWallet, outputMap: this.outputMap });
+    }
 
+    static validTransaction(transaction) {
+        const { input: { address, amount, signature }, outputMap } = transaction;
+        const outputTotal = Object.values(outputMap).reduce((total, outputAmount) => total + outputAmount);
+        if (amount !== outputTotal) {
+            console.error(`Invalid transaction from ${address}`);
+            return false;
+        }
+        if (!verifySignature({ publicKey: address, data: outputMap, signature })) {
+            console.error(`Invalid signature from ${address}`);
+            return false;
+        }
+        return true;
+    }
+
+    static rewardTransaction({ minerWallet }) {
+        return new this({
+            input: REWARD_INPUT,
+            outputMap: { [minerWallet.publicKey]: MINING_REWARD }
+        });
+    }
+
+    static transactionWithOutputs({ senderWallet, outputs }) {
+        const transaction = new this({ senderWallet, outputs });
+        return transaction;
+    }
+
+    static transactionWithInput({ senderWallet, input }) {
+        const transaction = new this({ senderWallet, input });
+        return transaction;
+    }
+
+    //create new wallet class
+    static newWallet({ senderWallet, recipient, amount }) {
+        const transaction = new this({ senderWallet, recipient, amount });
+        return transaction;
+    }
+
+
+
+}
 
 
 
@@ -153,8 +211,6 @@ class saveTransaction {
         this.transactionMiner = transaction;
         this.transactionMinerMap = transaction;
     }
-
-
 
 }
 
@@ -285,294 +341,419 @@ class transactionPool {
     
     }
 
-    senderWallet(transaction) {
-        return this.transactionPool.find(transaction => transaction.input.address === address);
+    //create new wallet class
+    static newWallet({ senderWallet, recipient, amount }) {
+        const transaction = new this({ senderWallet, recipient, amount });
+        return transaction;
     }
 
-    clear() {
-        this.transactionPool = [];
+
+
+    createTransaction({ amount, senderWallet, recipient }) {
+        if (amount > senderWallet.balance) {
+            console.log(`Amount: ${amount} exceeds balance.`);
+            return;
+        }
+
+        let transaction = this.transactionPool.find(transaction => transaction.input.address === senderWallet.publicKey);
+
+        if (transaction) {
+
+            transaction.update({ senderWallet, recipient, amount });
+
+        } else {
+
+            transaction = this.transaction.createTransaction({ senderWallet, recipient, amount });
+            this.transactionPool.push(transaction);
+        }
+
+        return transaction;
     }
 
-    clearMap() {
-        this.transactionPoolMap = [];
+    createTransactionMap({ amount, senderWallet, recipient }) {
+        if (amount > senderWallet.balance) {
+
+            console.log(`Amount: ${amount} exceeds balance.`);
+            return;
+        }
+
+        let transaction = this.transactionPoolMap.find(transaction => transaction.input.address === senderWallet.publicKey);
+
+        if (transaction) {
+
+            transaction.update({ senderWallet, recipient, amount });
+
+        } else {
+
+            transaction = this.transactionMap.createTransaction({ senderWallet, recipient, amount });
+            this.transactionPoolMap.push(transaction);
+        }
+
+        return transaction;
     }
 
-    clearAll() {
-        this.transactionPool = [];
-        this.transactionPoolMap = [];
+    createTransactionAll({ amount, senderWallet, recipient }) {
+
+        if (amount > senderWallet.balance) {
+
+            console.log(`Amount: ${amount} exceeds balance.`);
+            return;
+        }
+
+        let transaction = this.transactionPool.find(transaction => transaction.input.address === senderWallet.publicKey);
+
+        if (transaction) {
+
+            transaction.update({ senderWallet, recipient, amount });
+
+        } else {
+
+            transaction = this.transaction.createTransaction({ senderWallet, recipient, amount });
+            this.transactionPool.push(transaction);
+
+        }
+
+        let transactionMap = this.transactionPoolMap.find(transaction => transaction.input.address === senderWallet.publicKey);
+
+        if (transactionMap) {
+
+            transactionMap.update({ senderWallet, recipient, amount });
+
+        } else {
+
+            transactionMap = this.transactionMap.createTransaction({ senderWallet, recipient, amount });
+            this.transactionPoolMap.push(transactionMap);
+        }
+
+        return transaction, transactionMap;
     }
 
-    setTransaction(transaction) {
-        this.transactionPool.push(transaction);
+    createTransactionMiner({ amount, senderWallet, recipient }) {
+        if (amount > senderWallet.balance) {
+
+            console.log(`Amount: ${amount} exceeds balance.`);
+            return;
+        }
+
+        let transaction = this.transactionMiner.find(transaction => transaction.input.address === senderWallet.publicKey);
+
+        if (transaction) {
+
+            transaction.update({ senderWallet, recipient, amount });
+
+        } else {
+
+            transaction = this.transactionMiner.createTransaction({ senderWallet, recipient, amount });
+            this.transactionMiner.push(transaction);
+
+        }
+
+        return transaction;
+
     }
 
-    setTransactionMap(transaction) {
-        this.transactionPoolMap.push(transaction);
+    createTransactionMinerMap({ amount, senderWallet, recipient }) {
+
+        if (amount > senderWallet.balance) {
+
+            console.log(`Amount: ${amount} exceeds balance.`);
+            return;
+
+        }
+
+        let transaction = this.transactionMinerMap.find(transaction => transaction.input.address === senderWallet.publicKey);
+
+        if (transaction) {
+
+            transaction.update({ senderWallet, recipient, amount });
+
+        } else {
+
+            transaction = this.transactionMinerMap.createTransaction({ senderWallet, recipient, amount });
+            this.transactionMinerMap.push(transaction);
+
+        }
+
+        return transaction;
+
     }
 
-    setTransactionAll(transaction) {
-        this.transactionPool.push(transaction);
-        this.transactionPoolMap.push(transaction);
+    createTransactionMinerAll({ amount, senderWallet, recipient }) {
+
+        if (amount > senderWallet.balance) {
+
+            console.log(`Amount: ${amount} exceeds balance.`);
+
+            return;
+
+        }
+
+        let transaction = this.transactionMiner.find(transaction => transaction.input.address === senderWallet.publicKey);
+
+        if (transaction) {
+
+            transaction.update({ senderWallet, recipient, amount });
+
+        } else {
+
+            transaction = this.transactionMiner.createTransaction({ senderWallet, recipient, amount });
+
+            this.transactionMiner.push(transaction);
+
+        }
+
+        let transactionMap = this.transactionMinerMap.find(transaction => transaction.input.address === senderWallet.publicKey);
+
+        if (transactionMap) {
+
+            transactionMap.update({ senderWallet, recipient, amount });
+
+        } else {
+
+            transactionMap = this.transactionMinerMap.createTransaction({ senderWallet, recipient, amount });
+
+            this.transactionMinerMap.push(transactionMap);
+
+        }
+
+        return transaction, transactionMap;
+
     }
 
     existingTransaction(address) {
         return this.transactionPool.find(transaction => transaction.input.address === address);
+
     }
 
     existingTransactionMap(address) {
+
         return this.transactionPoolMap.find(transaction => transaction.input.address === address);
+
     }
 
-    existingTransactionAll(address) {
-        return this.transactionPool.find(transaction => transaction.input.address === address) && this.transactionPoolMap.find(transaction => transaction.input.address === address);
+    existingTransactionMiner(address) {
+
+        return this.transactionMiner.find(transaction => transaction.input.address === address);
+
+    }
+
+    existingTransactionMinerMap(address) {
+
+        return this.transactionMinerMap.find(transaction => transaction.input.address === address);
+
     }
 
     validTransactions() {
         return this.transactionPool.filter(transaction => {
+
             const outputTotal = transaction.outputs.reduce((total, output) => {
+
                 return total + output.amount;
+
             }, 0);
 
             if (transaction.input.amount !== outputTotal) {
+
                 console.log(`Invalid transaction from ${transaction.input.address}.`);
+
                 return;
+
             }
 
             if (!transaction.verifyTransaction(transaction)) {
+
                 console.log(`Invalid signature from ${transaction.input.address}.`);
+
                 return;
+
             }
 
             return transaction;
+
         });
+
     }
 
     validTransactionsMap() {
+
         return this.transactionPoolMap.filter(transaction => {
+
             const outputTotal = transaction.outputs.reduce((total, output) => {
+
                 return total + output.amount;
+
             }, 0);
 
+
+
             if (transaction.input.amount !== outputTotal) {
+
                 console.log(`Invalid transaction from ${transaction.input.address}.`);
+
                 return;
+
             }
+
+
 
             if (!transaction.verifyTransaction(transaction)) {
+
                 console.log(`Invalid signature from ${transaction.input.address}.`);
+
                 return;
+
             }
 
+
+
             return transaction;
+
         });
-    }
 
-    validTransactionsAll() {
-        return this.transactionPool.filter(transaction => {
-            const outputTotal = transaction.outputs.reduce((total, output) => {
-                return total + output.amount;
-            }, 0);
-
-            if (transaction.input.amount !== outputTotal) {
-                console.log(`Invalid transaction from ${transaction.input.address}.`);
-                return;
-            }
-
-            if (!transaction.verifyTransaction(transaction)) {
-                console.log(`Invalid signature from ${transaction.input.address}.`);
-                return;
-            }
-
-            return transaction;
-        }) && this.transactionPoolMap.filter(transaction => {
-            const outputTotal = transaction.outputs.reduce((total, output) => {
-                return total + output.amount;
-            }, 0);
-
-            if (transaction.input.amount !== outputTotal) {
-                console.log(`Invalid transaction from ${transaction.input.address}.`);
-                return;
-            }
-
-            if (!transaction.verifyTransaction(transaction)) {
-                console.log(`Invalid signature from ${transaction.input.address}.`);
-                return;
-            }
-
-            return transaction;
-        });
-    }
-
-    clearBlockchainTransactions(blockchain) {
-        for (let i = 0; i < blockchain.chain.length; i++) {
-            const block = blockchain.chain[i];
-
-            for (let transaction of block.data) {
-                if (this.existingTransaction(transaction.input.address)) {
-                    console.log(`Transaction from ${transaction.input.address} is already in the pool.`);
-                    continue;
-                }
-
-                this.setTransaction(transaction);
-            }
-        }
-    }
-
-    clearBlockchainTransactionsMap(blockchain) {
-        for (let i = 0; i < blockchain.chain.length; i++) {
-            const block = blockchain.chain[i];
-
-            for (let transaction of block.data) {
-                if (this.existingTransactionMap(transaction.input.address)) {
-                    console.log(`Transaction from ${transaction.input.address} is already in the pool.`);
-                    continue;
-                }
-
-                this.setTransactionMap(transaction);
-            }
-        }
-    }
-
-    clearBlockchainTransactionsAll(blockchain) {
-        for (let i = 0; i < blockchain.chain.length; i++) {
-            const block = blockchain.chain[i];
-
-            for (let transaction of block.data) {
-                if (this.existingTransactionAll(transaction.input.address)) {
-                    console.log(`Transaction from ${transaction.input.address} is already in the pool.`);
-                    continue;
-                }
-
-                this.setTransactionAll(transaction);
-            }
-        }
-    }
-
-    setTransactionMiner(transaction) {
-        this.transactionMiner.push(transaction);
-    }
-
-    setTransactionMinerMap(transaction) {
-        this.transactionMinerMap.push(transaction);
-    }
-
-    setTransactionMinerAll(transaction) {
-        this.transactionMiner.push(transaction);
-        this.transactionMinerMap.push(transaction);
-    }
-
-    existingTransactionMiner(address) {
-        return this.transactionMiner.find(transaction => transaction.input.address === address);
-    }
-
-    existingTransactionMinerMap(address) {
-        return this.transactionMinerMap.find(transaction => transaction.input.address === address);
-    }
-
-    existingTransactionMinerAll(address) {
-        return this.transactionMiner.find(transaction => transaction.input.address === address) && this.transactionMinerMap.find(transaction => transaction.input.address === address);
     }
 
     validTransactionsMiner() {
+
         return this.transactionMiner.filter(transaction => {
+
             const outputTotal = transaction.outputs.reduce((total, output) => {
+
                 return total + output.amount;
+
             }, 0);
 
+
+
             if (transaction.input.amount !== outputTotal) {
+
                 console.log(`Invalid transaction from ${transaction.input.address}.`);
+
                 return;
+
             }
+
+
 
             if (!transaction.verifyTransaction(transaction)) {
+
                 console.log(`Invalid signature from ${transaction.input.address}.`);
+
                 return;
+
             }
 
+
+
             return transaction;
+
         });
+
     }
 
     validTransactionsMinerMap() {
+
         return this.transactionMinerMap.filter(transaction => {
+
             const outputTotal = transaction.outputs.reduce((total, output) => {
+
                 return total + output.amount;
+
             }, 0);
 
+
+
             if (transaction.input.amount !== outputTotal) {
+
                 console.log(`Invalid transaction from ${transaction.input.address}.`);
+
                 return;
+
             }
+
+
 
             if (!transaction.verifyTransaction(transaction)) {
+
                 console.log(`Invalid signature from ${transaction.input.address}.`);
+
                 return;
+
             }
 
+
+
             return transaction;
+
         });
+
     }
 
-    validTransactionsMinerAll() {
-        return this.transactionMiner.filter(transaction => {
-            const outputTotal = transaction.outputs.reduce((total, output) => {
-                return total + output.amount;
-            }, 0);
+    clear() {
 
-            if (transaction.input.amount !== outputTotal) {
-                console.log(`Invalid transaction from ${transaction.input.address}.`);
-                return;
-            }
-
-            if (!transaction.verifyTransaction(transaction)) {
-                console.log(`Invalid signature from ${transaction.input.address}.`);
-                return;
-            }
-
-            return transaction;
-        }) && this.transactionMinerMap.filter(transaction => {
-            const outputTotal = transaction.outputs.reduce((total, output) => {
-                return total + output.amount;
-            }, 0);
-
-            if (transaction.input.amount !== outputTotal) {
-                console.log(`Invalid transaction from ${transaction.input.address}.`);
-                return;
-            }
-
-            if (!transaction.verifyTransaction(transaction)) {
-                console.log(`Invalid signature from ${transaction.input.address}.`);
-                return;
-            }
-
-            return transaction;
-        });
-    }
-
-    clearTransactionPool() {
         this.transactionPool = [];
+
     }
 
-    clearTransactionPoolMap() {
+    clearMap() {
+
         this.transactionPoolMap = [];
+
     }
 
-    clearTransactionPoolAll() {
+    clearAll() {
+
         this.transactionPool = [];
+
         this.transactionPoolMap = [];
+
     }
 
-    clearTransactionMiner() {
-        this.transactionMiner = [];
+    setTransaction(transaction) {
+
+        this.transactionPool.push(transaction);
+
     }
 
-    clearTransactionMinerMap() {
-        this.transactionMinerMap = [];
+    setTransactionMap(transaction) {
+
+        this.transactionPoolMap.push(transaction);
+
     }
 
-    clearTransactionMinerAll() {
-        this.transactionMiner = [];
-        this.transactionMinerMap = [];
+    setTransactionAll(transaction) {
+
+        this.transactionPool.push(transaction);
+
+        this.transactionPoolMap.push(transaction);
+
+    }
+
+    setTransactionMiner(transaction) {
+
+        this.transactionMiner.push(transaction);
+
+    }
+
+    setTransactionMinerMap(transaction) {
+            
+        this.transactionMinerMap.push(transaction);
+    
+    }   
+
+    setTransactionMinerAll(transaction) {
+            
+        this.transactionMiner.push(transaction);
+
+        this.transactionMinerMap.push(transaction);
+    
+    }
+
+    setTransactionPoolRewardTimestamp(timestamp) {
+        this.transactionPoolRewardTimestamp.push(timestamp);
+    }
+
+    clearTransactionPoolRewardTimestamp() {
+        this.transactionPoolRewardTimestamp = [];
     }
 
     clearAll() {
@@ -580,11 +761,7 @@ class transactionPool {
         this.transactionPoolMap = [];
         this.transactionMiner = [];
         this.transactionMinerMap = [];
-    }
-
-    clearAllMap() {
-        this.transactionPoolMap = [];
-        this.transactionMinerMap = [];
+        this.transactionPoolRewardTimestamp = [];
     }
 
 
@@ -612,6 +789,11 @@ class transactionMiner {
     constructor() {
         this.transactionMiner = [];
         this.transactionMinerMap = new transactionMinerMap();
+    }
+
+    static newWallet({ senderWallet, recipient, amount }) {
+        const transaction = new this({ senderWallet, recipient, amount });
+        return transaction;
     }
 
     clear() {
@@ -826,6 +1008,12 @@ class transactionMap {
         this.transactionMap = [];
     }
 
+    static newWallet({ senderWallet, recipient, amount }) {
+        const transaction = new this({ senderWallet, recipient, amount });
+        return transaction;
+    }
+
+
     clearMap() {
         this.transactionMap = [];
     }
@@ -861,7 +1049,7 @@ class transactionMap {
     mineTransactionMap() {
         const validTransactions = this.validTransactionsMap();
         validTransactions.push(
-            Transaction.rewardTransaction(this)
+            transaction.rewardTransaction(this)
         );
         return validTransactions;
     }
@@ -902,6 +1090,18 @@ class transactionPoolMap {
         this.transactionPoolMap = [];
     }
 
+    static newWallet({ senderWallet, recipient, amount }) {
+        const transaction = new this({ senderWallet, recipient, amount });
+        return transaction;
+    }
+
+
+
+    ownerWallet() {
+        return this.wallet;
+    }
+
+    
     clearMap() {
         this.transactionPoolMap = [];
     }
@@ -940,6 +1140,11 @@ class transactionPoolMap {
 class transactionMinerMap {
     constructor() {
         this.transactionMinerMap = [];
+    }
+
+    static newWallet({ senderWallet, recipient, amount }) {
+    const transaction = new this({ senderWallet, recipient, amount });
+    return transaction;
     }
 
     clearMap() {
@@ -1013,6 +1218,226 @@ class transactionMinerMap {
     
 }
 
+class transactionMinerPool {
+    constructor() {
+        this.transactionMinerPool = [];
+    }
+
+    static newWallet({ senderWallet, recipient, amount }) {
+        const transaction = new this({ senderWallet, recipient, amount });
+        return transaction;
+    }
+
+    clearPool() {
+        this.transactionMinerPool = [];
+    }
+
+    setTransactionMinerPool(transaction) {
+        this.transactionMinerPool.push(transaction);
+    }
+
+    existingTransactionPool(address) {
+        return this.transactionMinerPool.find(transaction => transaction.input.address === address);
+    }
+
+    validTransactionsPool() {
+        return this.transactionMinerPool.filter(transaction => {
+
+            const outputTotal = transaction.outputs.reduce((total, output) => {
+                return total + output.amount;
+
+            }, 0);
+
+            if (transaction.input.amount !== outputTotal) {
+                console.log(`Invalid transaction from ${transaction.input.address}.`);
+
+                return;
+
+            }
+
+            if (!transaction.verifyTransaction(transaction)) {
+
+                console.log(`Invalid signature from ${transaction.input.address}.`);
+
+                return;
+
+            }
+
+            return transaction;
+
+        });
+    }
+
+    mineTransactionPool() {
+        const validTransactions = this.validTransactionsPool();
+        validTransactions.push(
+            transaction.rewardTransaction(this)
+        );
+
+        return validTransactions;
+    }
+
+    minePool() {
+        const validTransactions = this.mineTransactionPool();
+        this.blockchain.addBlock({ data: validTransactions });
+
+        this.transactionPoolMap.clear();
+
+        this.p2pServer.syncChains();
+
+        this.p2pServer.broadcastClearTransactions();
+
+        return validTransactions;
+    }
+
+    mineAllPool() {
+        const validTransactions = this.mineTransactionPool();
+        this.blockchain.addBlock({ data: validTransactions });
+
+        this.transactionPool.clear();
+
+        this.transactionPoolMap.clear();
+
+        this.p2pServer.syncChains();
+
+        this.p2pServer.broadcastClearTransactions();
+
+        return validTransactions;
+
+    }
+
+    mineAllPoolPool() {
+        const validTransactions = this.mineTransactionPool();
+        this.blockchain.addBlock({ data: validTransactions });
+
+        this.transactionPool.clear();
+
+        this.transactionPoolMap.clear();
+
+        this.p2pServer.syncChains();
+
+        this.p2pServer.broadcastClearTransactions();
+
+        return validTransactions;
+
+    }
+
+    static newWallet({ senderWallet, recipient, amount }) {
+        const transaction = new this({ senderWallet, recipient, amount });
+        return transaction;
+    }
+
+
+}
+
+class transactionMinerPoolMap {
+    constructor() {
+        this.transactionMinerPoolMap = [];
+    }
+
+    static newWallet({ senderWallet, recipient, amount }) {
+        const transaction = new this({ senderWallet, recipient, amount });
+        return transaction;
+    }
+
+    clearMap() {
+        this.transactionMinerPoolMap = [];
+    }
+
+    setTransactionMinerPoolMap(transaction) {
+        this.transactionMinerPoolMap.push(transaction);
+    }
+
+    existingTransactionPoolMap(address) {
+        return this.transactionMinerPoolMap.find(transaction => transaction.input.address === address);
+
+    }
+
+    validTransactionsPoolMap() {
+
+        return this.transactionMinerPoolMap.filter(transaction => {
+
+            const outputTotal = transaction.outputs.reduce((total, output) => {
+
+                return total + output.amount;
+
+            }, 0);
+
+            if (transaction.input.amount !== outputTotal) {
+
+                console.log(`Invalid transaction from ${transaction.input.address}.`);
+
+
+                return;
+
+            }
+
+            if (!transaction.verifyTransaction(transaction)) {
+
+                console.log(`Invalid signature from ${transaction.input.address}.`);
+
+                return;
+
+            }
+
+            return transaction;
+
+        });
+
+    }
+
+    mineTransactionPoolMap() {
+
+        const validTransactions = this.validTransactionsPoolMap();
+
+        validTransactions.push(
+
+            transaction.rewardTransaction(this)
+
+        );
+
+        return validTransactions;
+
+    }
+
+    mineMap() {
+
+        const validTransactions = this.mineTransactionPoolMap();
+
+        this.blockchain.addBlock({ data: validTransactions });
+
+        this.transactionPoolMap.clear();
+
+        this.p2pServer.syncChains();
+
+        this.p2pServer.broadcastClearTransactions();
+
+        return validTransactions;
+
+    }
+
+    mineAllMap() {
+
+        const validTransactions = this.mineTransactionPoolMap();
+
+        this.blockchain.addBlock({ data: validTransactions });
+
+        this.transactionPoolMap.clear();
+
+        this.transactionPoolMap.clear();
+
+        this.p2pServer.syncChains();
+
+        this.p2pServer.broadcastClearTransactions();
+
+        return validTransactions;
+
+    }
+
+
+}
+
+
 class createTransactionPoolRewardInput {
     constructor({ transactionPoolMap }) {
         this.address = '*authorized-reward*';
@@ -1025,10 +1450,20 @@ class createTransactionPoolRewardInput {
 
 }
 
+
 class createTransactionPoolRewardOutput {
     constructor({ transactionPoolMap, ownerWallet }) {
         this.amount = transactionPoolMap.reward;
         this.address = ownerWallet.publicKey;
+        this.ownerWallet = ownerWallet;
+    }
+
+    ownerWallet() {
+        return this.ownerWallet;
+    }
+
+    publicKey() {
+        return this.ownerWallet.publicKey;
     }
 
     static createTransactionPoolRewardOutput({ transactionPoolMap, ownerWallet }) {
@@ -1038,3 +1473,6 @@ class createTransactionPoolRewardOutput {
 }
 
 module.exports = { transaction, saveTransaction, loadTransaction, transactionPool, createTransactionPoolRewardTimestamp, createTransactionPoolRewardInput, createTransactionPoolRewardOutput, transactionMiner, transactionMap, transactionPoolMap, transactionMinerMap };
+
+//help me fix TypeError: Cannot read properties of undefined (reading 'publicKey') in this file, what do we need to do that isn't done yet? list:
+//1. fix the error by adding the publicKey to the ownerWallet in the createTransactionPoolRewardOutput class
