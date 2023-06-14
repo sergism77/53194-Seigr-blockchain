@@ -16,7 +16,7 @@ class createWallet {
         this.address = this.keyPair.getPublic().encode('hex');
     }
 
-    get publicKey() {
+    publicKey() {
         return this.keyPair.getPublic().encode('hex');
     }
 

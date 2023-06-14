@@ -1,4 +1,4 @@
-const Block = require('./block');
+const { Block } = require('./block');
 const { cryptoHash } = require('./utils');
 const { REWARD_INPUT, MINING_REWARD } = require('./config');
 const blockchainHeader = require('./blockchainHeader');
@@ -210,4 +210,29 @@ class Blockchain {
 
 }
 
-module.exports = Blockchain;
+class createBlockchain {
+    constructor() {
+        this.blockchain = new Blockchain();
+        this.blockchain.addBlock({ data: 'initial' });
+        this.blockchain.toString();
+    }
+}
+
+class saveBlockchain {
+    constructor() {
+        this.blockchain = new Blockchain();
+        this.blockchain.addBlock({ data: 'initial' });
+        this.blockchain.toString();
+    }
+}
+
+class loadBlockchain {
+    constructor() {
+        this.blockchain = new Blockchain();
+        this.blockchain.addBlock({ data: 'initial' });
+        this.blockchain.toString();
+    }
+}
+
+
+module.exports = { Blockchain, createBlockchain, saveBlockchain, loadBlockchain };
