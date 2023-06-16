@@ -1,111 +1,76 @@
-//this is the transaction pool class
+const { Transaction } = require('./transaction');
 
-//import all needed modules
-const transaction = require('./transaction');
+class TransactionPool {
+  constructor() {
+    this.transactions = [];
+    this.transactionMap = {};
+    this.senderWallet = null;
+  }
 
-class transactionPool {
-    constructor() {
-        this.transactions = [];
-        this.transactionMap = {};
-        this.senderWallet = null;
-    }
+  setSenderWallet(senderWallet) {
+    this.senderWallet = senderWallet;
+  }
 
-    //set wallet
-    setSenderWallet(senderWallet) {
-        this.senderWallet = senderWallet;
+  addTransaction(transaction) {
+    this.transactions.push(transaction);
+    this.transactionMap[transaction.id] = transaction;
+  }
 
-    }
+  findTransaction(address) {
+    return this.transactions.find(
+      (transaction) => transaction.input.address === address
+    );
+  }
 
+  validTransactions() {
+    return this.transactions.filter((transaction) => {
+      const outputTotal = transaction.outputs.reduce(
+        (total, output) => total + output.amount,
+        0
+      );
 
-    //add transaction to the pool
-    addTransaction(transaction) {
-        this.transactions.push(transaction);
-    }
+      if (transaction.input.amount !== outputTotal) {
+        console.log(`Invalid transaction from ${transaction.input.address}`);
+        return false;
+      }
 
-    //find transaction by address
-    findTransaction(address) {
-        return this.transactions.find(transaction => transaction.input.address === address);
-    }
+      if (!Transaction.verifyTransaction(transaction)) {
+        console.log(`Invalid signature from ${transaction.input.address}`);
+        return false;
+      }
 
-    //validating transactions
-    validTransactions() {
-        return this.transactions.filter(transaction => {
-            const outputTotal = transaction.outputs.reduce((total, output) => {
-                return total + output.amount;
-            }, 0);
+      return true;
+    });
+  }
 
-            if (transaction.input.amount !== outputTotal) {
-                console.log(`Invalid transaction from ${transaction.input.address}`);
-                return;
-            }
+  clear() {
+    this.transactions = [];
+    this.transactionMap = {};
+  }
 
-            if (!transaction.verifyTransaction()) {
-                console.log(`Invalid signature from ${transaction.input.address}`);
-                return;
-            }
+  clearBlockchainTransactions(blockchain) {
+    for (let i = 1; i < blockchain.chain.length; i++) {
+      const block = blockchain.chain[i];
 
-            return transaction;
-        });
-    }
+      for (let transaction of block.data) {
+        const transactionInPool = this.transactionMap[transaction.id];
 
-    //clearing transactions
-    clear() {
-        this.transactions = [];
-    }
-
-    //clearing transactions
-    clearBlockchainTransactions(blockchain) {
-        for (let i = 1; i < blockchain.chain.length; i++) {
-            const block = blockchain.chain[i];
-
-            for (let transaction of block.data) {
-                const transactionInPool = this.transactions.find(t => t.id === transaction.id);
-
-                if (transactionInPool) {
-                    transactionInPool.update(transaction);
-                }
-            }
+        if (transactionInPool) {
+          transactionInPool.update(transaction);
         }
+      }
     }
-
+  }
 }
 
-class transactionPoolMap {
-    constructor() {
-        this.transactionPoolMap = {};
-    }
+class TransactionPoolMap {
+  constructor() {
+    this.transactionPoolMap = {};
+  }
 
-    setTransactionPoolMap(transactionPoolMap) {
-        this.transactionPoolMap = transactionPoolMap;
-    }
-
-    setTransactionPoolMap(transactionPoolMap) {
-        this.transactionPoolMap = transactionPoolMap;
-    }
-
-    setTransactionPoolMap(transactionPoolMap) {
-        this.transactionPoolMap = transactionPoolMap;
-    }
-
-    setTransactionPoolMap(transactionPoolMap) {
-        this.transactionPoolMap = transactionPoolMap;
-    }
-
-    setTransactionPoolMap(transactionPoolMap) {
-        this.transactionPoolMap = transactionPoolMap;
-    }
-
-    setTransactionPoolMap(transactionPoolMap) {
-        this.transactionPoolMap = transactionPoolMap;
-    }
-
-    setTransactionPoolMap(transactionPoolMap) {
-        this.transactionPoolMap = transactionPoolMap;
-    }
-
-    setTransactionPoolMap(transactionPoolMap) {
-        this.transactionPoolMap = transactionPoolMap;
-    }
+  setTransactionPoolMap(transactionPoolMap) {
+    this.transactionPoolMap = transactionPoolMap;
+  }
 }
 
-module.exports = { transactionPool, transactionPoolMap };
+module.exports = { TransactionPool, TransactionPoolMap };

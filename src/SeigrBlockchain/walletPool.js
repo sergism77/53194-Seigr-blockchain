@@ -1,19 +1,15 @@
+let walletPool = [];
 
-const createWalletPool = ({ walletPool }) => () => {
-    walletPool = [];
-    return walletPool;
-}
+const createWalletPool = () => {
+  walletPool = [];
+};
 
-const walletPool = ({ walletPool }) => () => {
-    return walletPool;
-}
+const getWalletPool = () => {
+  return walletPool;
+};
 
-const saveWalletPool = ({ walletPool }) => () => {
-    return walletPool;
-}
+const updateWalletPool = () => {
+  // Perform wallet pool update logic here
+};
 
-const loadWalletPool = ({ walletPool }) => () => {
-    return walletPool;
-}
-
-module.exports = { createWalletPool, walletPool, saveWalletPool, loadWalletPool };
+module.exports = { createWalletPool, getWalletPool, updateWalletPool };
