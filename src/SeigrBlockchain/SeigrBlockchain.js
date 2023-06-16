@@ -1,22 +1,22 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-
 const { cryptoHash, verifySignature } = require('./utils');
 const { STARTING_BALANCE } = require('./config');
 const ec = require('elliptic').ec('secp256k1');
-const createBlock = require('./block');
+const { createBlock, Block, saveBlock, loadBlock } = require('./block.js');
 const {
-    Transaction,
-    CreateTransaction,
-    SaveTransaction,
-    LoadTransaction } = require('./transaction');
-const createWallet = require('./walletUtils');
+  Transaction,
+  CreateTransaction,
+  SaveTransaction,
+  LoadTransaction } = require('./transaction.js');
+const { createWallet } = require('./walletUtils');
 const Wallet = require('./wallet');
-const GenesisBlock = require('./genesisBlock');
+const { GenesisBlock } = require('./genesisBlock');
 const createBlockchain = require('./createBlockchain');
 const saveBlockchain = require('./saveBlockchain');
-const Blockchain = require('./blockchain');
+const { Blockchain } = require('./blockchain');
+const loadBlockchain = require('./loadBlockchain');
 const { createWalletPool, getWalletPool, updateWalletPool } = require('./walletPool');
 const { createBlockPool, getBlockPool, saveBlockPool, loadBlockPool } = require('./blockPool');
 const { TransactionPool } = require('./transactionPool');
@@ -49,7 +49,7 @@ if (!fs.existsSync(blockPoolDirectory))
 if (!fs.existsSync(transactionPoolDirectory))
   fs.mkdirSync(transactionPoolDirectory, { recursive: true });
 
-const senderWallet = new Wallet();
+const senderWallet = new createWallet({ Wallet });
 
 // Check if the blockchain exists
 let blockchainInstance;
@@ -73,10 +73,10 @@ if (fs.existsSync(path.join(blockchainDirectory, 'blockchain.json'))) {
       if (!transactions || Object.keys(transactions).length === 0) {
         throw new Error('Block does not contain any transactions.');
       }
-    
+
       const previousHash =
         this.chain.length > 0 ? this.chain[this.chain.length - 1].hash : null;
-    
+
       const newBlock = new Block({
         timestamp: Date.now(),
         lastHash: previousHash,
@@ -87,15 +87,15 @@ if (fs.existsSync(path.join(blockchainDirectory, 'blockchain.json'))) {
         transactions: transactions,
         miner: minerIdentifier,
       });
-    
+
       // Save the block to the blockchain
       saveBlock(newBlock);
-    
+
       // Remove the block from the block pool
       if (newBlock.id) {
         fs.unlinkSync(path.join(blockPoolDirectory, `${newBlock.id}.json`));
       }
-    
+
       // Remove the transactions from the transaction pool
       Object.values(transactions).forEach((transaction) => {
         if (transaction.id) {
@@ -104,7 +104,7 @@ if (fs.existsSync(path.join(blockchainDirectory, 'blockchain.json'))) {
           );
         }
       });
-    
+
       // Update the wallet balances
       Object.values(transactions).forEach((transaction) => {
         if (transaction.input && transaction.input.address) {
@@ -113,19 +113,19 @@ if (fs.existsSync(path.join(blockchainDirectory, 'blockchain.json'))) {
           wallet.updateBalance({ blockchain: this, balance: walletBalance });
         }
       });
-    
+
       // Update the blockchain
       this.chain.push(newBlock);
-    
+
       // Save the blockchain
       saveBlockchain(this);
-    
+
       // Create or initialize the wallet pool
       createWalletPool();
 
       // Update the wallet pool
       updateWalletPool();
-    
+
       // Update the block pool
       createBlockPool();
       // or get the current block pool
@@ -134,11 +134,11 @@ if (fs.existsSync(path.join(blockchainDirectory, 'blockchain.json'))) {
       const savedBlockPool = saveBlockPool();
       // or load the block pool
       const loadedBlockPool = loadBlockPool();
-    
+
       // Update the transaction pool
       this.transactionPool = new TransactionPool();
       this.transactionPool.clearBlockchainTransactions(this);
-    
+
       // Update the blockchain pool
       const BlockchainPool = createBlockchainPool({ blockchain: this });
       BlockchainPool.updateBlockchainPool();
@@ -159,7 +159,7 @@ if (fs.existsSync(path.join(blockchainDirectory, 'blockchain.json'))) {
   blockchainInstance.addBlock({ transactions: [genesisTransaction] });
 }
 
-const SeigrBlockchain = {
+module.exports = {
   createBlock,
   CreateTransaction,
   blockchainInstance,
@@ -178,5 +178,3 @@ const SeigrBlockchain = {
   Block,
   Blockchain,
 };
-
-module.exports = SeigrBlockchain;
