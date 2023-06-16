@@ -4,9 +4,7 @@ const os = require('os');
 const { cryptoHash } = require('./utils');
 const { STARTING_BALANCE } = require('./config');
 const { createWallet, saveWallet, loadWallet } = require('./walletUtils');
-const { createBlock, saveBlock, loadBlock } = require('./block.js');
 
-const walletDirectory = path.join(os.homedir(), 'Seigr', 'wallets');
 const genesisBlockDirectory = path.join(os.homedir(), 'Seigr', 'genesisBlock');
 
 class GenesisBlock {
@@ -20,17 +18,15 @@ class GenesisBlock {
   }
 
   saveGenesisBlock({ genesisWallet }) {
-    fs.writeFileSync(
-      path.join(genesisBlockDirectory, `${this.hash}.json`),
-      JSON.stringify(this)
-    );
+    const genesisBlockFile = path.join(genesisBlockDirectory, `${this.hash}.json`);
+    fs.writeFileSync(genesisBlockFile, JSON.stringify(this));
   }
 
   static loadGenesisBlock() {
-    const genesisBlockFile = fs.readFileSync(
-      path.join(genesisBlockDirectory, fs.readdirSync(genesisBlockDirectory)[0])
-    );
-    return JSON.parse(genesisBlockFile);
+    const genesisBlockFiles = fs.readdirSync(genesisBlockDirectory);
+    const genesisBlockFile = path.join(genesisBlockDirectory, genesisBlockFiles[0]);
+    const genesisBlockData = fs.readFileSync(genesisBlockFile);
+    return JSON.parse(genesisBlockData);
   }
 }
 

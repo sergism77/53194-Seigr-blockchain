@@ -6,6 +6,10 @@ const { createBlock, Block, saveBlock } = require('./block.js');
 const { createWallet } = require('./walletUtils');
 const Wallet = require('./wallet');
 const { GenesisBlock } = require('./genesisBlock');
+const { CreateWalletPool, GetWalletPool, UpdateWalletPool } = require('./walletPool');
+const { CreateBlockPool, GetBlockPool, SaveBlockPool, LoadBlockPool } = require('./blockPool');
+const { TransactionPool, TransactionPoolMap, CreateTransactionPool } = require('./transactionPool');
+const { BlockchainPool, CreateBlockchainPool } = require('./blockchainPool');
 
 const blockchainDirectory = path.join(os.homedir(), 'Seigr', 'blockchain');
 
@@ -59,19 +63,19 @@ class Blockchain {
     this.saveBlockchain();
 
     // Update the wallet pool
-    const WalletPool = createWalletPool({ blockchain: this });
+    const WalletPool = CreateWalletPool({ blockchain: this });
     WalletPool.updateWalletPool();
 
     // Update the block pool
-    const BlockPool = createBlockPool({ blockchain: this });
+    const BlockPool = CreateBlockPool({ blockchain: this });
     BlockPool.updateBlockPool();
 
     // Update the transaction pool
-    const TransactionPool = createTransactionPool({ blockchain: this });
+    const TransactionPool = CreateTransactionPool({ blockchain: this });
     TransactionPool.updateTransactionPool();
 
     // Update the blockchain pool
-    const BlockchainPool = createBlockchainPool({ blockchain: this });
+    const BlockchainPool = CreateBlockchainPool({ blockchain: this });
     BlockchainPool.updateBlockchainPool();
   }
 

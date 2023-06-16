@@ -1,15 +1,15 @@
 let walletPool = [];
 
-const createWalletPool = () => {
+const CreateWalletPool = () => {
   walletPool = [];
 };
 
-const getWalletPool = () => {
+const GetWalletPool = () => {
   return walletPool;
 };
 
-const updateWalletPool = () => {
+const UpdateWalletPool = () => {
   // Perform wallet pool update logic here
 };
 
-module.exports = { createWalletPool, getWalletPool, updateWalletPool };
+module.exports = { CreateWalletPool, GetWalletPool, UpdateWalletPool };

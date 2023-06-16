@@ -73,4 +73,35 @@ class TransactionPoolMap {
   }
 }
 
-module.exports = { TransactionPool, TransactionPoolMap };
+class CreateTransactionPool {
+  constructor({ blockchain }) {
+    this.blockchain = blockchain;
+  }
+
+  updateTransactionPool() {
+
+    const transactionPool = new TransactionPool();
+
+    for (let i = 1; i < this.blockchain.chain.length; i++) {
+
+      const block = this.blockchain.chain[i];
+
+      for (let transaction of block.data) {
+
+        if (!transactionPool.transactionMap[transaction.id]) {
+
+          transactionPool.setSenderWallet(transaction.senderWallet);
+
+          transactionPool.addTransaction(transaction);
+
+        }
+      }
+    }
+
+    return transactionPool;
+
+  }
+}
+
+
+module.exports = { TransactionPool, TransactionPoolMap, CreateTransactionPool };

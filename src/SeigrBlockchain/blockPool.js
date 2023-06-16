@@ -1,19 +1,19 @@
 let blockPool = [];
 
-const createBlockPool = () => {
+const CreateBlockPool = () => {
   blockPool = [];
 };
 
-const getBlockPool = () => {
+const GetBlockPool = () => {
   return blockPool;
 };
 
-const saveBlockPool = () => {
+const SaveBlockPool = () => {
   return blockPool;
 };
 
-const loadBlockPool = () => {
+const LoadBlockPool = () => {
   return blockPool;
 };
 
-module.exports = { createBlockPool, getBlockPool, saveBlockPool, loadBlockPool };
+module.exports = { CreateBlockPool, GetBlockPool, SaveBlockPool, LoadBlockPool };

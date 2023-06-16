@@ -17,10 +17,10 @@ const createBlockchain = require('./createBlockchain');
 const saveBlockchain = require('./saveBlockchain');
 const { Blockchain } = require('./blockchain');
 const loadBlockchain = require('./loadBlockchain');
-const { createWalletPool, getWalletPool, updateWalletPool } = require('./walletPool');
+const { CreateWalletPool, GetWalletPool, UpdateWalletPool } = require('./walletPool');
 const { createBlockPool, getBlockPool, saveBlockPool, loadBlockPool } = require('./blockPool');
 const { TransactionPool } = require('./transactionPool');
-const { BlockchainPool, createBlockchainPool } = require('./blockchainPool');
+const { BlockchainPool, CreateBlockchainPool } = require('./blockchainPool');
 
 // Generate a new key pair for the miner
 const keyPair = ec.genKeyPair();
@@ -121,10 +121,10 @@ if (fs.existsSync(path.join(blockchainDirectory, 'blockchain.json'))) {
       saveBlockchain(this);
 
       // Create or initialize the wallet pool
-      createWalletPool();
+      CreateWalletPool();
 
       // Update the wallet pool
-      updateWalletPool();
+      UpdateWalletPool();
 
       // Update the block pool
       createBlockPool();
@@ -140,7 +140,7 @@ if (fs.existsSync(path.join(blockchainDirectory, 'blockchain.json'))) {
       this.transactionPool.clearBlockchainTransactions(this);
 
       // Update the blockchain pool
-      const BlockchainPool = createBlockchainPool({ blockchain: this });
+      const BlockchainPool = CreateBlockchainPool({ blockchain: this });
       BlockchainPool.updateBlockchainPool();
     }
   }

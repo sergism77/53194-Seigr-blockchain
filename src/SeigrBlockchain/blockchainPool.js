@@ -18,8 +18,8 @@ class BlockchainPool {
   }
 }
 
-const createBlockchainPool = ({ blockchain }) => {
+const CreateBlockchainPool = ({ blockchain }) => {
   return new BlockchainPool({ blockchain });
 };
 
-module.exports = { BlockchainPool, createBlockchainPool };
+module.exports = { BlockchainPool, CreateBlockchainPool };
