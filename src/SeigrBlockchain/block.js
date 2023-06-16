@@ -115,9 +115,10 @@ const saveBlock = (block) => {
   );
 };
 
-const loadBlock = (hash) => {
-  const block = JSON.parse(fs.readFileSync(path.join(blockchainDirectory, `${hash}.json`)));
+const loadBlock = (blockHash) => {
+  const block = JSON.parse(fs.readFileSync(path.join(blockchainDirectory, `${blockHash}.json`)));
   return block;
 };
+
 
 module.exports = { Block, saveBlock, loadBlock };
