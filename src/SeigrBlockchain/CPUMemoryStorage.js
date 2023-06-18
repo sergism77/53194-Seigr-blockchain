@@ -1,206 +1,173 @@
 const cryptoHash = require('./utils');
 
 class CPUMemoryStorage {
-    constructor() {
-        this._storage = new Map();
-    }
-    get(key) {
-        return this._storage.get(key);
-    }
-    set(key, value) {
-        this._storage.set(key, value);
-    }
+  constructor() {
+    this._storage = new Map();
+  }
 
-    addCPU({ cpu }) {
-        this._storage.set(cpu.name, cpu);
-    }
+  get(key) {
+    return this._storage.get(key);
+  }
 
-    getCPU({ name }) {
-        return this._storage.get(name);
-    }
+  set(key, value) {
+    this._storage.set(key, value);
+  }
 
-    clear() {
-        this._storage.clear();
-    }
+  addCPU(cpu) {
+    this._storage.set(cpu.name, cpu);
+  }
 
-    replaceCPU(cpu) {
-        if (cpu.length <= this.cpu.length) {
-        console.error('The incoming cpu must be longer');
-        return;
-        }
+  getCPU(name) {
+    return this._storage.get(name);
+  }
 
-        if (!CPU.isValidCPU(cpu)) {
-        console.error('The incoming cpu must be valid');
-        return;
-        }
+  clear() {
+    this._storage.clear();
+  }
 
-        console.log('replacing cpu with', cpu);
-        this.cpu = cpu;
+  replaceCPU(cpu) {
+    if (cpu.length <= this.cpu.length) {
+      console.error('The incoming cpu must be longer');
+      return;
     }
 
-    static isValidCPU(cpu) {
-        if (JSON.stringify(cpu[0]) !== JSON.stringify(CPU.genesis())) {
-        return false;
-        }
-
-        for (let i = 1; i < cpu.length; i++) {
-        const { timestamp, lastHash, hash, data, nonce, difficulty } = cpu[i];
-
-        const actualLastHash = cpu[i - 1].hash;
-
-        if (lastHash !== actualLastHash) return false;
-
-        const validatedHash = cryptoHash(
-            timestamp,
-            lastHash,
-            data,
-            nonce,
-            difficulty
-        );
-
-        if (hash !== validatedHash) return false;
-        }
-
-        return true;
+    if (!CPUMemoryStorage.isValidCPU(cpu)) {
+      console.error('The incoming cpu must be valid');
+      return;
     }
 
-    replaceCPU(cpu) {
-        if (cpu.length <= this.cpu.length) {
-        console.error('The incoming cpu must be longer');
-        return;
-        }
+    console.log('replacing cpu with', cpu);
+    this.cpu = cpu;
+  }
 
-        if (!CPU.isValidCPU(cpu)) {
-        console.error('The incoming cpu must be valid');
-        return;
-        }
-
-        console.log('replacing cpu with', cpu);
-        this.cpu = cpu;
+  static isValidCPU(cpu) {
+    if (JSON.stringify(cpu[0]) !== JSON.stringify(CPU.genesis())) {
+      return false;
     }
 
-    
+    for (let i = 1; i < cpu.length; i++) {
+      const { timestamp, lastHash, hash, data, nonce, difficulty } = cpu[i];
+
+      const actualLastHash = cpu[i - 1].hash;
+
+      if (lastHash !== actualLastHash) return false;
+
+      const validatedHash = cryptoHash(
+        timestamp,
+        lastHash,
+        data,
+        nonce,
+        difficulty
+      );
+
+      if (hash !== validatedHash) return false;
+    }
+
+    return true;
+  }
 }
 
 class CPUMemoryStorageMap {
-    constructor() {
-        this.map = new Map();
+  constructor() {
+    this.map = new Map();
+  }
+
+  addCPU(cpu) {
+    this.map.set(cpu.name, cpu);
+  }
+
+  getCPU(name) {
+    return this.map.get(name);
+  }
+
+  clear() {
+    this.map.clear();
+  }
+
+  replaceCPU(cpu) {
+    if (cpu.length <= this.cpu.length) {
+      console.error('The incoming cpu must be longer');
+      return;
     }
 
-    addCPU({ cpu }) {
-        this.map.set(cpu.name, cpu);
+    if (!CPUMemoryStorageMap.isValidCPU(cpu)) {
+      console.error('The incoming cpu must be valid');
+      return;
     }
 
-    getCPU({ name }) {
-        return this.map.get(name);
+    console.log('replacing cpu with', cpu);
+    this.cpu = cpu;
+  }
+
+  static isValidCPU(cpu) {
+    if (JSON.stringify(cpu[0]) !== JSON.stringify(CPU.genesis())) {
+      return false;
     }
 
-    clear() {
-        this.map.clear();
+    for (let i = 1; i < cpu.length; i++) {
+      const { timestamp, lastHash, hash, data, nonce, difficulty } = cpu[i];
+
+      const actualLastHash = cpu[i - 1].hash;
+
+      if (lastHash !== actualLastHash) return false;
+
+      const validatedHash = cryptoHash(
+        timestamp,
+        lastHash,
+        data,
+        nonce,
+        difficulty
+      );
+
+      if (hash !== validatedHash) return false;
     }
 
-    replaceCPU(cpu) {
-        if (cpu.length <= this.cpu.length) {
-        console.error('The incoming cpu must be longer');
-        return;
-        }
-
-        if (!CPU.isValidCPU(cpu)) {
-        console.error('The incoming cpu must be valid');
-        return;
-        }
-
-        console.log('replacing cpu with', cpu);
-        this.cpu = cpu;
-    }
-
-    static isValidCPU(cpu) {
-        if (JSON.stringify(cpu[0]) !== JSON.stringify(CPU.genesis())) {
-        return false;
-        }
-
-        for (let i = 1; i < cpu.length; i++) {
-        const { timestamp, lastHash, hash, data, nonce, difficulty } = cpu[i];
-
-        const actualLastHash = cpu[i - 1].hash;
-
-        if (lastHash !== actualLastHash) return false;
-
-        const validatedHash = cryptoHash(
-            timestamp,
-            lastHash,
-            data,
-            nonce,
-            difficulty
-        );
-
-        if (hash !== validatedHash) return false;
-        }
-
-        return true;
-    }
-
-    replaceCPU(cpu) {
-        if (cpu.length <= this.cpu.length) {
-        console.error('The incoming cpu must be longer');
-        return;
-        }
-
-        if (!CPU.isValidCPU(cpu)) {
-        console.error('The incoming cpu must be valid');
-        return;
-        }
-
-        console.log('replacing cpu with', cpu);
-        this.cpu = cpu;
-    }
-
-
+    return true;
+  }
 }
 
 class CPUMemoryStorageSingleton {
-    constructor() {
-        if (!CPUMemoryStorageSingleton.instance) {
-            CPUMemoryStorageSingleton.instance = new CPUMemoryStorage();
-        }
+  constructor() {
+    if (!CPUMemoryStorageSingleton.instance) {
+      CPUMemoryStorageSingleton.instance = new CPUMemoryStorage();
     }
+  }
 
-    getInstance() {
-        return CPUMemoryStorageSingleton.instance;
-    }
+  getInstance() {
+    return CPUMemoryStorageSingleton.instance;
+  }
 
-    set(key, value) {
-        this.getInstance().set(key, value);
-    }
+  set(key, value) {
+    this.getInstance().set(key, value);
+  }
 
-    get(key) {
-        return this.getInstance().get(key);
-    }
+  get(key) {
+    return this.getInstance().get(key);
+  }
 
-    clear() {
-        this.getInstance().clear();
-    }
+  clear() {
+    this.getInstance().clear();
+  }
 
-    addCPU({ cpu }) {
-        this.getInstance().addCPU({ cpu });
-    }
+  addCPU(cpu) {
+    this.getInstance().addCPU(cpu);
+  }
 
-    getCPU({ name }) {
-        return this.getInstance().getCPU({ name });
-    }
+  getCPU(name) {
+    return this.getInstance().getCPU(name);
+  }
 
-    clear() {
-        this.getInstance().clear();
-    }
+  replaceCPU(cpu) {
+    this.getInstance().replaceCPU(cpu);
+  }
 
-    replaceCPU(cpu) {
-        this.getInstance().replaceCPU(cpu);
-    }
-
-    static isValidCPU(cpu) {
-        return this.getInstance().isValidCPU(cpu);
-    }
-        
+  static isValidCPU(cpu) {
+    return this.getInstance().isValidCPU(cpu);
+  }
 }
 
-module.exports = { CPUMemoryStorage, CPUMemoryStorageMap, CPUMemoryStorageSingleton };
+module.exports = {
+  CPUMemoryStorage,
+  CPUMemoryStorageMap,
+  CPUMemoryStorageSingleton,
+};
