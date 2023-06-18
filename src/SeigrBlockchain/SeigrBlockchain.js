@@ -178,3 +178,4 @@ module.exports = {
   Block,
   Blockchain,
 };
+

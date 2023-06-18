@@ -5,6 +5,8 @@
   "description": "Your portal to Seigr network",
   "main": "src/index.js",
   "scripts": {
+    "test": "mocha",
+    "pm2": "pm2 start blockchain.js",
     "dev": "electron-forge start",
     "start": "electron-forge start",
     "package": "electron-forge package",
