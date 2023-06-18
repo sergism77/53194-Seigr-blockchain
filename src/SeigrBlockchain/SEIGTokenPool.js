@@ -1,15 +1,10 @@
-//this is the SEIGTokenPool.js
-//
-const { expect } = require("chai");
-const { ethers } = require("hardhat");
-
 class SEIGTokenPool {
-    constructor() {
+    constructor(owner) {
         this.totalSupply = 0;
         this.name = "Seig";
         this.symbol = "SEIG";
         this.decimals = 18;
-        this.owner = msg.sender;
+        this.owner = owner;
         this.balanceOf = {
             [this.owner]: this.totalSupply,
         };
@@ -52,17 +47,14 @@ class SEIGTokenPool {
 
 
 class SEIGTokenPoolMap {
-    constructor() {
+    constructor(owner) {
         this.totalSupply = 0;
         this.name = "Seig";
         this.symbol = "SEIG";
         this.decimals = 18;
-
-        this.owner = msg.sender;
-
+        this.owner = owner;
         this.balanceOf = new Map();
         this.balanceOf.set(this.owner, this.totalSupply);
-
         this.allowance = new Map();
     }
 
@@ -100,4 +92,4 @@ class SEIGTokenPoolMap {
     }
 }
 
-module.exports = { SEIGTokenPool, SEIGTokenPoolMap }
+module.exports = { SEIGTokenPool, SEIGTokenPoolMap };

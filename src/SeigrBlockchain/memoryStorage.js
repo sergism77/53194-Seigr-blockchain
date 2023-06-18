@@ -1,404 +1,369 @@
-//this is the memory storage for the blockchain
-//do we need to import anything here? answer: yes, we need to import the blockchain, transactionPool, transactionMiner, SEIGToken, SEIGTokenPool, and SEIGTokenMiner
-
 const Blockchain = require('./blockchain');
-const TransactionPool = require('./transaction');
-const TransactionPoolMap = require('./transaction');
-
-const TransactionMiner = require('./transaction');
-const TransactionMinerMap = require('./transaction');
-
+const TransactionPool = require('./transactionPool');
+const TransactionPoolMap = require('./transactionPoolMap');
+const TransactionMiner = require('./transactionMiner');
+const TransactionMinerMap = require('./transactionMinerMap');
 const SEIGToken = require('./SEIGToken');
-
 const SEIGTokenPool = require('./SEIGTokenPool');
-const SEIGTokenPoolMap = require('./SEIGTokenPool');
-
+const SEIGTokenPoolMap = require('./SEIGTokenPoolMap');
 const SEIGTokenMiner = require('./SEIGTokenMiner');
-const SEIGTokenMinerMap = require('./SEIGTokenMiner');
-
+const SEIGTokenMinerMap = require('./SEIGTokenMinerMap');
 
 class MemoryStorage {
-    constructor() {
-        this.blockchain = [];
-        this.transactionPool = [];
-        this.transactionPoolMap = new TransactionPoolMap();
-        this.transactionMiner = [];
-        this.transactionMinerMap = new TransactionMinerMap();
-        this.SEIGToken = [];
-        this.SEIGTokenMap = new SEIGTokenMap();
-        this.SEIGTokenPool = [];
-        this.SEIGTokenPoolMap = new SEIGTokenPoolMap();
-        this.SEIGTokenMiner = [];
-        this.SEIGTokenMinerMap = new SEIGTokenMinerMap();
-        this.memoryStorage = [];
-        this.memoryStorageMap = new MemoryStorageMap();
+  constructor() {
+    this.blockchain = [];
+    this.transactionPool = [];
+    this.transactionPoolMap = new TransactionPoolMap();
+    this.transactionMiner = [];
+    this.transactionMinerMap = new TransactionMinerMap();
+    this.SEIGToken = [];
+    this.SEIGTokenPool = [];
+    this.SEIGTokenPoolMap = new SEIGTokenPoolMap();
+    this.SEIGTokenMiner = [];
+    this.SEIGTokenMinerMap = new SEIGTokenMinerMap();
+  }
+
+  addBlockchain({ blockchain }) {
+    this.blockchain.push(blockchain);
+  }
+
+  getBlockchain({ name }) {
+    return this.blockchain.find((blockchain) => blockchain.name === name);
+  }
+
+  replaceBlockchain(blockchain) {
+    for (let i = 0; i < this.blockchain.length; i++) {
+      if (this.blockchain[i].name === blockchain.name) {
+        this.blockchain[i] = blockchain;
+      }
     }
+  }
 
-    addBlockchain({ blockchain }) {
-        this.blockchain.push(blockchain);
+  addTransactionPool({ transactionPool }) {
+    this.transactionPool.push(transactionPool);
+  }
+
+  getTransactionPool({ name }) {
+    return this.transactionPool.find((transactionPool) => transactionPool.name === name);
+  }
+
+  replaceTransactionPool(transactionPool) {
+    for (let i = 0; i < this.transactionPool.length; i++) {
+      if (this.transactionPool[i].name === transactionPool.name) {
+        this.transactionPool[i] = transactionPool;
+      }
     }
+  }
 
-    getBlockchain({ name }) {
-        return this.blockchain.find(blockchain => blockchain.name === name);
+  addTransactionPoolMap({ transactionPoolMap }) {
+    this.transactionPoolMap.push(transactionPoolMap);
+  }
+
+  getTransactionPoolMap({ name }) {
+    return this.transactionPoolMap.find((transactionPoolMap) => transactionPoolMap.name === name);
+  }
+
+  replaceTransactionPoolMap(transactionPoolMap) {
+    for (let i = 0; i < this.transactionPoolMap.length; i++) {
+      if (this.transactionPoolMap[i].name === transactionPoolMap.name) {
+        this.transactionPoolMap[i] = transactionPoolMap;
+      }
     }
+  }
 
-    replaceBlockchain(blockchain) {
-        for (let i = 0; i < this.blockchain.length; i++) {
-            if (this.blockchain[i].name === blockchain.name) {
-                this.blockchain[i] = blockchain;
-            }
-        }
+  addTransactionMiner({ transactionMiner }) {
+    this.transactionMiner.push(transactionMiner);
+  }
+
+  getTransactionMiner({ name }) {
+    return this.transactionMiner.find((transactionMiner) => transactionMiner.name === name);
+  }
+
+  replaceTransactionMiner(transactionMiner) {
+    for (let i = 0; i < this.transactionMiner.length; i++) {
+      if (this.transactionMiner[i].name === transactionMiner.name) {
+        this.transactionMiner[i] = transactionMiner;
+      }
     }
+  }
 
-    addTransactionPool({ transactionPool }) {
-        this.transactionPool.push(transactionPool);
+  addTransactionMinerMap({ transactionMinerMap }) {
+    this.transactionMinerMap.push(transactionMinerMap);
+  }
+
+  getTransactionMinerMap({ name }) {
+    return this.transactionMinerMap.find((transactionMinerMap) => transactionMinerMap.name === name);
+  }
+
+  replaceTransactionMinerMap(transactionMinerMap) {
+    for (let i = 0; i < this.transactionMinerMap.length; i++) {
+      if (this.transactionMinerMap[i].name === transactionMinerMap.name) {
+        this.transactionMinerMap[i] = transactionMinerMap;
+      }
     }
+  }
 
-    getTransactionPool({ name }) {
-        return this.transactionPool.find(transactionPool => transactionPool.name === name);
+  addSEIGToken({ SEIGToken }) {
+    this.SEIGToken.push(SEIGToken);
+  }
+
+  getSEIGToken({ name }) {
+    return this.SEIGToken.find((SEIGToken) => SEIGToken.name === name);
+  }
+
+  replaceSEIGToken(SEIGToken) {
+    for (let i = 0; i < this.SEIGToken.length; i++) {
+      if (this.SEIGToken[i].name === SEIGToken.name) {
+        this.SEIGToken[i] = SEIGToken;
+      }
     }
+  }
 
-    replaceTransactionPool(transactionPool) {
-        for (let i = 0; i < this.transactionPool.length; i++) {
-            if (this.transactionPool[i].name === transactionPool.name) {
-                this.transactionPool[i] = transactionPool;
-            }
-        }
+  addSEIGTokenPool({ SEIGTokenPool }) {
+    this.SEIGTokenPool.push(SEIGTokenPool);
+  }
+
+  getSEIGTokenPool({ name }) {
+    return this.SEIGTokenPool.find((SEIGTokenPool) => SEIGTokenPool.name === name);
+  }
+
+  replaceSEIGTokenPool(SEIGTokenPool) {
+    for (let i = 0; i < this.SEIGTokenPool.length; i++) {
+      if (this.SEIGTokenPool[i].name === SEIGTokenPool.name) {
+        this.SEIGTokenPool[i] = SEIGTokenPool;
+      }
     }
+  }
 
-    addTransactionPoolMap({ transactionPoolMap }) {
-        this.transactionPoolMap.push(transactionPoolMap);
+  addSEIGTokenPoolMap({ SEIGTokenPoolMap }) {
+    this.SEIGTokenPoolMap.push(SEIGTokenPoolMap);
+  }
+
+  getSEIGTokenPoolMap({ name }) {
+    return this.SEIGTokenPoolMap.find((SEIGTokenPoolMap) => SEIGTokenPoolMap.name === name);
+  }
+
+  replaceSEIGTokenPoolMap(SEIGTokenPoolMap) {
+    for (let i = 0; i < this.SEIGTokenPoolMap.length; i++) {
+      if (this.SEIGTokenPoolMap[i].name === SEIGTokenPoolMap.name) {
+        this.SEIGTokenPoolMap[i] = SEIGTokenPoolMap;
+      }
     }
+  }
 
-    getTransactionPoolMap({ name }) {
-        return this.transactionPoolMap.find(transactionPoolMap => transactionPoolMap.name === name);
+  addSEIGTokenMiner({ SEIGTokenMiner }) {
+    this.SEIGTokenMiner.push(SEIGTokenMiner);
+  }
+
+  getSEIGTokenMiner({ name }) {
+    return this.SEIGTokenMiner.find((SEIGTokenMiner) => SEIGTokenMiner.name === name);
+  }
+
+  replaceSEIGTokenMiner(SEIGTokenMiner) {
+    for (let i = 0; i < this.SEIGTokenMiner.length; i++) {
+      if (this.SEIGTokenMiner[i].name === SEIGTokenMiner.name) {
+        this.SEIGTokenMiner[i] = SEIGTokenMiner;
+      }
     }
+  }
 
-    replaceTransactionPoolMap(transactionPoolMap) {
-        for (let i = 0; i < this.transactionPoolMap.length; i++) {
-            if (this.transactionPoolMap[i].name === transactionPoolMap.name) {
-                this.transactionPoolMap[i] = transactionPoolMap;
-            }
-        }
-    }
-
-    addTransactionMiner({ transactionMiner }) {
-        this.transactionMiner.push(transactionMiner);
-    }
-
-    getTransactionMiner({ name }) {
-        return this.transactionMiner.find(transactionMiner => transactionMiner.name === name);
-    }
-
-    replaceTransactionMiner(transactionMiner) {
-        for (let i = 0; i < this.transactionMiner.length; i++) {
-            if (this.transactionMiner[i].name === transactionMiner.name) {
-                this.transactionMiner[i] = transactionMiner;
-            }
-        }
-    }
-
-    addTransactionMinerMap({ transactionMinerMap }) {
-        this.transactionMinerMap.push(transactionMinerMap);
-    }
-
-    getTransactionMinerMap({ name }) {
-        return this.transactionMinerMap.find(transactionMinerMap => transactionMinerMap.name === name);
-    }
-
-    replaceTransactionMinerMap(transactionMinerMap) {
-        for (let i = 0; i < this.transactionMinerMap.length; i++) {
-            if (this.transactionMinerMap[i].name === transactionMinerMap.name) {
-                this.transactionMinerMap[i] = transactionMinerMap;
-            }
-        }
-    }
-
-    addSEIGToken({ SEIGToken }) {
-        this.SEIGToken.push(SEIGToken);
-    }
-
-    getSEIGToken({ name }) {
-        return this.SEIGToken.find(SEIGToken => SEIGToken.name === name);
-    }
-
-    replaceSEIGToken(SEIGToken) {
-        for (let i = 0; i < this.SEIGToken.length; i++) {
-            if (this.SEIGToken[i].name === SEIGToken.name) {
-                this.SEIGToken[i] = SEIGToken;
-            }
-        }
-    }
-
-    addSEIGTokenMap({ SEIGTokenMap }) {
-        this.SEIGTokenMap.push(SEIGTokenMap);
-    }
-
-    getSEIGTokenMap({ name }) {
-        return this.SEIGTokenMap.find(SEIGTokenMap => SEIGTokenMap.name === name);
-    }
-
-    replaceSEIGTokenMap(SEIGTokenMap) {
-        for (let i = 0; i < this.SEIGTokenMap.length; i++) {
-            if (this.SEIGTokenMap[i].name === SEIGTokenMap.name) {
-                this.SEIGTokenMap[i] = SEIGTokenMap;
-            }
-        }
-    }
-
-    addSEIGTokenPool({ SEIGTokenPool }) {
-        this.SEIGTokenPool.push(SEIGTokenPool);
-    }
-
-    getSEIGTokenPool({ name }) {
-        return this.SEIGTokenPool.find(SEIGTokenPool => SEIGTokenPool.name === name);
-    }
-
-    replaceSEIGTokenPool(SEIGTokenPool) {
-        for (let i = 0; i < this.SEIGTokenPool.length; i++) {
-            if (this.SEIGTokenPool[i].name === SEIGTokenPool.name) {
-                this.SEIGTokenPool[i] = SEIGTokenPool;
-            }
-        }
-    }
-
-    addSEIGTokenPoolMap({ SEIGTokenPoolMap }) {
-        this.SEIGTokenPoolMap.push(SEIGTokenPoolMap);
-    }
-
-    getSEIGTokenPoolMap({ name }) {
-        return this.SEIGTokenPoolMap.find(SEIGTokenPoolMap => SEIGTokenPoolMap.name === name);
-    }
-
-    replaceSEIGTokenPoolMap(SEIGTokenPoolMap) {
-        for (let i = 0; i < this.SEIGTokenPoolMap.length; i++) {
-            if (this.SEIGTokenPoolMap[i].name === SEIGTokenPoolMap.name) {
-                this.SEIGTokenPoolMap[i] = SEIGTokenPoolMap;
-            }
-        }
-    }
-
-    addSEIGTokenMiner({ SEIGTokenMiner }) {
-        this.SEIGTokenMiner.push(SEIGTokenMiner);
-    }
-
-    getSEIGTokenMiner({ name }) {
-        return this.SEIGTokenMiner.find(SEIGTokenMiner => SEIGTokenMiner.name === name);
-    }
-
-    replaceSEIGTokenMiner(SEIGTokenMiner) {
-        for (let i = 0; i < this.SEIGTokenMiner.length; i++) {
-            if (this.SEIGTokenMiner[i].name === SEIGTokenMiner.name) {
-                this.SEIGTokenMiner[i] = SEIGTokenMiner;
-            }
-        }
-    }
-
-    addSEIGTokenMinerMap({ SEIGTokenMinerMap }) {
-        this.SEIGTokenMinerMap.push(SEIGTokenMinerMap);
-    }
-
-
+  addSEIGTokenMinerMap({ SEIGTokenMinerMap }) {
+    this.SEIGTokenMinerMap.push(SEIGTokenMinerMap);
+  }
 }
 
 class MemoryStorageMap {
-    constructor() {
-        this.blockchain = [];
-        this.transactionPool = [];
-        this.transactionPoolMap = [];
-        this.transactionMiner = [];
-        this.transactionMinerMap = [];
-        this.SEIGToken = [];
-        this.SEIGTokenMap = [];
-        this.SEIGTokenPool = [];
-        this.SEIGTokenPoolMap = [];
-        this.SEIGTokenMiner = [];
-        this.SEIGTokenMinerMap = [];
-        this.memoryStorage = [];
-        this.memoryStorageMap = [];
-    }
+  constructor() {
+    this.blockchain = [];
+    this.transactionPool = [];
+    this.transactionPoolMap = [];
+    this.transactionMiner = [];
+    this.transactionMinerMap = [];
+    this.SEIGToken = [];
+    this.SEIGTokenMap = [];
+    this.SEIGTokenPool = [];
+    this.SEIGTokenPoolMap = [];
+    this.SEIGTokenMiner = [];
+    this.SEIGTokenMinerMap = [];
+    this.memoryStorage = [];
+    this.memoryStorageMap = [];
+  }
 
-    addBlockchain({ blockchain }) {
-        this.blockchain.push(blockchain);
-    }
+  addBlockchain({ blockchain }) {
+    this.blockchain.push(blockchain);
+  }
 
-    getBlockchain({ name }) {
-        return this.blockchain.find(blockchain => blockchain.name === name);
-    }
+  getBlockchain({ name }) {
+    return this.blockchain.find((blockchain) => blockchain.name === name);
+  }
 
-    replaceBlockchain(blockchain) {
-        for (let i = 0; i < this.blockchain.length; i++) {
-            if (this.blockchain[i].name === blockchain.name) {
-                this.blockchain[i] = blockchain;
-            }
-        }
+  replaceBlockchain(blockchain) {
+    for (let i = 0; i < this.blockchain.length; i++) {
+      if (this.blockchain[i].name === blockchain.name) {
+        this.blockchain[i] = blockchain;
+      }
     }
+  }
 
-    addTransactionPool({ transactionPool }) {
-        this.transactionPool.push(transactionPool);
+  addTransactionPool({ transactionPool }) {
+    this.transactionPool.push(transactionPool);
+  }
+
+  getTransactionPool({ name }) {
+    return this.transactionPool.find((transactionPool) => transactionPool.name === name);
+  }
+
+  replaceTransactionPool(transactionPool) {
+    for (let i = 0; i < this.transactionPool.length; i++) {
+      if (this.transactionPool[i].name === transactionPool.name) {
+        this.transactionPool[i] = transactionPool;
+      }
     }
+  }
 
-    getTransactionPool({ name }) {
-        return this.transactionPool.find(transactionPool => transactionPool.name === name);
+  addTransactionPoolMap({ transactionPoolMap }) {
+    this.transactionPoolMap.push(transactionPoolMap);
+  }
+
+  getTransactionPoolMap({ name }) {
+    return this.transactionPoolMap.find((transactionPoolMap) => transactionPoolMap.name === name);
+  }
+
+  replaceTransactionPoolMap(transactionPoolMap) {
+    for (let i = 0; i < this.transactionPoolMap.length; i++) {
+      if (this.transactionPoolMap[i].name === transactionPoolMap.name) {
+        this.transactionPoolMap[i] = transactionPoolMap;
+      }
     }
+  }
 
-    replaceTransactionPool(transactionPool) {
-        for (let i = 0; i < this.transactionPool.length; i++) {
-            if (this.transactionPool[i].name === transactionPool.name) {
-                this.transactionPool[i] = transactionPool;
-            }
-        }
+  addTransactionMiner({ transactionMiner }) {
+    this.transactionMiner.push(transactionMiner);
+  }
+
+  getTransactionMiner({ name }) {
+    return this.transactionMiner.find((transactionMiner) => transactionMiner.name === name);
+  }
+
+  replaceTransactionMiner(transactionMiner) {
+    for (let i = 0; i < this.transactionMiner.length; i++) {
+      if (this.transactionMiner[i].name === transactionMiner.name) {
+        this.transactionMiner[i] = transactionMiner;
+      }
     }
+  }
 
-    addTransactionPoolMap({ transactionPoolMap }) {
-        this.transactionPoolMap.push(transactionPoolMap);
+  addTransactionMinerMap({ transactionMinerMap }) {
+    this.transactionMinerMap.push(transactionMinerMap);
+  }
+
+  getTransactionMinerMap({ name }) {
+    return this.transactionMinerMap.find((transactionMinerMap) => transactionMinerMap.name === name);
+  }
+
+  replaceTransactionMinerMap(transactionMinerMap) {
+    for (let i = 0; i < this.transactionMinerMap.length; i++) {
+      if (this.transactionMinerMap[i].name === transactionMinerMap.name) {
+        this.transactionMinerMap[i] = transactionMinerMap;
+      }
     }
+  }
 
-    getTransactionPoolMap({ name }) {
-        return this.transactionPoolMap.find(transactionPoolMap => transactionPoolMap.name === name);
+  addSEIGToken({ SEIGToken }) {
+    this.SEIGToken.push(SEIGToken);
+  }
+
+  getSEIGToken({ name }) {
+    return this.SEIGToken.find((SEIGToken) => SEIGToken.name === name);
+  }
+
+  replaceSEIGToken(SEIGToken) {
+    for (let i = 0; i < this.SEIGToken.length; i++) {
+      if (this.SEIGToken[i].name === SEIGToken.name) {
+        this.SEIGToken[i] = SEIGToken;
+      }
     }
+  }
 
-    replaceTransactionPoolMap(transactionPoolMap) {
-        for (let i = 0; i < this.transactionPoolMap.length; i++) {
-            if (this.transactionPoolMap[i].name === transactionPoolMap.name) {
-                this.transactionPoolMap[i] = transactionPoolMap;
-            }
-        }
+  addSEIGTokenMap({ SEIGTokenMap }) {
+    this.SEIGTokenMap.push(SEIGTokenMap);
+  }
+
+  getSEIGTokenMap({ name }) {
+    return this.SEIGTokenMap.find((SEIGTokenMap) => SEIGTokenMap.name === name);
+  }
+
+  replaceSEIGTokenMap(SEIGTokenMap) {
+    for (let i = 0; i < this.SEIGTokenMap.length; i++) {
+      if (this.SEIGTokenMap[i].name === SEIGTokenMap.name) {
+        this.SEIGTokenMap[i] = SEIGTokenMap;
+      }
     }
+  }
 
-    addTransactionMiner({ transactionMiner }) {
-        this.transactionMiner.push(transactionMiner);
+  addSEIGTokenPool({ SEIGTokenPool }) {
+    this.SEIGTokenPool.push(SEIGTokenPool);
+  }
+
+  getSEIGTokenPool({ name }) {
+    return this.SEIGTokenPool.find((SEIGTokenPool) => SEIGTokenPool.name === name);
+  }
+
+  replaceSEIGTokenPool(SEIGTokenPool) {
+    for (let i = 0; i < this.SEIGTokenPool.length; i++) {
+      if (this.SEIGTokenPool[i].name === SEIGTokenPool.name) {
+        this.SEIGTokenPool[i] = SEIGTokenPool;
+      }
     }
+  }
 
-    getTransactionMiner({ name }) {
-        return this.transactionMiner.find(transactionMiner => transactionMiner.name === name);
+  addSEIGTokenPoolMap({ SEIGTokenPoolMap }) {
+    this.SEIGTokenPoolMap.push(SEIGTokenPoolMap);
+  }
+
+  getSEIGTokenPoolMap({ name }) {
+    return this.SEIGTokenPoolMap.find((SEIGTokenPoolMap) => SEIGTokenPoolMap.name === name);
+  }
+
+  replaceSEIGTokenPoolMap(SEIGTokenPoolMap) {
+    for (let i = 0; i < this.SEIGTokenPoolMap.length; i++) {
+      if (this.SEIGTokenPoolMap[i].name === SEIGTokenPoolMap.name) {
+        this.SEIGTokenPoolMap[i] = SEIGTokenPoolMap;
+      }
     }
+  }
 
-    replaceTransactionMiner(transactionMiner) {
-        for (let i = 0; i < this.transactionMiner.length; i++) {
-            if (this.transactionMiner[i].name === transactionMiner.name) {
-                this.transactionMiner[i] = transactionMiner;
-            }
-        }
+  addSEIGTokenMiner({ SEIGTokenMiner }) {
+    this.SEIGTokenMiner.push(SEIGTokenMiner);
+  }
+
+  getSEIGTokenMiner({ name }) {
+    return this.SEIGTokenMiner.find((SEIGTokenMiner) => SEIGTokenMiner.name === name);
+  }
+
+  replaceSEIGTokenMiner(SEIGTokenMiner) {
+    for (let i = 0; i < this.SEIGTokenMiner.length; i++) {
+      if (this.SEIGTokenMiner[i].name === SEIGTokenMiner.name) {
+        this.SEIGTokenMiner[i] = SEIGTokenMiner;
+      }
     }
+  }
 
-    addTransactionMinerMap({ transactionMinerMap }) {
-        this.transactionMinerMap.push(transactionMinerMap);
+  addSEIGTokenMinerMap({ SEIGTokenMinerMap }) {
+    this.SEIGTokenMinerMap.push(SEIGTokenMinerMap);
+  }
+
+  getSEIGTokenMinerMap({ name }) {
+    return this.SEIGTokenMinerMap.find((SEIGTokenMinerMap) => SEIGTokenMinerMap.name === name);
+  }
+
+  replaceSEIGTokenMinerMap(SEIGTokenMinerMap) {
+    for (let i = 0; i < this.SEIGTokenMinerMap.length; i++) {
+      if (this.SEIGTokenMinerMap[i].name === SEIGTokenMinerMap.name) {
+        this.SEIGTokenMinerMap[i] = SEIGTokenMinerMap;
+      }
     }
-
-    getTransactionMinerMap({ name }) {
-        return this.transactionMinerMap.find(transactionMinerMap => transactionMinerMap.name === name);
-    }
-
-    replaceTransactionMinerMap(transactionMinerMap) {
-        for (let i = 0; i < this.transactionMinerMap.length; i++) {
-            if (this.transactionMinerMap[i].name === transactionMinerMap.name) {
-                this.transactionMinerMap[i] = transactionMinerMap;
-            }
-        }
-    }
-
-    addSEIGToken({ SEIGToken }) {
-        this.SEIGToken.push(SEIGToken);
-    }
-
-    getSEIGToken({ name }) {
-        return this.SEIGToken.find(SEIGToken => SEIGToken.name === name);
-    }
-
-    replaceSEIGToken(SEIGToken) {
-        for (let i = 0; i < this.SEIGToken.length; i++) {
-            if (this.SEIGToken[i].name === SEIGToken.name) {
-                this.SEIGToken[i] = SEIGToken;
-            }
-        }
-    }
-
-    addSEIGTokenMap({ SEIGTokenMap }) {
-        this.SEIGTokenMap.push(SEIGTokenMap);
-    }
-
-    getSEIGTokenMap({ name }) {
-        return this.SEIGTokenMap.find(SEIGTokenMap => SEIGTokenMap.name === name);
-    }
-
-    replaceSEIGTokenMap(SEIGTokenMap) {
-        for (let i = 0; i < this.SEIGTokenMap.length; i++) {
-            if (this.SEIGTokenMap[i].name === SEIGTokenMap.name) {
-                this.SEIGTokenMap[i] = SEIGTokenMap;
-            }
-        }
-    }
-
-    addSEIGTokenPool({ SEIGTokenPool }) {
-        this.SEIGTokenPool.push(SEIGTokenPool);
-    }
-
-    getSEIGTokenPool({ name }) {
-        return this.SEIGTokenPool.find(SEIGTokenPool => SEIGTokenPool.name === name);
-    }
-
-    replaceSEIGTokenPool(SEIGTokenPool) {
-        for (let i = 0; i < this.SEIGTokenPool.length; i++) {
-            if (this.SEIGTokenPool[i].name === SEIGTokenPool.name) {
-                this.SEIGTokenPool[i] = SEIGTokenPool;
-            }
-        }
-    }
-
-    addSEIGTokenPoolMap({ SEIGTokenPoolMap }) {
-        this.SEIGTokenPoolMap.push(SEIGTokenPoolMap);
-    }
-
-    getSEIGTokenPoolMap({ name }) {
-        return this.SEIGTokenPoolMap.find(SEIGTokenPoolMap => SEIGTokenPoolMap.name === name);
-    }
-
-    replaceSEIGTokenPoolMap(SEIGTokenPoolMap) {
-        for (let i = 0; i < this.SEIGTokenPoolMap.length; i++) {
-            if (this.SEIGTokenPoolMap[i].name === SEIGTokenPoolMap.name) {
-                this.SEIGTokenPoolMap[i] = SEIGTokenPoolMap;
-            }
-        }
-    }
-
-    addSEIGTokenMiner({ SEIGTokenMiner }) {
-        this.SEIGTokenMiner.push(SEIGTokenMiner);
-    }
-
-    getSEIGTokenMiner({ name }) {
-        return this.SEIGTokenMiner.find(SEIGTokenMiner => SEIGTokenMiner.name === name);
-    }
-
-    replaceSEIGTokenMiner(SEIGTokenMiner) {
-        for (let i = 0; i < this.SEIGTokenMiner.length; i++) {
-            if (this.SEIGTokenMiner[i].name === SEIGTokenMiner.name) {
-                this.SEIGTokenMiner[i] = SEIGTokenMiner;
-            }
-        }
-    }
-
-    addSEIGTokenMinerMap({ SEIGTokenMinerMap }) {
-        this.SEIGTokenMinerMap.push(SEIGTokenMinerMap);
-    }
-
-    getSEIGTokenMinerMap({ name }) {
-        return this.SEIGTokenMinerMap.find(SEIGTokenMinerMap => SEIGTokenMinerMap.name === name);
-    }
-
-    replaceSEIGTokenMinerMap(SEIGTokenMinerMap) {
-        for (let i = 0; i < this.SEIGTokenMinerMap.length; i++) {
-            if (this.SEIGTokenMinerMap[i].name === SEIGTokenMinerMap.name) {
-                this.SEIGTokenMinerMap[i] = SEIGTokenMinerMap;
-            }
-        }
-    }
-
-    addSEIGTokenMinerPool({ SEIGTokenMinerPool }) {
-        this.SEIGTokenMinerPool.push(SEIGTokenMinerPool);
-    }
-
-    
+  }
 }
 
 module.exports = { MemoryStorage, MemoryStorageMap };

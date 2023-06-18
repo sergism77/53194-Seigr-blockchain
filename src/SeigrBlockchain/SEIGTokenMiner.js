@@ -1,14 +1,12 @@
-//this is the SEIGTokenMiner class
-
 const SHA256 = require('crypto-js/sha256');
 
 class SEIGTokenMiner {
-    constructor() {
+    constructor(owner) {
         this.totalSupply = 0;
         this.name = "Seig";
         this.symbol = "SEIG";
         this.decimals = 18;
-        this.owner = msg.sender;
+        this.owner = owner;
         this.balanceOf = {
             [this.owner]: this.totalSupply,
         };
@@ -58,12 +56,12 @@ class SEIGTokenMiner {
 
 
 class SEIGTokenMinerMap {
-    constructor() {
+    constructor(owner) {
         this.totalSupply = 0;
         this.name = "Seig";
         this.symbol = "SEIG";
         this.decimals = 18;
-        this.owner = msg.sender;
+        this.owner = owner;
         this.balanceOf = {
             [this.owner]: this.totalSupply,
         };

@@ -1,17 +1,10 @@
-//this is the SEIGToken.js file
-
-const { expect } = require("chai");
-const { ethers } = require("hardhat");
-
-
-
 class SEIGToken {
-    constructor() {
+    constructor(owner) {
         this.totalSupply = 0;
         this.name = "Seig";
         this.symbol = "SEIG";
         this.decimals = 18;
-        this.owner = msg.sender;
+        this.owner = owner;
         this.balanceOf = {
             [this.owner]: this.totalSupply,
         };
@@ -82,16 +75,15 @@ class SEIGToken {
         this.allowance[msg.sender][spender] -= subtractedValue;
         return true;
     }
-
 }
 
 class SEIGTokenMap {
-    constructor() {
+    constructor(owner) {
         this.totalSupply = 0;
         this.name = "Seig";
         this.symbol = "SEIG";
         this.decimals = 18;
-        this.owner = msg.sender;
+        this.owner = owner;
         this.balanceOf = new Map();
         this.balanceOf.set(this.owner, this.totalSupply);
         this.allowance = new Map();
@@ -161,7 +153,6 @@ class SEIGTokenMap {
         this.allowance.get(msg.sender).set(spender, this.allowance.get(msg.sender).get(spender) - subtractedValue);
         return true;
     }
-
 }
 
 module.exports = { SEIGToken, SEIGTokenMap };
