@@ -1,29 +1,40 @@
-
 const { Peer, PeerList, PeerListItem } = require("./peer");
 const { PeerPool } = require("./peerPool");
 const { PeerPoolDirectory } = require("./peerPoolDirectory");
 const { PeerPoolManager } = require("./peerPoolManager");
 
-//this is the peerPoolManager.
-const peerPoolManager = new PeerPoolManager();
+// Initialize peerPoolManager, peerPoolDirectory, peerPool, peerList, etc. (your existing code)
 
-//this is the peerPoolDirectory.
-const peerPoolDirectory = peerPoolManager.getPeerPoolDirectory();
+// Add Peer Button
+const addPeerBtn = document.getElementById("addPeerBtn");
+addPeerBtn.addEventListener("click", () => {
+  const peerAddressInput = document.getElementById("peerAddressInput");
+  const peerAddress = peerAddressInput.value;
 
-//this is the peerPool.
-const peerPool = new PeerPool();
+  // Create a new peer
+  const newPeer = new Peer(peerAddress);
 
-//this is the peerList.
-const peerList = peerPoolManager.getPeerList();
+  // Add the peer to the peer pool
+  PeerPool.addPeer(newPeer);
 
-//this is the peerPoolDirectoryList.
-const peerPoolDirectoryList = peerPoolDirectory.getPeerPoolDirectory();
+  // Clear the input field
+  peerAddressInput.value = "";
 
-//this is the peerPoolList.
-const peerPoolList = peerPool.getPeerPool();
+  // Update the peer pool display
+  displayPeerPool();
+});
 
-//this is the peerPoolDirectoryListElement.
-const peerPoolDirectoryListElement = document.getElementById("peerPoolDirectoryList");
+// Display Peer Pool
+function displayPeerPool() {
+  peerPoolListElement.innerHTML = "";
 
-//this is the peerPoolListElement.
-const peerPoolListElement = document.getElementById("peerPoolList");
+  // Iterate through each peer in the peer pool
+  PeerList.forEach((peer) => {
+    const listItem = document.createElement("li");
+    listItem.textContent = peer.address;
+    peerPoolListElement.appendChild(listItem);
+  });
+}
+
+// Call the displayPeerPool function initially to show the existing peers
+displayPeerPool();

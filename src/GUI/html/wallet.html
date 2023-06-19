@@ -1,23 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <link rel = "stylesheet" 
-         href = "./bower_components/bootstrap/dist/css/bootstrap.min.css" />
-    <meta charset="UTF-8" />
-    <title>Wallet</title>
-    </head>
-    <body>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallets</title>
+  </head>
+  <body>
+    <h1>Wallets</h1>
 
-    <div class="container">
-      <div class="row">
-        <div class="col-md-12">
-          <h1>Wallet</h1>
-          <p>Here you can see your wallet</p>
-        </div>
-      </div>
-    </div>
+    <!-- Create Wallet -->
+    <button id="createWalletBtn">Create Wallet</button>
 
+    <!-- View Balance -->
+    <h2>Balance: <span id="balance"></span></h2>
+
+    <!-- Send Transaction -->
+    <h2>Send Transaction</h2>
+    <label for="recipient">Recipient:</label>
+    <input type="text" id="recipient">
+    <label for="amount">Amount:</label>
+    <input type="text" id="amount">
+    <button id="sendTransactionBtn">Send</button>
+
+    <!-- Receive Transaction -->
+    <h2>Receive Transaction</h2>
+    <label for="receivedTransaction">Received Transaction:</label>
+    <input type="text" id="receivedTransaction">
+    <button id="receiveTransactionBtn">Receive</button>
+
+    <!-- Show Address -->
+    <h2>Wallet Address:</h2>
+    <span id="walletAddress"></span>
+    <button id="copyAddressBtn">Copy Address</button>
+
+    <!-- Scripts -->
+    <script src="renderer.js"></script>
     <script src="./bower_components/jquery/dist/jquery.min.js"></script>
     <script src="src/GUI/js/wallet.js"></script>
-    </body>
+  </body>
 </html>

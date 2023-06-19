@@ -26,7 +26,7 @@ class Wallet {
     if (chain) {
       this.balance = Wallet.calculateBalance({
         chain,
-        address: this.publicKey,
+        address: this.publicKey(),
       });
     }
     if (amount > this.balance) {

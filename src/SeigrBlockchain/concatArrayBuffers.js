@@ -4,7 +4,7 @@ const concatArrayBuffers = (arrayBuffers) => {
     //concatenate the array buffers
     for (let i = 0; i < arrayBuffers.length; i++) {
         //concatenate the array buffers
-        concatenatedArrayBuffer = concatenateArrayBuffers(concatenatedArrayBuffer, arrayBuffers[i]);
+        concatenatedArrayBuffer = concatenatedArrayBuffer(concatenatedArrayBuffer, arrayBuffers[i]);
     }
     //return the concatenated array buffer
     return concatenatedArrayBuffer;

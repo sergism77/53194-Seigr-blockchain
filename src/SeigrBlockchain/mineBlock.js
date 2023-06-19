@@ -56,3 +56,5 @@ class CreateBlock {
         return difficulty + 1;
     }
 }
+
+module.exports = CreateBlock;
