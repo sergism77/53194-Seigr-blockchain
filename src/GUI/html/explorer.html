@@ -34,7 +34,106 @@
     </div>
   </div>
 
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <h2>Block Info</h2>
+        <form id="search-block-form">
+          <label for="block-number-input">Block Number:</label>
+          <input type="number" id="block-number-input" min="1" required>
+          <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+        <div id="block-info">
+          <h4>Block Number: <span id="block-number"></span></h4>
+          <h4>Block Hash: <span id="block-hash"></span></h4>
+          <h4>Timestamp: <span id="block-timestamp"></span></h4>
+          <h4>Transactions: <span id="block-transactions"></span></h4>
+          <h4>Difficulty: <span id="block-difficulty"></span></h4>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <h2>Search Transactions</h2>
+        <form id="search-transaction-form">
+          <label for="address-input">Address:</label>
+          <input type="text" id="address-input" required>
+          <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+        <div id="transaction-results">
+          <!-- Transaction results will be displayed here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <h2>Search Peers</h2>
+        <button id="search-peers-btn" class="btn btn-primary">Search</button>
+        <div id="peer-results">
+          <!-- Peer results will be displayed here -->
+        </div>
+      </div>
+      <div class="col-md-6">
+        <h2>Mining Effort</h2>
+        <div id="mining-effort-results">
+          <!-- Mining effort results will be displayed here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
   <script src="src/GUI/js/explorer.js"></script>
+  <script>
+    // Create an instance of the Explorer class with the Seigr Blockchain and PeerPoolDirectory
+    const explorer = new Explorer(seigrBlockchainInstance, peerPoolDirectoryInstance);
+
+    // Function to display the blockchain blocks in the UI
+    function displayBlocks() {
+      explorer.displayBlocks();
+    }
+
+    // Function to handle the block search form submission
+    function handleBlockSearch(event) {
+      event.preventDefault();
+      const blockNumberInput = document.getElementById('block-number-input');
+      const blockNumber = parseInt(blockNumberInput.value);
+      explorer.searchBlocks(blockNumber);
+    }
+
+    // Function to handle the transaction search form submission
+    function handleTransactionSearch(event) {
+      event.preventDefault();
+      const addressInput = document.getElementById('address-input');
+      const address = addressInput.value;
+      explorer.searchTransactions(address);
+    }
+
+    // Function to handle the peer search button click
+    function handlePeerSearch() {
+      explorer.searchPeers();
+    }
+
+    // Function to populate the UI with mining effort data
+    function displayMiningEffort() {
+      explorer.getMiningEffortLast24Hours();
+      explorer.getCurrentMiningEffort();
+    }
+
+    // Bind event listeners to form submissions and button clicks
+    const searchBlockForm = document.getElementById('search-block-form');
+    searchBlockForm.addEventListener('submit', handleBlockSearch);
+
+    const searchTransactionForm = document.getElementById('search-transaction-form');
+    searchTransactionForm.addEventListener('submit', handleTransactionSearch);
+
+    const searchPeersBtn = document.getElementById('search-peers-btn');
+    searchPeersBtn.addEventListener('click', handlePeerSearch);
+
+    // Call necessary functions to populate the UI
+    displayBlocks();
+    displayMiningEffort();
+  </script>
 </body>
 </html>

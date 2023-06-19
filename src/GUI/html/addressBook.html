@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Address Book</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <h1>Address Book</h1>
+
+        <!-- Form to add new entry -->
+        <form id="addEntryForm">
+          <div class="mb-3">
+            <label for="entryName" class="form-label">Name</label>
+            <input type="text" class="form-control" id="entryName" placeholder="Enter name" required>
+          </div>
+          <div class="mb-3">
+            <label for="entryAddress" class="form-label">Wallet Address</label>
+            <input type="text" class="form-control" id="entryAddress" placeholder="Enter wallet address" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Add Entry</button>
+        </form>
+
+        <!-- Display address book entries -->
+        <h2>Address Book Entries</h2>
+        <ul id="entryList" class="list-group">
+          <!-- Entries will be dynamically added here -->
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+  <script src="src/GUI/js/addressBook.js"></script>
+</body>
+</html>
