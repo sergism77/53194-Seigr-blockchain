@@ -1,5 +1,5 @@
 const electron = require('electron');
-const { app, BrowserWindow, Menu } = electron;
+const { app, BrowserWindow, Menu, nativeTheme } = electron;
 const path = require('path');
 const fs = require('fs');
 const homedir = require('os').homedir();
@@ -49,33 +49,23 @@ const createMenu = () => {
   const template = [
     {
       label: 'Wallet',
-      click() { win.loadFile('src/GUI/html/wallet.html'); },
-        backgroundColor: '#000000',
-        foregroundColor: '#EBA937'
+      click() { win.loadFile('src/GUI/html/wallet.html'); }
     },
     {
       label: 'Node',
-      click() { win.loadFile('src/GUI/html/node.html'); },
-      backgroundColor: '#000000',
-      foregroundColor: '#EBA937'
+      click() { win.loadFile('src/GUI/html/node.html'); }
     },
     {
       label: 'Mine',
-      click() { win.loadFile('src/GUI/html/mining.html'); },
-      backgroundColor: '#000000',
-      foregroundColor: '#EBA937'
+      click() { win.loadFile('src/GUI/html/mining.html'); }
     },
     {
       label: 'Explorer',
-      click() { win.loadFile('src/GUI/html/explorer.html'); },
-      backgroundColor: '#000000',
-      foregroundColor: '#EBA937'
+      click() { win.loadFile('src/GUI/html/explorer.html'); }
     },
     {
       label: 'Network',
-      click() { win.loadFile('src/GUI/html/network.html'); },
-      backgroundColor: '#000000',
-      foregroundColor: '#EBA937',
+      click() { win.loadFile('src/GUI/html/network.html'); }
     }
   ];
 
@@ -86,6 +76,9 @@ const createMenu = () => {
 app.on('ready', () => {
   createWindow();
   createMenu();
+
+  // Set nativeTheme themeSource to "dark"
+  nativeTheme.themeSource = "dark";
 });
 
 app.on('window-all-closed', () => {

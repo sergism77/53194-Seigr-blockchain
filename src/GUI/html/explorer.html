@@ -9,7 +9,7 @@
 <body>
   <div class="container">
     <div class="row">
-      <div class="col-md-12">
+      <div class="col-md-16">
         <h1>Seigr Blockchain Explorer</h1>
         <div class="table-responsive">
           <table class="table table-bordered table-striped table-hover">
@@ -37,12 +37,12 @@
 
   <div class="container">
     <div class="row">
-      <div class="col-md-6">
+      <div class="col-md-8">
         <h2>Block Info</h2>
         <form id="search-block-form">
           <label for="block-number-input">Block Number:</label>
           <input type="number" id="block-number-input" min="1" required>
-          <button type="submit" class="btn btn-primary">Search</button>
+          <button type="submit" class="btn btn-dark">Search</button>
         </form>
         <div id="block-info">
           <h4>Block Number: <span id="block-number"></span></h4>
@@ -52,12 +52,12 @@
           <h4>Difficulty: <span id="block-difficulty"></span></h4>
         </div>
       </div>
-      <div class="col-md-6">
+      <div class="col-md-8">
         <h2>Search Transactions</h2>
         <form id="search-transaction-form">
           <label for="address-input">Address:</label>
           <input type="text" id="address-input" required>
-          <button type="submit" class="btn btn-primary">Search</button>
+          <button type="submit" class="btn btn-dark">Search</button>
         </form>
         <div id="transaction-results">
           <!-- Transaction results will be displayed here -->
@@ -68,14 +68,14 @@
 
   <div class="container">
     <div class="row">
-      <div class="col-md-6">
+      <div class="col-md-8">
         <h2>Search Peers</h2>
-        <button id="search-peers-btn" class="btn btn-primary">Search</button>
+        <button id="search-peers-btn" class="btn btn-dark">Search</button>
         <div id="peer-results">
           <!-- Peer results will be displayed here -->
         </div>
       </div>
-      <div class="col-md-6">
+      <div class="col-md-8">
         <h2>Mining Effort</h2>
         <div id="mining-effort-results">
           <!-- Mining effort results will be displayed here -->
