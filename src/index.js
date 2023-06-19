@@ -45,33 +45,48 @@ function createWindow() {
   win.loadFile('src/index.html');
 }
 
-const template = [
-  {
-    label: 'Wallet',
-    click() { win.loadFile('src/GUI/html/wallet.html'); }
-  },
-  {
-    label: 'Node',
-    click() { win.loadFile('src/GUI/html/node.html'); }
-  },
-  {
-    label: 'Mine',
-    click() { win.loadFile('src/GUI/html/mining.html'); }
-  },
-  {
-    label: 'Explorer',
-    click() { win.loadFile('src/GUI/html/explorer.html'); }
-  },
-  {
-    label: 'Network',
-    click() { win.loadFile('src/GUI/html/network.html'); }
-  }
-];
+const createMenu = () => {
+  const template = [
+    {
+      label: 'Wallet',
+      click() { win.loadFile('src/GUI/html/wallet.html'); },
+        backgroundColor: '#000000',
+        foregroundColor: '#EBA937'
+    },
+    {
+      label: 'Node',
+      click() { win.loadFile('src/GUI/html/node.html'); },
+      backgroundColor: '#000000',
+      foregroundColor: '#EBA937'
+    },
+    {
+      label: 'Mine',
+      click() { win.loadFile('src/GUI/html/mining.html'); },
+      backgroundColor: '#000000',
+      foregroundColor: '#EBA937'
+    },
+    {
+      label: 'Explorer',
+      click() { win.loadFile('src/GUI/html/explorer.html'); },
+      backgroundColor: '#000000',
+      foregroundColor: '#EBA937'
+    },
+    {
+      label: 'Network',
+      click() { win.loadFile('src/GUI/html/network.html'); },
+      backgroundColor: '#000000',
+      foregroundColor: '#EBA937',
+    }
+  ];
 
-const menu = Menu.buildFromTemplate(template);
-Menu.setApplicationMenu(menu);
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
+};
 
-app.on('ready', createWindow);
+app.on('ready', () => {
+  createWindow();
+  createMenu();
+});
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
