@@ -1,19 +1,22 @@
+let genesisTransactionPool = [];
 
-const mineGenesisTransactionPool = ({ genesisTransactionPool }) => () => {
-    const genesisTransactionPool = [genesisTransaction];
+const mineGenesisTransactionPool = ({ genesisTransaction }) => () => {
+    genesisTransactionPool = [genesisTransaction];
     return genesisTransactionPool;
 }
 
+let genesisBlockchain = [];
+
 const mineGenesisBlockchain = ({ genesisBlock }) => () => { 
-    const genesisBlockchain = [genesisBlock];
+    genesisBlockchain = [genesisBlock];
     return genesisBlockchain;
 }
 
-const saveGenesisBlockchain = ({ genesisBlockchain }) => () => {
+const saveGenesisBlockchain = () => {
     return genesisBlockchain;
 }
 
-const loadGenesisBlockchain = ({ genesisBlockchain }) => () => {
+const loadGenesisBlockchain = () => {
     return genesisBlockchain;
 }
 

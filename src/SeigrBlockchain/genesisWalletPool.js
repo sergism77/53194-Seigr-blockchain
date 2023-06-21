@@ -2,152 +2,48 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const { ec } = require('./utils');
-const walletDirectory = path.join(os.homedir(), 'Seigr', 'wallets');
-const blockDirectory = path.join(os.homedir(), 'Seigr', 'blocks');
-const transactionDirectory = path.join(os.homedir(), 'Seigr', 'transactions');
-const blockchainDirectory = path.join(os.homedir(), 'Seigr', 'blockchain');
-const walletPoolDirectory = path.join(os.homedir(), 'Seigr', 'walletPools');
-const blockPoolDirectory = path.join(os.homedir(), 'Seigr', 'blockPools');
-const transactionPoolDirectory = path.join(os.homedir(), 'Seigr', 'transactionPools');
-const genesisWalletDirectory = path.join(os.homedir(), 'Seigr', 'genesisWallet');
-const p2pDirectory = path.join(os.homedir(), 'Seigr', 'p2p');
-const minerDirectory = path.join(os.homedir(), 'Seigr', 'miner');
-const genesisBlockDirectory = path.join(os.homedir(), 'Seigr', 'genesisBlock');
 
-class mineGenesisWalletPool {
-    constructor(address) {
-        this.address = address;
-        this.balance = 0;
-        this.publicKey = ec.keyFromPublic(this.address, 'hex').getPublic().encode('hex');
+const config = {
+  walletDirectory: path.join(os.homedir(), 'Seigr', 'wallets'),
+  blockDirectory: path.join(os.homedir(), 'Seigr', 'blocks'),
+  transactionDirectory: path.join(os.homedir(), 'Seigr', 'transactions'),
+  blockchainDirectory: path.join(os.homedir(), 'Seigr', 'blockchain'),
+  walletPoolDirectory: path.join(os.homedir(), 'Seigr', 'walletPools'),
+  blockPoolDirectory: path.join(os.homedir(), 'Seigr', 'blockPools'),
+  transactionPoolDirectory: path.join(os.homedir(), 'Seigr', 'transactionPools'),
+  genesisWalletDirectory: path.join(os.homedir(), 'Seigr', 'genesisWallet'),
+  p2pDirectory: path.join(os.homedir(), 'Seigr', 'p2p'),
+  minerDirectory: path.join(os.homedir(), 'Seigr', 'miner'),
+  genesisBlockDirectory: path.join(os.homedir(), 'Seigr', 'genesisBlock'),
+};
+
+class GenesisWalletPool {
+  constructor(address) {
+    this.address = address;
+    this.balance = 0;
+    this.publicKey = ec.keyFromPublic(this.address, 'hex').getPublic().encode('hex');
+  }
+
+  save() {
+    fs.writeFileSync(
+      path.join(config.walletDirectory, `${this.address}.json`),
+      JSON.stringify(this)
+    );
+  }
+
+  static load(address) {
+    const filePath = path.join(config.walletDirectory, `${address}.json`);
+    if (!fs.existsSync(filePath)) {
+      throw new Error(`Wallet file does not exist for address: ${address}`);
     }
 
-    saveGenesisWalletPool() {
-        fs.writeFileSync(
-            path.join(walletDirectory, `${this.address}.json`),
-            JSON.stringify(this)
+    const walletData = JSON.parse(fs.readFileSync(filePath));
+    const wallet = new GenesisWalletPool(walletData.address);
+    wallet.balance = walletData.balance;
+    wallet.publicKey = walletData.publicKey;
 
-        );
-
-    }
-
-    loadGenesisWalletPool() {
-        const genesisWalletPool = JSON.parse(fs.readFileSync(path.join(walletDirectory, `${this.address}.json`)));
-        return genesisWalletPool;
-
-    }
-
-    saveWalletPool() {
-        fs.writeFileSync(
-            path.join(walletDirectory, `${this.address}.json`),
-            JSON.stringify(this)
-
-        );
-
-    }
-
-
-    loadWalletPool() {
-        const walletPool = JSON.parse(fs.readFileSync(path.join(walletDirectory, `${this.address}.json`)));
-
-        return walletPool;
-
-    }
-
-
+    return wallet;
+  }
 }
 
-class saveGenesisWalletPool {
-    constructor(address) {
-        this.address = address;
-        this.balance = 0;
-        this.publicKey = ec.keyFromPublic(this.address, 'hex').getPublic().encode('hex');
-    }
-
-    saveGenesisWalletPool() {
-        fs.writeFileSync(
-            path.join(walletDirectory, `${this.address}.json`),
-            JSON.stringify(this)
-
-        );
-
-    }
-
-    loadGenesisWalletPool() {
-        const genesisWalletPool = JSON.parse(fs.readFileSync(path.join(walletDirectory, `${this.address}.json`)));
-        return genesisWalletPool;
-
-    }
-
-
-}
-
-class loadGenesisWalletPool {   
-    constructor(address) {
-        this.address = address;
-        this.balance = 0;
-        this.publicKey = ec.keyFromPublic(this.address, 'hex').getPublic().encode('hex');
-    }
-
-    saveGenesisWalletPool() {
-        fs.writeFileSync(
-            path.join(walletDirectory, `${this.address}.json`),
-            JSON.stringify(this)
-
-        );
-
-    }
-
-    loadGenesisWalletPool() {
-        const genesisWalletPool = JSON.parse(fs.readFileSync(path.join(walletDirectory, `${this.address}.json`)));
-        return genesisWalletPool;
-
-    }
-
-
-}
-
-class genesisWalletPool {
-    constructor(address) {
-        this.address = address;
-        this.balance = 0;
-        this.publicKey = ec.keyFromPublic(this.address, 'hex').getPublic().encode('hex');
-    }
-
-    saveGenesisWalletPool() {
-        fs.writeFileSync(
-            path.join(walletDirectory, `${this.address}.json`),
-
-            JSON.stringify(this)
-
-        );
-
-    }
-
-    loadGenesisWalletPool() {
-        const genesisWalletPool = JSON.parse(fs.readFileSync(path.join(walletDirectory, `${this.address}.json`)));
-        return genesisWalletPool;
-
-    }
-
-    saveWalletPool() {
-        fs.writeFileSync(
-            path.join(walletDirectory, `${this.address}.json`),
-            JSON.stringify(this)
-
-        );
-
-    }
-
-
-    loadWalletPool() {
-        const walletPool = JSON.parse(fs.readFileSync(path.join(walletDirectory, `${this.address}.json`)));
-
-        return walletPool;
-
-    }
-
-}
-
-
-
-module.exports = { mineGenesisWalletPool, saveGenesisWalletPool, loadGenesisWalletPool, genesisWalletPool };
+module.exports = GenesisWalletPool;

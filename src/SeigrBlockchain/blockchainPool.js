@@ -9,12 +9,16 @@ class BlockchainPool {
   }
 
   updateBlockchainPool() {
-    // Custom logic to update the blockchain pool
-    const blockchainPool = this.blockchain.getBlocks();
-    const blockchainPoolString = JSON.stringify(blockchainPool);
-    fs.writeFileSync(path.join(blockchainDirectory, 'blockchain.json'), blockchainPoolString);
-
-    return blockchainPool;
+    try {
+      const blockchainPool = this.blockchain.getBlocks();
+      const blockchainPoolString = JSON.stringify(blockchainPool);
+      fs.mkdirSync(blockchainDirectory, { recursive: true });
+      fs.writeFileSync(path.join(blockchainDirectory, 'blockchain.json'), blockchainPoolString);
+      return blockchainPool;
+    } catch (error) {
+      console.error('Error updating blockchain pool:', error);
+      throw error;
+    }
   }
 }
 

@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require('fs').promises;
 const path = require('path');
 const os = require('os');
 const { cryptoHash } = require('./utils');
@@ -74,22 +74,31 @@ class Block {
   }
 
   static mineTransactionPool({ transactionPool, wallet }) {
-    const validTransactions = transactionPool.validTransactions();
+    const validTransactions = transactionPool.validTransactions().slice();
     validTransactions.push(Transaction.rewardTransaction({ minerWallet: wallet }));
     const block = this.mineBlock({ lastBlock: this.chain[this.chain.length - 1], data: validTransactions });
     this.chain.push(block);
     return block;
   }
 
-  saveBlock() {
+  async saveBlock() {
     const blockPath = path.join(blockchainDirectory, `${this.hash}.json`);
-    fs.writeFileSync(blockPath, JSON.stringify(this));
+    try {
+      await fs.writeFile(blockPath, JSON.stringify(this));
+    } catch (error) {
+      console.error(`Failed to save block at ${blockPath}`, error);
+    }
   }
 
-  static loadBlock(hash) {
+  static async loadBlock(hash) {
     const blockPath = path.join(blockchainDirectory, `${hash}.json`);
-    const blockJson = JSON.parse(fs.readFileSync(blockPath));
-    return new this(blockJson);
+    try {
+      const blockJson = await fs.readFile(blockPath);
+      return new this(JSON.parse(blockJson));
+    } catch (error) {
+      console.error(`Failed to load block at ${blockPath}`, error);
+      return null;
+    }
   }
 
   static mineBlock({ lastBlock, data }) {
@@ -108,17 +117,24 @@ class Block {
   }
 }
 
-const saveBlock = (block) => {
-  fs.writeFileSync(
-    path.join(blockchainDirectory, `${block.hash}.json`),
-    JSON.stringify(block)
-  );
+const saveBlock = async (block) => {
+  const blockPath = path.join(blockchainDirectory, `${block.hash}.json`);
+  try {
+    await fs.writeFile(blockPath, JSON.stringify(block));
+  } catch (error) {
+    console.error(`Failed to save block at ${blockPath}`, error);
+  }
 };
 
-const loadBlock = (blockHash) => {
-  const block = JSON.parse(fs.readFileSync(path.join(blockchainDirectory, `${blockHash}.json`)));
-  return block;
+const loadBlock = async (blockHash) => {
+  const blockPath = path.join(blockchainDirectory, `${blockHash}.json`);
+  try {
+    const blockJson = await fs.readFile(blockPath);
+    return JSON.parse(blockJson);
+  } catch (error) {
+    console.error(`Failed to load block at ${blockPath}`, error);
+    return null;
+  }
 };
-
 
 module.exports = { Block, saveBlock, loadBlock };

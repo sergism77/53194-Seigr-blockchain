@@ -5,15 +5,15 @@ const CreateBlockPool = () => {
 };
 
 const GetBlockPool = () => {
-  return blockPool;
+  return [...blockPool];
 };
 
 const SaveBlockPool = () => {
-  return blockPool;
+  return [...blockPool];
 };
 
 const LoadBlockPool = () => {
-  return blockPool;
+  return [...blockPool];
 };
 
 module.exports = { CreateBlockPool, GetBlockPool, SaveBlockPool, LoadBlockPool };

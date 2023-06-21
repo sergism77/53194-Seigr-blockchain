@@ -19,13 +19,26 @@ class GenesisBlock {
 
   saveGenesisBlock({ genesisWallet }) {
     const genesisBlockFile = path.join(genesisBlockDirectory, `${this.hash}.json`);
-    fs.writeFileSync(genesisBlockFile, JSON.stringify(this));
+    fs.writeFile(genesisBlockFile, JSON.stringify(this), (err) => {
+      if (err) {
+        console.error('Error saving genesis block:', err);
+      }
+    });
   }
 
-  static loadGenesisBlock() {
+  static loadGenesisBlock(blockchainDirectory) {
+    if (!fs.existsSync(genesisBlockDirectory)) {
+      fs.mkdirSync(genesisBlockDirectory, { recursive: true });
+    }
+    
     const genesisBlockFiles = fs.readdirSync(genesisBlockDirectory);
+    if (genesisBlockFiles.length === 0) {
+      console.error('No genesis block found.');
+      return null;
+    }
+
     const genesisBlockFile = path.join(genesisBlockDirectory, genesisBlockFiles[0]);
-    const genesisBlockData = fs.readFileSync(genesisBlockFile);
+    const genesisBlockData = fs.readFileSync(genesisBlockFile, 'utf8');
     return JSON.parse(genesisBlockData);
   }
 }

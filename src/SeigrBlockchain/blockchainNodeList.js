@@ -10,6 +10,11 @@ class BlockchainNodeList {
         this.blockchainNodeList.push(blockchainNode);
     }
 
+    //removes a blockchain node from the blockchain node list
+    removeBlockchainNode (blockchainNode){
+        this.blockchainNodeList = this.blockchainNodeList.filter(node => node.nodeUrl !== blockchainNode.nodeUrl);
+      }
+
     //returns the blockchain node list
     getBlockchainNodeList() {
         return this.blockchainNodeList;

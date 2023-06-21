@@ -1,15 +1,15 @@
 const os = require('os');
-const fs = require('fs');
+const fs = require('fs').promises;
 const path = require('path');
 const { cryptoHash } = require('./utils');
 const { createBlock, Block, saveBlock } = require('./block.js');
 const { createWallet } = require('./walletUtils');
 const Wallet = require('./wallet');
 const { GenesisBlock } = require('./genesisBlock');
-const { CreateWalletPool, GetWalletPool, UpdateWalletPool } = require('./walletPool');
-const { CreateBlockPool, GetBlockPool, SaveBlockPool, LoadBlockPool } = require('./blockPool');
-const { TransactionPool, TransactionPoolMap, CreateTransactionPool } = require('./transactionPool');
-const { BlockchainPool, CreateBlockchainPool } = require('./blockchainPool');
+const { CreateWalletPool, UpdateWalletPool } = require('./walletPool');
+const { CreateBlockPool, UpdateBlockPool } = require('./blockPool');
+const { CreateTransactionPool, UpdateTransactionPool } = require('./transactionPool');
+const { CreateBlockchainPool, UpdateBlockchainPool } = require('./blockchainPool');
 
 const blockchainDirectory = path.join(os.homedir(), 'Seigr', 'blockchain');
 
@@ -18,7 +18,7 @@ class Blockchain {
     this.chain = []; // Initialize this.chain as an empty array
   }
 
-  addBlock(transactions) {
+  async addBlock(transactions) {
     // Custom logic for adding blocks to the blockchain
     if (!transactions || Object.keys(transactions).length === 0) {
       throw new Error('Block does not contain any transactions.');
@@ -38,66 +38,72 @@ class Blockchain {
       miner: minerIdentifier,
     });
 
-    // Save the block to the blockchain
-    saveBlock(newBlock);
+    try {
+      await saveBlock(newBlock);
 
-    // Remove the transactions from the transaction pool
-    Object.values(transactions).forEach((transaction) => {
-      if (transaction.id) {
-        fs.unlinkSync(
-          path.join(transactionPoolDirectory, `${transaction.id}.json`)
-        );
+      for (const transaction of Object.values(transactions)) {
+        if (transaction.id) {
+          await fs.unlink(path.join(transactionPoolDirectory, `${transaction.id}.json`));
+        }
       }
-    });
 
-    // Update the wallet balances
-    Object.values(transactions).forEach((transaction) => {
-      if (transaction.input && transaction.input.address) {
-        const wallet = new Wallet({ walletId: transaction.input.address });
-        const walletBalance = wallet.calculateBalance({ blockchain: this });
-        wallet.updateBalance({ blockchain: this, balance: walletBalance });
+      for (const transaction of Object.values(transactions)) {
+        if (transaction.input && transaction.input.address) {
+          const wallet = new Wallet({ walletId: transaction.input.address });
+          const walletBalance = wallet.calculateBalance({ blockchain: this });
+          await wallet.updateBalance({ blockchain: this, balance: walletBalance });
+        }
       }
-    });
 
-    // Save the blockchain
-    this.saveBlockchain();
+      this.saveBlockchain();
+      await this.updatePools();
+    } catch (error) {
+      console.error('Error adding block:', error);
+      throw error;
+    }
+  }
 
-    // Update the wallet pool
-    const WalletPool = CreateWalletPool({ blockchain: this });
-    WalletPool.updateWalletPool();
+  async updatePools() {
+    try {
+      const walletPool = await CreateWalletPool({ blockchain: this });
+      await walletPool.updateWalletPool();
 
-    // Update the block pool
-    const BlockPool = CreateBlockPool({ blockchain: this });
-    BlockPool.updateBlockPool();
+      const blockPool = await CreateBlockPool({ blockchain: this });
+      await blockPool.updateBlockPool();
 
-    // Update the transaction pool
-    const TransactionPool = CreateTransactionPool({ blockchain: this });
-    TransactionPool.updateTransactionPool();
+      const transactionPool = await CreateTransactionPool({ blockchain: this });
+      await transactionPool.updateTransactionPool();
 
-    // Update the blockchain pool
-    const BlockchainPool = CreateBlockchainPool({ blockchain: this });
-    BlockchainPool.updateBlockchainPool();
+      const blockchainPool = await CreateBlockchainPool({ blockchain: this });
+      await blockchainPool.updateBlockchainPool();
+    } catch (error) {
+      console.error('Error updating pools:', error);
+      throw error;
+    }
   }
 
   getBlocks() {
     return this.chain;
   }
 
-  saveBlockchain() {
-    const blockchainJSON = JSON.stringify(this);
-    fs.writeFileSync(
-      path.join(blockchainDirectory, 'blockchain.json'),
-      blockchainJSON
-    );
+  async saveBlockchain() {
+    const blockchainPath = path.join(blockchainDirectory, 'blockchain.json');
+    try {
+      await fs.writeFile(blockchainPath, JSON.stringify(this));
+    } catch (error) {
+      console.error('Error saving blockchain:', error);
+      throw error;
+    }
   }
 
-  static loadBlockchain() {
+  static async loadBlockchain() {
     const blockchainPath = path.join(blockchainDirectory, 'blockchain.json');
-    if (fs.existsSync(blockchainPath)) {
-      const blockchainJSON = fs.readFileSync(blockchainPath, 'utf-8');
+    try {
+      const blockchainJSON = await fs.readFile(blockchainPath, 'utf-8');
       return JSON.parse(blockchainJSON);
-    } else {
-      throw new Error('No existing blockchain found.');
+    } catch (error) {
+      console.error('Error loading blockchain:', error);
+      throw error;
     }
   }
 }

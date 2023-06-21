@@ -1,9 +1,9 @@
 const Blockchain = require('./blockchain');
 
 class createBlockchain extends Blockchain {
-  constructor() {
+  constructor(genesisBlock) {
     super();
-    this.chain = []; // Initialize this.chain as an empty array
+    this.chain = [genesisBlock];
   }
 
   // Add custom methods for the createBlockchain class if needed

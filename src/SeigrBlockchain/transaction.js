@@ -19,8 +19,6 @@ class Wallet {
   }
 }
 
-const senderWallet = new Wallet();
-
 class Transaction {
   constructor({ senderWallet, recipient, amount }) {
     this.id = cryptoHash(Date.now().toString());
@@ -110,4 +108,6 @@ module.exports = {
   Transaction,
   CreateTransaction,
   SaveTransaction,
-  LoadTransaction };
+  LoadTransaction,
+  Wallet,
+};

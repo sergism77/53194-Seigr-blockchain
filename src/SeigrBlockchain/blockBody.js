@@ -1,4 +1,3 @@
-
 class BlockBody {
     constructor({ transactions }) {
         this.transactions = transactions;
@@ -9,12 +8,23 @@ class BlockBody {
     }
 
     addTransaction({ transaction }) {
+        // Perform validations on the transaction object here
+        // Ensure necessary properties exist and have the correct data types
         this.transactions.push(transaction);
     }
 
+    removeTransaction({ transactionId }) {
+        // Implement logic to remove a transaction with the given ID from the transactions array
+        // Find the transaction by its ID and remove it from the array
+    }
+
     toString() {
-        return `Block Body: 
-        Transactions: ${this.transactions}`;
+        const formattedTransactions = this.transactions
+            .map((transaction) => JSON.stringify(transaction, null, 2))
+            .join('\n');
+        return `Block Body:
+Transactions:
+${formattedTransactions}`;
     }
 
     print() {
