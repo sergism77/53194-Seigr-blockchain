@@ -1,4 +1,5 @@
-import { createWallet } from './js/createWallet.js';
+import { ipcRenderer } from 'electron';
+import { createWallet } from '../src/SeigrBlockchain/walletUtils.js';
 import { sendTransaction } from './js/sendTransaction.js';
 import { receiveTransaction } from './js/receiveTransaction.js';
 import { copyAddressToClipboard } from './js/copyAddressToClipboard.js';
@@ -12,48 +13,48 @@ const bookmarksList = document.getElementById('bookmarks-list');
 
 setButton.addEventListener('click', () => {
   const title = titleInput.value;
-  window.electronAPI.setTitle(title);
+  ipcRenderer.send('set-title', title);
   const url = urlInput.value;
-  window.electronAPI.setURL(url);
+  ipcRenderer.send('set-url', url);
 });
 
-window.electronAPI.onBookmarkCreated((event, bookmark) => {
+ipcRenderer.on('bookmark-created', (event, bookmark) => {
   const bookmarkElement = document.createElement('li');
   bookmarkElement.textContent = bookmark.title;
   bookmarksList.appendChild(bookmarkElement);
 });
 
-window.electronAPI.onBookmarkRemoved((event, bookmark) => {
+ipcRenderer.on('bookmark-removed', (event, bookmark) => {
   const bookmarkElement = document.createElement('li');
   bookmarkElement.textContent = bookmark.title;
   bookmarksList.removeChild(bookmarkElement);
 });
 
-window.electronAPI.onBookmarkChanged((event, bookmark) => {
+ipcRenderer.on('bookmark-changed', (event, bookmark) => {
   const bookmarkElement = document.createElement('li');
   bookmarkElement.textContent = bookmark.title;
   bookmarksList.appendChild(bookmarkElement);
 });
 
-window.electronAPI.onBookmarkMoved((event, bookmark) => {
+ipcRenderer.on('bookmark-moved', (event, bookmark) => {
   const bookmarkElement = document.createElement('li');
   bookmarkElement.textContent = bookmark.title;
   bookmarksList.appendChild(bookmarkElement);
 });
 
-window.electronAPI.onBookmarkImported((event, bookmark) => {
+ipcRenderer.on('bookmark-imported', (event, bookmark) => {
   const bookmarkElement = document.createElement('li');
   bookmarkElement.textContent = bookmark.title;
   bookmarksList.appendChild(bookmarkElement);
 });
 
-window.electronAPI.onBookmarkExported((event, bookmark) => {
+ipcRenderer.on('bookmark-exported', (event, bookmark) => {
   const bookmarkElement = document.createElement('li');
   bookmarkElement.textContent = bookmark.title;
   bookmarksList.appendChild(bookmarkElement);
 });
 
-window.electronAPI.onBookmarkChildrenReordered((event, bookmark) => {
+ipcRenderer.on('bookmark-children-reordered', (event, bookmark) => {
   const bookmarkElement = document.createElement('li');
   bookmarkElement.textContent = bookmark.title;
   bookmarksList.appendChild(bookmarkElement);
@@ -78,39 +79,12 @@ document.getElementById('receiveTransactionBtn').addEventListener('click', () =>
 // Handle copy address button click
 document.getElementById('copyAddressBtn').addEventListener('click', copyAddressToClipboard);
 
-// Function to create a new wallet
-function createWallet() {
-  // Implement the wallet creation logic
-}
+// IPC communication to retrieve initial balance and wallet address
+ipcRenderer.on('wallet-info', (event, { balance, address }) => {
+  updateBalance(balance);
+  displayWalletAddress(address);
+});
 
-// Function to send a transaction
-function sendTransaction(recipient, amount) {
-  // Implement the transaction sending logic
-}
+// Request initial wallet information from the main process
+ipcRenderer.send('get-wallet-info');
 
-// Function to receive a transaction
-function receiveTransaction(transactionData) {
-  // Implement the transaction receiving logic
-}
-
-// Function to copy the wallet address to the clipboard
-function copyAddressToClipboard() {
-  // Implement the logic to copy the wallet address to the clipboard
-}
-
-// Function to update the balance display
-function updateBalance(balance) {
-  document.getElementById('balance').textContent = balance;
-}
-
-// Function to display the wallet address
-function displayWalletAddress(address) {
-  document.getElementById('walletAddress').textContent = address;
-}
-
-// Call the necessary functions to initialize the wallet interface
-// For example, retrieve the initial wallet balance and address
-const initialBalance = 0; // Replace with the actual initial balance
-const walletAddress = 'Your Wallet Address'; // Replace with the actual wallet address
-updateBalance(initialBalance);
-displayWalletAddress(walletAddress);

@@ -67,11 +67,25 @@ p {
 button {
   font-family: 'Plunct', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
     Helvetica, Arial, sans-serif;
-  margin: auto;
-  font-size: 23px;
-  max-width: 38rem;
-  padding: 2rem;
-  background-color: #EBA937;
+  font-size: 24px;
+}
+
+placeholder {
+  font-family: 'Plunct', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Helvetica, Arial, sans-serif;
+  font-size: 20px;
+}
+
+:placeholder-shown {
+  font-family: 'Plunct', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Helvetica, Arial, sans-serif;
+}
+
+input {
+  font-family: 'Plunct', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Helvetica, Arial, sans-serif;
+
+  font-size: 20px;
 }
 
 table {

@@ -1,5 +1,6 @@
 const os = require('os');
 const cluster = require('cluster');
+const { ipcRenderer } = require('electron');
 const SeigrBlockchain = require('../../SeigrBlockchain/SeigrBlockchain.js');
 const CreateBlock = require('../../SeigrBlockchain/createBlock.js');
 const Wallet = require('../../SeigrBlockchain/wallet.js');
@@ -85,11 +86,5 @@ function mineBlocks() {
 
 // Update mining status in the UI
 function updateMiningStatus(hashrate, blocksMined) {
-  // Update the total hashrate
-  const totalHashrateElement = document.getElementById('total-hashrate');
-  totalHashrateElement.textContent = `${hashrate} hashes/s`;
-
-  // Update the total blocks mined
-  const totalBlocksMinedElement = document.getElementById('total-blocks-mined');
-  totalBlocksMinedElement.textContent = blocksMined;
+  ipcRenderer.send('update-mining-status', { hashrate, blocksMined });
 }

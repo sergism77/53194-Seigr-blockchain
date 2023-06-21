@@ -9,13 +9,15 @@ const {
   Transaction,
   CreateTransaction,
   SaveTransaction,
-  LoadTransaction } = require('./transaction.js');
+  LoadTransaction,
+} = require('./transaction.js');
 const { createWallet } = require('./walletUtils');
 const Wallet = require('./wallet');
 const { GenesisBlock } = require('./genesisBlock');
 const createBlockchain = require('./createBlockchain');
 const saveBlockchain = require('./saveBlockchain');
 const { Blockchain } = require('./blockchain');
+const { blockchainInstance } = require('./blockchain.js');
 const loadBlockchain = require('./loadBlockchain');
 const { CreateWalletPool, GetWalletPool, UpdateWalletPool } = require('./walletPool');
 const { createBlockPool, getBlockPool, saveBlockPool, loadBlockPool } = require('./blockPool');
@@ -160,22 +162,12 @@ if (fs.existsSync(path.join(blockchainDirectory, 'blockchain.json'))) {
 }
 
 module.exports = {
-  createBlock,
-  CreateTransaction,
   blockchainInstance,
-  saveBlock,
-  SaveTransaction,
-  saveBlockchain,
-  loadBlock,
-  LoadTransaction,
-  cryptoHash,
-  verifySignature,
-  STARTING_BALANCE,
-  ec,
-  fs,
-  path,
-  Transaction,
-  Block,
-  Blockchain,
+  walletDirectory,
+  blockDirectory,
+  transactionDirectory,
+  blockchainDirectory,
+  walletPoolDirectory,
+  blockPoolDirectory,
+  transactionPoolDirectory,
 };
-

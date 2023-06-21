@@ -22,15 +22,8 @@ if (!fs.existsSync(seigrBlockchainDir)) {
   fs.mkdirSync(seigrWalletsDir);
 }
 
+// Start the Seigr blockchain node process
 exec('node src/SeigrBlockchain/p2pServer', (err, stdout, stderr) => {
-  if (err) {
-    console.log(err);
-    return;
-  }
-  console.log(stdout);
-});
-
-exec('node src/SeigrBlockchain/p2pClient', (err, stdout, stderr) => {
   if (err) {
     console.log(err);
     return;

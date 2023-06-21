@@ -1,39 +1,47 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <link rel="stylesheet" href="./bower_components/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="styles.css" />
     <meta charset="UTF-8" />
     <title>Node</title>
-    </head>
-    <body>
+    <link rel="stylesheet" href="./bower_components/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <h1>Node Information</h1>
 
-    <div class="container">
-      <div class="row">
-        <div class="col-md-12">
-          <h1>Node</h1>
-          <p>Here you can see your node</p>
-        </div>
+    <div id="nodeStatus">
+      <h2>Node Status:</h2>
+      <button id="startNodeBtn" class="btn btn-dark">Start Node</button>
+      <button id="stopNodeBtn" class="btn btn-dark">Stop Node</button>
+    </div>
 
-        <div>
-            <p>Node type: </p>
-            <p>Sync status: </p>
-            <p>Number of peers: </p>
-            <p>Maximum number of peers: </p>
-            <p>In traffic: </p>
-            <p>Out traffic: </p>
-            <button id="startNode">Start node</button>
-            <button id="stopNode">Stop node</button>
-        </div>
+    <div id="walletStatus">
+      <h2>Wallet Status:</h2>
+      <button id="connectWalletBtn" class="btn btn-dark">Connect Wallet</button>
+    </div>
 
+    <div id="nodeInfo">
+      <h2>Node Info:</h2>
+      <p>IP Address: <span id="ipAddress"></span></p>
+      <p>Connected Nodes: <span id="connectedNodes"></span></p>
+    </div>
 
-    <script src="./bower_components/jquery/dist/jquery.min.js"></script>
-    <script src="src/GUI/js/node.js"></script>
-    <script src="src/GUI/js/nodeStart.js"></script>
-    <script src="src/GUI/js/nodeStop.js"></script>
-    <script src="src/GUI/js/nodeChangeType.js"></script>
-    <script src="src/GUI/js/nodeChangeMaxPeers.js"></script>
-    <script src="src/GUI/js/nodeSyncStatus.js"></script>
-    <script src="src/GUI/js/nodeNumberOfPeers.js"></script>
-    </body>
+    <div id="syncMode">
+      <h2>Sync Mode:</h2>
+      <select id="syncModeSelect">
+        <option value="full">Full Sync</option>
+        <option value="light">Light Sync</option>
+      </select>
+    </div>
+
+    <div id="addNode">
+      <h2>Add Node:</h2>
+      <form id="addNodeForm">
+        <input type="text" id="addNodeInput" placeholder="Node Address" />
+        <button type="submit" class="btn btn-dark">Connect</button>
+      </form>
+    </div>
+
+    <script src="./node.js"></script>
+  </body>
 </html>

@@ -3,12 +3,14 @@ const { cryptoHash, verifySignature } = require('./utils');
 const Transaction = require('./transaction');
 const ec = require('elliptic').ec('secp256k1');
 const { createGenesisWallet, createWallet, saveWallet } = require('./walletUtils');
+const crypto = require('crypto');
+const base58 = require('bs58');
 
 class Wallet {
   constructor() {
     this.balance = STARTING_BALANCE;
     this.keyPair = ec.genKeyPair();
-    this.address = this.keyPair.getPublic().encode('hex');
+    this.address = this.generateAddress(this.keyPair.getPublic().encode('hex'));
     this.createGenesisWallet = createGenesisWallet;
     this.createWallet = createWallet;
     this.saveWallet = saveWallet;
@@ -22,11 +24,20 @@ class Wallet {
     return this.keyPair.sign(cryptoHash(data));
   }
 
+  generateAddress(publicKey) {
+    const publicKeyHash = crypto.createHash('sha256').update(publicKey).digest();
+    const addressBytes = Buffer.concat([Buffer.from([0x53, 0x19, 0x4e]), publicKeyHash]);
+    const checksum = crypto.createHash('sha256').update(addressBytes).digest();
+    const addressWithChecksum = Buffer.concat([addressBytes, checksum.subarray(0, 4)]);
+    const address = base58.encode(addressWithChecksum);
+    return address;
+  }
+
   createTransaction({ recipient, amount, chain }) {
     if (chain) {
       this.balance = Wallet.calculateBalance({
         chain,
-        address: this.publicKey(),
+        address: this.address,
       });
     }
     if (amount > this.balance) {

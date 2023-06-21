@@ -1,9 +1,9 @@
-const { Peer, PeerList, PeerListItem } = require("./peer");
-const { PeerPool } = require("./peerPool");
-const { PeerPoolDirectory } = require("./peerPoolDirectory");
-const { PeerPoolManager } = require("./peerPoolManager");
+const { Peer } = require("../..SeigrBlockchain/peer");
+const { PeerPool } = require("../..SeigrBlockchain/peerPool");
+const { PeerPoolDirectory } = require("../..SeigrBlockchain/peerPoolDirectory");
+const { PeerPoolManager } = require("../..SeigrBlockchain/peerPoolManager");
 
-// Initialize peerPoolManager, peerPoolDirectory, peerPool, peerList, etc. (your existing code)
+// Initialize the peerPool, peerPoolDirectory, peerPoolManager, etc. with Seigr Blockchain (your existing code)
 
 // Add Peer Button
 const addPeerBtn = document.getElementById("addPeerBtn");
@@ -26,10 +26,11 @@ addPeerBtn.addEventListener("click", () => {
 
 // Display Peer Pool
 function displayPeerPool() {
+  const peerPoolListElement = document.getElementById("peerPoolList");
   peerPoolListElement.innerHTML = "";
 
   // Iterate through each peer in the peer pool
-  PeerList.forEach((peer) => {
+  PeerPool.peers.forEach((peer) => {
     const listItem = document.createElement("li");
     listItem.textContent = peer.address;
     peerPoolListElement.appendChild(listItem);
