@@ -1,19 +1,4 @@
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -54,10 +39,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.transactionPoolDirectory = exports.blockPoolDirectory = exports.walletPoolDirectory = exports.blockchainDirectory = exports.transactionDirectory = exports.blockDirectory = exports.walletDirectory = void 0;
+exports.SeigrBlockchain = void 0;
 var fs_1 = require("fs");
 var path_1 = __importDefault(require("path"));
 var os_1 = __importDefault(require("os"));
+var elliptic_1 = require("elliptic");
 var utils_1 = require("./utils");
 var block_js_1 = require("./block.js");
 var walletUtils_1 = require("./walletUtils");
@@ -67,20 +53,15 @@ var createBlockchain_1 = __importDefault(require("./createBlockchain"));
 var loadBlockchain_1 = __importDefault(require("./loadBlockchain"));
 var walletPool_1 = require("./walletPool");
 var blockPool_1 = require("./blockPool");
+var logger_1 = require("./logger");
+var logger = new logger_1.Logger();
 var walletDirectory = path_1.default.join(os_1.default.homedir(), 'Seigr', 'wallets');
-exports.walletDirectory = walletDirectory;
 var blockDirectory = path_1.default.join(os_1.default.homedir(), 'Seigr', 'blocks');
-exports.blockDirectory = blockDirectory;
 var transactionDirectory = path_1.default.join(os_1.default.homedir(), 'Seigr', 'transactions');
-exports.transactionDirectory = transactionDirectory;
 var blockchainDirectory = path_1.default.join(os_1.default.homedir(), 'Seigr', 'blockchain');
-exports.blockchainDirectory = blockchainDirectory;
 var walletPoolDirectory = path_1.default.join(os_1.default.homedir(), 'Seigr', 'walletPools');
-exports.walletPoolDirectory = walletPoolDirectory;
 var blockPoolDirectory = path_1.default.join(os_1.default.homedir(), 'Seigr', 'blockPools');
-exports.blockPoolDirectory = blockPoolDirectory;
 var transactionPoolDirectory = path_1.default.join(os_1.default.homedir(), 'Seigr', 'transactionPools');
-exports.transactionPoolDirectory = transactionPoolDirectory;
 var ensureDirectoriesExist = function () { return __awaiter(void 0, void 0, void 0, function () {
     var error_1;
     return __generator(this, function (_a) {
@@ -111,35 +92,44 @@ var ensureDirectoriesExist = function () { return __awaiter(void 0, void 0, void
                 return [3 /*break*/, 9];
             case 8:
                 error_1 = _a.sent();
-                console.error('Error creating directories:', error_1);
-                throw error_1;
+                logger.error('Error creating directories:', error_1);
+                throw new Error('Error creating directories');
             case 9: return [2 /*return*/];
         }
     });
 }); };
 var loadOrCreateSenderWallet = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var senderWalletPath, newSenderWallet, walletData, error_2;
+    var senderWalletPath, newSenderWallet, walletData, error_2, writeError_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 senderWalletPath = path_1.default.join(walletDirectory, 'sender-wallet.json');
                 _a.label = 1;
             case 1:
-                _a.trys.push([1, 3, , 5]);
+                _a.trys.push([1, 3, , 8]);
                 return [4 /*yield*/, fs_1.promises.readFile(senderWalletPath, 'utf8')];
             case 2:
                 walletData = _a.sent();
                 newSenderWallet = JSON.parse(walletData);
-                return [3 /*break*/, 5];
+                return [3 /*break*/, 8];
             case 3:
                 error_2 = _a.sent();
-                console.error("Error reading wallet from disk: ".concat(error_2));
-                newSenderWallet = new walletUtils_1.createWallet({ Wallet: wallet_1.default });
-                return [4 /*yield*/, fs_1.promises.writeFile(senderWalletPath, JSON.stringify(newSenderWallet))];
+                logger.error("Error reading wallet from disk: ".concat(error_2));
+                newSenderWallet = (0, walletUtils_1.createWallet)({ Wallet: wallet_1.default });
+                _a.label = 4;
             case 4:
+                _a.trys.push([4, 6, , 7]);
+                return [4 /*yield*/, fs_1.promises.writeFile(senderWalletPath, JSON.stringify(newSenderWallet))];
+            case 5:
                 _a.sent();
-                return [3 /*break*/, 5];
-            case 5: return [2 /*return*/, newSenderWallet];
+                logger.log('New sender wallet generated successfully.');
+                return [3 /*break*/, 7];
+            case 6:
+                writeError_1 = _a.sent();
+                logger.error("Error writing sender wallet to disk: ".concat(writeError_1));
+                return [3 /*break*/, 7];
+            case 7: return [3 /*break*/, 8];
+            case 8: return [2 /*return*/, newSenderWallet];
         }
     });
 }); };
@@ -184,28 +174,40 @@ var saveBlockchain = function (blockchain) { return __awaiter(void 0, void 0, vo
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 3, , 4]);
-                return [4 /*yield*/, fs_1.promises.writeFile(blockchainPath, JSON.stringify(blockchain))];
+                return [4 /*yield*/, fs_1.promises.writeFile(blockchainPath, JSON.stringify(blockchain, null, 2), 'utf8')];
             case 2:
                 _a.sent();
                 return [3 /*break*/, 4];
             case 3:
                 error_3 = _a.sent();
-                console.error('Error saving blockchain:', error_3);
-                throw error_3;
+                logger.error("Error saving blockchain: ".concat(error_3));
+                throw new Error('Error saving blockchain');
             case 4: return [2 /*return*/];
         }
     });
 }); };
-var SeigrBlockchainClass = /** @class */ (function (_super) {
-    __extends(SeigrBlockchainClass, _super);
-    function SeigrBlockchainClass() {
-        var _this = _super.call(this) || this;
-        _this.chain = [];
-        _this.walletPool = null;
-        _this.blockPool = null;
-        return _this;
+var createBlock = function (previousHash, processedTransactions) {
+    var ec = new elliptic_1.ec('secp256k1');
+    var keyPair = ec.keyFromPrivate('private key');
+    var minerIdentifier = keyPair.getPublic().encode('hex');
+    return new block_js_1.Block({
+        timestamp: Date.now(),
+        lastHash: previousHash,
+        hash: (0, utils_1.cryptoHash)(previousHash),
+        data: processedTransactions,
+        nonce: 0,
+        difficulty: 0,
+        transactions: processedTransactions,
+        miner: minerIdentifier,
+    });
+};
+var SeigrBlockchain = /** @class */ (function () {
+    function SeigrBlockchain() {
+        this.chain = [];
+        this.walletPool = null;
+        this.blockPool = null;
     }
-    SeigrBlockchainClass.prototype.initializePools = function () {
+    SeigrBlockchain.prototype.initializePools = function () {
         return __awaiter(this, void 0, void 0, function () {
             var _a, _b;
             return __generator(this, function (_c) {
@@ -224,50 +226,55 @@ var SeigrBlockchainClass = /** @class */ (function (_super) {
             });
         });
     };
-    SeigrBlockchainClass.prototype.addBlock = function (transactions) {
+    SeigrBlockchain.prototype.addBlock = function (transactions) {
         return __awaiter(this, void 0, void 0, function () {
-            var previousHash, processedTransactions, minerIdentifier, newBlock, _i, processedTransactions_1, transaction, wallet, walletBalance, error_4;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var previousHash, processedTransactions, newBlock, batchSize_1, batches, _i, batches_1, batch, wallets, _a, batch_1, transaction, wallet, error_4;
+            var _this = this;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
-                        if (!transactions || Object.keys(transactions).length === 0) {
+                        if (!transactions || transactions.length === 0) {
                             throw new Error('Block does not contain any transactions.');
                         }
                         previousHash = this.chain.length > 0 ? this.chain[this.chain.length - 1].hash : null;
-                        processedTransactions = Object.values(transactions);
-                        minerIdentifier = keyPair.getPublic().encode('hex');
-                        newBlock = new block_js_1.Block({
-                            timestamp: Date.now(),
-                            lastHash: previousHash,
-                            hash: (0, utils_1.cryptoHash)(previousHash),
-                            data: processedTransactions,
-                            nonce: 0,
-                            difficulty: 0,
-                            transactions: processedTransactions,
-                            miner: minerIdentifier,
-                        });
-                        _a.label = 1;
+                        processedTransactions = transactions.slice();
+                        newBlock = createBlock(previousHash, processedTransactions);
+                        _b.label = 1;
                     case 1:
-                        _a.trys.push([1, 12, , 13]);
+                        _b.trys.push([1, 12, , 13]);
                         return [4 /*yield*/, (0, block_js_1.saveBlock)(newBlock)];
                     case 2:
-                        _a.sent();
+                        _b.sent();
                         return [4 /*yield*/, Promise.all(processedTransactions.map(function (transaction) {
                                 return fs_1.promises.unlink(path_1.default.join(transactionPoolDirectory, "".concat(transaction.id, ".json")));
                             }))];
                     case 3:
-                        _a.sent();
-                        _i = 0, processedTransactions_1 = processedTransactions;
-                        _a.label = 4;
+                        _b.sent();
+                        batchSize_1 = 10;
+                        batches = processedTransactions.reduce(function (batches, transaction, idx) {
+                            var batchIndex = Math.floor(idx / batchSize_1);
+                            batches[batchIndex] = batches[batchIndex] || [];
+                            batches[batchIndex].push(transaction);
+                            return batches;
+                        }, []);
+                        _i = 0, batches_1 = batches;
+                        _b.label = 4;
                     case 4:
-                        if (!(_i < processedTransactions_1.length)) return [3 /*break*/, 7];
-                        transaction = processedTransactions_1[_i];
-                        wallet = new wallet_1.default({ walletId: transaction.input.address });
-                        walletBalance = wallet.calculateBalance({ blockchain: this });
-                        return [4 /*yield*/, wallet.updateBalance({ blockchain: this, balance: walletBalance })];
+                        if (!(_i < batches_1.length)) return [3 /*break*/, 7];
+                        batch = batches_1[_i];
+                        wallets = new Map();
+                        for (_a = 0, batch_1 = batch; _a < batch_1.length; _a++) {
+                            transaction = batch_1[_a];
+                            wallet = new wallet_1.default({ walletId: transaction.input.address });
+                            wallets.set(wallet.walletId, wallet);
+                        }
+                        return [4 /*yield*/, Promise.all(Array.from(wallets.values()).map(function (wallet) {
+                                var balance = wallet.calculateBalance({ blockchain: _this });
+                                return wallet.updateBalance({ blockchain: _this, balance: balance });
+                            }))];
                     case 5:
-                        _a.sent();
-                        _a.label = 6;
+                        _b.sent();
+                        _b.label = 6;
                     case 6:
                         _i++;
                         return [3 /*break*/, 4];
@@ -275,29 +282,30 @@ var SeigrBlockchainClass = /** @class */ (function (_super) {
                         this.chain.push(newBlock);
                         return [4 /*yield*/, saveBlockchain(this)];
                     case 8:
-                        _a.sent();
+                        _b.sent();
                         return [4 /*yield*/, this.walletPool.updateWalletPool()];
                     case 9:
-                        _a.sent();
+                        _b.sent();
                         return [4 /*yield*/, this.blockPool.saveBlockPool()];
                     case 10:
-                        _a.sent();
+                        _b.sent();
                         return [4 /*yield*/, this.blockPool.updateBlockchainPool(this)];
                     case 11:
-                        _a.sent();
+                        _b.sent();
                         return [3 /*break*/, 13];
                     case 12:
-                        error_4 = _a.sent();
-                        console.error('Error adding block:', error_4);
-                        throw error_4;
+                        error_4 = _b.sent();
+                        logger.error('Error adding block:', error_4);
+                        throw new Error('Error adding block');
                     case 13: return [2 /*return*/];
                 }
             });
         });
     };
-    return SeigrBlockchainClass;
-}(createBlockchain_1.default));
-var initializeBlockchain = function () { return __awaiter(void 0, void 0, void 0, function () {
+    return SeigrBlockchain;
+}());
+exports.SeigrBlockchain = SeigrBlockchain;
+var createOrLoadBlockchain = function () { return __awaiter(void 0, void 0, void 0, function () {
     var blockchain;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -310,17 +318,6 @@ var initializeBlockchain = function () { return __awaiter(void 0, void 0, void 0
                 return [4 /*yield*/, blockchain.initializePools()];
             case 3:
                 _a.sent();
-                return [2 /*return*/, blockchain];
-        }
-    });
-}); };
-var createOrLoadBlockchain = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var blockchain;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0: return [4 /*yield*/, initializeBlockchain()];
-            case 1:
-                blockchain = _a.sent();
                 return [2 /*return*/, blockchain];
         }
     });

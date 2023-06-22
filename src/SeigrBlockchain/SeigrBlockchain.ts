@@ -16,60 +16,54 @@ import { CreateWalletPool, GetWalletPool, UpdateWalletPool } from './walletPool'
 import { CreateBlockPool, GetBlockPool, SaveBlockPool, LoadBlockPool } from './blockPool';
 import { TransactionPool } from './transactionPool';
 import { CreateBlockchainPool } from './blockchainPool';
+import { Logger } from './logger';
 
-interface DirectoryPaths {
-  wallet: string;
-  block: string;
-  transaction: string;
-  blockchain: string;
-  walletPool: string;
-  blockPool: string;
-  transactionPool: string;
-}
+const logger = new Logger();
 
-const directories: DirectoryPaths = {
-  wallet: path.join('.', 'Seigr', 'wallets'),
-  block: path.join('.', 'Seigr', 'blocks'),
-  transaction: path.join('.', 'Seigr', 'transactions'),
-  blockchain: path.join('.', 'Seigr', 'blockchain'),
-  walletPool: path.join('.', 'Seigr', 'walletPools'),
-  blockPool: path.join('.', 'Seigr', 'blockPools'),
-  transactionPool: path.join('.', 'Seigr', 'transactionPools'),
-};
+const walletDirectory = path.join(os.homedir(), 'Seigr', 'wallets');
+const blockDirectory = path.join(os.homedir(), 'Seigr', 'blocks');
+const transactionDirectory = path.join(os.homedir(), 'Seigr', 'transactions');
+const blockchainDirectory = path.join(os.homedir(), 'Seigr', 'blockchain');
+const walletPoolDirectory = path.join(os.homedir(), 'Seigr', 'walletPools');
+const blockPoolDirectory = path.join(os.homedir(), 'Seigr', 'blockPools');
+const transactionPoolDirectory = path.join(os.homedir(), 'Seigr', 'transactionPools');
 
 const ensureDirectoriesExist = async (): Promise<void> => {
   try {
-    await Promise.all(
-      Object.values(directories).map(directory => fs.mkdir(directory, { recursive: true }))
-    );
-    return;
+    await fs.mkdir(walletDirectory, { recursive: true });
+    await fs.mkdir(blockDirectory, { recursive: true });
+    await fs.mkdir(transactionDirectory, { recursive: true });
+    await fs.mkdir(blockchainDirectory, { recursive: true });
+    await fs.mkdir(walletPoolDirectory, { recursive: true });
+    await fs.mkdir(blockPoolDirectory, { recursive: true });
+    await fs.mkdir(transactionPoolDirectory, { recursive: true });
   } catch (error) {
-    console.error(`Error creating directories: ${error}`);
+    logger.error('Error creating directories:', error);
     throw new Error('Error creating directories');
   }
 };
 
 const loadOrCreateSenderWallet = async (): Promise<Wallet> => {
-  const senderWalletPath = path.join(directories.wallet, 'sender-wallet.json');
+  const senderWalletPath = path.join(walletDirectory, 'sender-wallet.json');
+  let newSenderWallet;
   try {
     const walletData = await fs.readFile(senderWalletPath, 'utf8');
-    return JSON.parse(walletData);
+    newSenderWallet = JSON.parse(walletData);
   } catch (error) {
-    console.error(`Error reading wallet from disk: ${error}`);
-    const newSenderWallet = createWallet({ Wallet });
+    logger.error(`Error reading wallet from disk: ${error}`);
+    newSenderWallet = createWallet({ Wallet });
     try {
       await fs.writeFile(senderWalletPath, JSON.stringify(newSenderWallet));
-      console.log('New sender wallet generated successfully.');
-      return newSenderWallet;
+      logger.log('New sender wallet generated successfully.');
     } catch (writeError) {
-      console.error(`Error writing sender wallet to disk: ${writeError}`);
-      throw new Error('Error writing sender wallet to disk');
+      logger.error(`Error writing sender wallet to disk: ${writeError}`);
     }
   }
+  return newSenderWallet;
 };
 
 const loadOrCreateBlockchain = async (): Promise<Blockchain> => {
-  const blockchainPath = path.join(directories.blockchain, 'blockchain.json');
+  const blockchainPath = path.join(blockchainDirectory, 'blockchain.json');
   try {
     await fs.access(blockchainPath);
     return loadBlockchain();
@@ -85,11 +79,11 @@ const loadOrCreateBlockchain = async (): Promise<Blockchain> => {
 };
 
 const saveBlockchain = async (blockchain: Blockchain): Promise<void> => {
-  const blockchainPath = path.join(directories.blockchain, 'blockchain.json');
+  const blockchainPath = path.join(blockchainDirectory, 'blockchain.json');
   try {
     await fs.writeFile(blockchainPath, JSON.stringify(blockchain, null, 2), 'utf8');
   } catch (error) {
-    console.error(`Error saving blockchain: ${error}`);
+    logger.error(`Error saving blockchain: ${error}`);
     throw new Error('Error saving blockchain');
   }
 };
@@ -111,57 +105,6 @@ const createBlock = (previousHash: string, processedTransactions: Transaction[])
   });
 };
 
-const addBlock = async (transactions: Record<string, Transaction>): Promise<void> => {
-  if (!transactions || Object.keys(transactions).length === 0) {
-    throw new Error('Block does not contain any transactions.');
-  }
-
-  const previousHash = this.chain.length > 0 ? this.chain[this.chain.length - 1].hash : null;
-  const processedTransactions = Object.values(transactions);
-  const newBlock = createBlock(previousHash, processedTransactions);
-
-  try {
-    await saveBlock(newBlock);
-
-    await Promise.all(
-      processedTransactions.map((transaction: any) =>
-        fs.unlink(path.join(directories.transactionPool, `${transaction.id}.json`))
-      )
-    );
-
-    const batchSize = 10;
-    const batches = processedTransactions.reduce((batches: Transaction[][], transaction, idx) => {
-      const batchIndex = Math.floor(idx / batchSize);
-      batches[batchIndex] = batches[batchIndex] || [];
-      batches[batchIndex].push(transaction);
-      return batches;
-    }, []);
-
-    for (const batch of batches) {
-      const wallets = new Map<string, Wallet>();
-      for (const transaction of batch) {
-        const wallet = new Wallet({ walletId: (transaction as Transaction).input.address });
-        wallets.set(wallet.walletId, wallet);
-      }
-      await Promise.all(
-        Array.from(wallets.values()).map(wallet => {
-          const balance = wallet.calculateBalance({ blockchain: this });
-          return wallet.updateBalance({ blockchain: this, balance });
-        })
-      );
-    }
-
-    this.chain.push(newBlock);
-    await saveBlockchain(this);
-    await this.walletPool.updateWalletPool();
-    await this.blockPool.saveBlockPool();
-    await this.blockPool.updateBlockchainPool(this);
-  } catch (error) {
-    console.error('Error adding block:', error);
-    throw new Error('Error adding block');
-  }
-};
-
 class SeigrBlockchain {
   chain: Block[];
   walletPool: ReturnType<typeof GetWalletPool>;
@@ -178,8 +121,56 @@ class SeigrBlockchain {
     this.blockPool = await CreateBlockPool();
   }
 
-  async addBlock(transactions: Record<string, Transaction>): Promise<void> {
-    return addBlock.call(this, transactions);
+  async addBlock(transactions: Transaction[]): Promise<void> {
+    if (!transactions || transactions.length === 0) {
+      throw new Error('Block does not contain any transactions.');
+    }
+
+    const previousHash = this.chain.length > 0 ? this.chain[this.chain.length - 1].hash : null;
+    const processedTransactions = transactions.slice();
+
+    const newBlock = createBlock(previousHash, processedTransactions);
+
+    try {
+      await saveBlock(newBlock);
+
+      await Promise.all(
+        processedTransactions.map((transaction: any) =>
+          fs.unlink(path.join(transactionPoolDirectory, `${transaction.id}.json`))
+        )
+      );
+
+      const batchSize = 10;
+      const batches = processedTransactions.reduce((batches: Transaction[][], transaction, idx) => {
+        const batchIndex = Math.floor(idx / batchSize);
+        batches[batchIndex] = batches[batchIndex] || [];
+        batches[batchIndex].push(transaction);
+        return batches;
+      }, []);
+
+      for (const batch of batches) {
+        const wallets = new Map<string, Wallet>();
+        for (const transaction of batch) {
+          const wallet = new Wallet({ walletId: (transaction as Transaction).input.address });
+          wallets.set(wallet.walletId, wallet);
+        }
+        await Promise.all(
+          Array.from(wallets.values()).map(wallet => {
+            const balance = wallet.calculateBalance({ blockchain: this });
+            return wallet.updateBalance({ blockchain: this, balance });
+          })
+        );
+      }
+
+      this.chain.push(newBlock);
+      await saveBlockchain(this);
+      await this.walletPool.updateWalletPool();
+      await this.blockPool.saveBlockPool();
+      await this.blockPool.updateBlockchainPool(this);
+    } catch (error) {
+      logger.error('Error adding block:', error);
+      throw new Error('Error adding block');
+    }
   }
 }
 
@@ -191,4 +182,4 @@ const createOrLoadBlockchain = async (): Promise<SeigrBlockchain> => {
 };
 
 export default createOrLoadBlockchain;
-export { SeigrBlockchain, directories };
+export { SeigrBlockchain };
