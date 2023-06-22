@@ -6,12 +6,7 @@ const fetch = require('node-fetch');
  * @returns {Promise} - The promise that resolves to a response object or an error message
  */
 function fetchBlock(blockNumber) {
-  return fetch(`/api/block/${blockNumber}`)
-    .then(res => res.json())
-    .catch(error => {
-      console.error('Error fetching block:', error);
-      return `Error: ${error.message}`;
-    });
+  return fetchData(`/api/block/${blockNumber}`, `block with number ${blockNumber}`);
 }
 
 /**
@@ -19,12 +14,7 @@ function fetchBlock(blockNumber) {
  * @returns {Promise} - The promise that resolves to a response object or an error message
  */
 function fetchBlocks() {
-  return fetch('/api/blocks')
-    .then(res => res.json())
-    .catch(error => {
-      console.error('Error fetching blocks:', error);
-      return `Error: ${error.message}`;
-    });
+  return fetchData('/api/blocks', 'all blocks');
 }
 
 /**
@@ -33,12 +23,7 @@ function fetchBlocks() {
  * @returns {Promise} - The promise that resolves to a response object or an error message
  */
 function fetchTransaction(transactionHash) {
-  return fetch(`/api/transaction/${transactionHash}`)
-    .then(res => res.json())
-    .catch(error => {
-      console.error('Error fetching transaction:', error);
-      return `Error: ${error.message}`;
-    });
+  return fetchData(`/api/transaction/${transactionHash}`, `transaction with hash ${transactionHash}`);
 }
 
 /**
@@ -46,12 +31,7 @@ function fetchTransaction(transactionHash) {
  * @returns {Promise} - The promise that resolves to a response object or an error message
  */
 function fetchTransactions() {
-  return fetch('/api/transactions')
-    .then(res => res.json())
-    .catch(error => {
-      console.error('Error fetching transactions:', error);
-      return `Error: ${error.message}`;
-    });
+  return fetchData('/api/transactions', 'all transactions');
 }
 
 /**
@@ -60,12 +40,7 @@ function fetchTransactions() {
  * @returns {Promise} - The promise that resolves to a response object or an error message
  */
 function fetchTransactionReceipt(transactionHash) {
-  return fetch(`/api/transactionReceipt/${transactionHash}`)
-    .then(res => res.json())
-    .catch(error => {
-      console.error('Error fetching transaction receipt:', error);
-      return `Error: ${error.message}`;
-    });
+  return fetchData(`/api/transactionReceipt/${transactionHash}`, `transaction receipt with hash ${transactionHash}`);
 }
 
 /**
@@ -73,12 +48,7 @@ function fetchTransactionReceipt(transactionHash) {
  * @returns {Promise} - The promise that resolves to a response object or an error message
  */
 function fetchTransactionReceipts() {
-  return fetch('/api/transactionReceipts')
-    .then(res => res.json())
-    .catch(error => {
-      console.error('Error fetching transaction receipts:', error);
-      return `Error: ${error.message}`;
-    });
+  return fetchData('/api/transactionReceipts', 'all transaction receipts');
 }
 
 /**
@@ -87,12 +57,7 @@ function fetchTransactionReceipts() {
  * @returns {Promise} - The promise that resolves to a response object or an error message
  */
 function fetchTransactionReceiptsByBlock(blockNumber) {
-  return fetch(`/api/transactionReceiptsByBlock/${blockNumber}`)
-    .then(res => res.json())
-    .catch(error => {
-      console.error('Error fetching transaction receipts by block:', error);
-      return `Error: ${error.message}`;
-    });
+  return fetchData(`/api/transactionReceiptsByBlock/${blockNumber}`, `transaction receipts for block number ${blockNumber}`);
 }
 
 /**
@@ -101,12 +66,7 @@ function fetchTransactionReceiptsByBlock(blockNumber) {
  * @returns {Promise} - The promise that resolves to a response object or an error message
  */
 function fetchTransactionReceiptsByTransaction(transactionHash) {
-  return fetch(`/api/transactionReceiptsByTransaction/${transactionHash}`)
-    .then(res => res.json())
-    .catch(error => {
-      console.error('Error fetching transaction receipts by transaction:', error);
-      return `Error: ${error.message}`;
-    });
+  return fetchData(`/api/transactionReceiptsByTransaction/${transactionHash}`, `transaction receipts for transaction hash ${transactionHash}`);
 }
 
 /**
@@ -115,12 +75,7 @@ function fetchTransactionReceiptsByTransaction(transactionHash) {
  * @returns {Promise} - The promise that resolves to a response object or an error message
  */
 function fetchTransactionReceiptsByAddress(address) {
-  return fetch(`/api/transactionReceiptsByAddress/${address}`)
-    .then(res => res.json())
-    .catch(error => {
-      console.error('Error fetching transaction receipts by address:', error);
-      return `Error: ${error.message}`;
-    });
+  return fetchData(`/api/transactionReceiptsByAddress/${address}`, `transaction receipts for address ${address}`);
 }
 
 /**
@@ -130,12 +85,7 @@ function fetchTransactionReceiptsByAddress(address) {
  * @returns {Promise} - The promise that resolves to a response object or an error message
  */
 function fetchTransactionReceiptsByBlockAndAddress(blockNumber, address) {
-  return fetch(`/api/transactionReceiptsByBlockAndAddress/${blockNumber}/${address}`)
-    .then(res => res.json())
-    .catch(error => {
-      console.error('Error fetching transaction receipts by block and address:', error);
-      return `Error: ${error.message}`;
-    });
+  return fetchData(`/api/transactionReceiptsByBlockAndAddress/${blockNumber}/${address}`, `transaction receipts for block number ${blockNumber} and address ${address}`);
 }
 
 /**
@@ -145,12 +95,7 @@ function fetchTransactionReceiptsByBlockAndAddress(blockNumber, address) {
  * @returns {Promise} - The promise that resolves to a response object or an error message
  */
 function fetchTransactionReceiptsByTransactionAndAddress(transactionHash, address) {
-  return fetch(`/api/transactionReceiptsByTransactionAndAddress/${transactionHash}/${address}`)
-    .then(res => res.json())
-    .catch(error => {
-      console.error('Error fetching transaction receipts by transaction and address:', error);
-      return `Error: ${error.message}`;
-    });
+  return fetchData(`/api/transactionReceiptsByTransactionAndAddress/${transactionHash}/${address}`, `transaction receipts for transaction hash ${transactionHash} and address ${address}`);
 }
 
 /**
@@ -160,12 +105,7 @@ function fetchTransactionReceiptsByTransactionAndAddress(transactionHash, addres
  * @returns {Promise} - The promise that resolves to a response object or an error message
  */
 function fetchTransactionReceiptsByBlockAndTransaction(blockNumber, transactionHash) {
-  return fetch(`/api/transactionReceiptsByBlockAndTransaction/${blockNumber}/${transactionHash}`)
-    .then(res => res.json())
-    .catch(error => {
-      console.error('Error fetching transaction receipts by block and transaction:', error);
-      return `Error: ${error.message}`;
-    });
+  return fetchData(`/api/transactionReceiptsByBlockAndTransaction/${blockNumber}/${transactionHash}`, `transaction receipts for block number ${blockNumber} and transaction hash ${transactionHash}`);
 }
 
 /**
@@ -176,12 +116,7 @@ function fetchTransactionReceiptsByBlockAndTransaction(blockNumber, transactionH
  * @returns {Promise} - The promise that resolves to a response object or an error message
  */
 function fetchTransactionReceiptsByBlockAndTransactionAndAddress(blockNumber, transactionHash, address) {
-  return fetch(`/api/transactionReceiptsByBlockAndTransactionAndAddress/${blockNumber}/${transactionHash}/${address}`)
-    .then(res => res.json())
-    .catch(error => {
-      console.error('Error fetching transaction receipts by block, transaction, and address:', error);
-      return `Error: ${error.message}`;
-    });
+  return fetchData(`/api/transactionReceiptsByBlockAndTransactionAndAddress/${blockNumber}/${transactionHash}/${address}`, `transaction receipts for block number ${blockNumber}, transaction hash ${transactionHash}, and address ${address}`);
 }
 
 /**
@@ -189,12 +124,7 @@ function fetchTransactionReceiptsByBlockAndTransactionAndAddress(blockNumber, tr
  * @returns {Promise} - The promise that resolves to a response object or an error message
  */
 function fetchWallets() {
-  return fetch('/api/wallets')
-    .then(res => res.json())
-    .catch(error => {
-      console.error('Error fetching wallets:', error);
-      return `Error: ${error.message}`;
-    });
+  return fetchData('/api/wallets', 'wallets');
 }
 
 /**
@@ -203,12 +133,7 @@ function fetchWallets() {
  * @returns {Promise} - The promise that resolves to a response object or an error message
  */
 function fetchWalletsByAddress(address) {
-  return fetch(`/api/walletsByAddress/${address}`)
-    .then(res => res.json())
-    .catch(error => {
-      console.error('Error fetching wallets by address:', error);
-      return `Error: ${error.message}`;
-    });
+  return fetchData(`/api/walletsByAddress/${address}`, `wallets for address ${address}`);
 }
 
 /**
@@ -218,12 +143,35 @@ function fetchWalletsByAddress(address) {
  * @returns {Promise} - The promise that resolves to a response object or an error message
  */
 function fetchWalletsByAddressAndToken(address, token) {
-  return fetch(`/api/walletsByAddressAndToken/${address}/${token}`)
+  return fetchData(`/api/walletsByAddressAndToken/${address}/${token}`, `wallets for address ${address} and token ${token}`);
+}
+
+/**
+ * Fetches data from the provided URL
+ * @param {String} url - The URL to fetch the data from
+ * @param {String} typeText - The description of the data being fetched
+ * @returns {Promise} - The promise that resolves to a response object or an error message
+ */
+function fetchData(url, typeText) {
+  return fetch(url)
+    .then(handleErrors)
     .then(res => res.json())
     .catch(error => {
-      console.error('Error fetching wallets by address and token:', error);
+      console.error(`Error fetching ${typeText}:`, error);
       return `Error: ${error.message}`;
     });
+}
+
+/**
+ * Handles errors from API calls
+ * @param {Object} res - The response object
+ * @returns {Object} - The response object if it's successful, otherwise throws an error
+ */
+function handleErrors(res) {
+  if (!res.ok) {
+    throw new Error(res.statusText);
+  }
+  return res;
 }
 
 module.exports = {
