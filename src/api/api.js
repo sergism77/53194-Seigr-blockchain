@@ -1,375 +1,155 @@
-//this is the api file for the Seigr blockchain that will be used on the GUI
-
-
 import axios from 'axios';
 
-const API_URL = 'http://localhost:53194/api';
+const API_URL = process.env.API_URL; // Assuming API_URL is set as an environment variable
 
 export default class API {
-    static getBlockchain() {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/blockchain`)
-                .then((res) => {
-                    const blockchain = res.data;
-                    resolve(blockchain);
-                })
-                .catch((err) => reject(err));
+  static requestAPI(url, method = 'GET', data = null) {
+    return new Promise((resolve, reject) => {
+      axios({ url, method, data })
+        .then((response) => {
+          resolve(response.data);
+        })
+        .catch((error) => {
+          if (error.response && error.response.data && error.response.data.message) {
+            reject(error.response.data.message);
+          } else {
+            reject(error.message);
+          }
         });
-    }
+    });
+  }
 
-    static getLatestBlock() {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/blockchain/latest-block`)
-                .then((res) => {
-                    const block = res.data;
-                    resolve(block);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static getBlockchain() {
+    return API.requestAPI(`${API_URL}/blockchain`);
+  }
 
-    static getBlock(hash) {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/blockchain/block/${hash}`)
-                .then((res) => {
-                    const block = res.data;
-                    resolve(block);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static getLatestBlock() {
+    return API.requestAPI(`${API_URL}/blockchain/latest-block`);
+  }
 
-    static getTransactionPool() {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/transaction-pool`)
-                .then((res) => {
-                    const transactionPool = res.data;
-                    resolve(transactionPool);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static getBlock(hash) {
+    return API.requestAPI(`${API_URL}/blockchain/block/${hash}`);
+  }
 
-    static mineBlock() {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/mine-block`)
-                .then((res) => {
-                    const block = res.data;
-                    resolve(block);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static getTransactionPool() {
+    return API.requestAPI(`${API_URL}/transaction-pool`);
+  }
 
-    static createTransaction(recipient, amount) {
-        return new Promise((resolve, reject) => {
-            axios.post(`${API_URL}/transact`, { recipient, amount })
-                .then((res) => {
-                    const transaction = res.data;
-                    resolve(transaction);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static mineBlock() {
+    return API.requestAPI(`${API_URL}/mine-block`);
+  }
 
-    static mineTransactions() {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/mine-transactions`)
-                .then((res) => {
-                    const block = res.data;
-                    resolve(block);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static createTransaction(recipient, amount) {
+    const data = { recipient, amount };
+    return API.requestAPI(`${API_URL}/transact`, 'POST', data);
+  }
 
-    static getAddressData(address) {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/address/${address}`)
-                .then((res) => {
-                    const addressData = res.data;
-                    resolve(addressData);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static mineTransactions() {
+    return API.requestAPI(`${API_URL}/mine-transactions`);
+  }
 
-    static getPeerSockets() {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/peers`)
-                .then((res) => {
-                    const peers = res.data;
-                    resolve(peers);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static getAddressData(address) {
+    return API.requestAPI(`${API_URL}/address/${address}`);
+  }
 
-    static addPeer(peer) {
-        return new Promise((resolve, reject) => {
-            axios.post(`${API_URL}/peers`, { peer })
-                .then((res) => {
-                    const peers = res.data;
-                    resolve(peers);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static getPeerSockets() {
+    return API.requestAPI(`${API_URL}/peers`);
+  }
 
-    static getUtxos() {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/utxos`)
-                .then((res) => {
-                    const utxos = res.data;
-                    resolve(utxos);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static addPeer(peer) {
+    const data = { peer };
+    return API.requestAPI(`${API_URL}/peers`, 'POST', data);
+  }
 
-    static getWalletUtxos() {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/wallet/utxos`)
-                .then((res) => {
-                    const utxos = res.data;
-                    resolve(utxos);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static getUtxos() {
+    return API.requestAPI(`${API_URL}/utxos`);
+  }
 
-    static getWalletBalance() {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/wallet/balance`)
-                .then((res) => {
-                    const balance = res.data;
-                    resolve(balance);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static getWalletUtxos() {
+    return API.requestAPI(`${API_URL}/wallet/utxos`);
+  }
 
-    static getWalletAddress() {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/wallet/address`)
-                .then((res) => {
-                    const address = res.data;
-                    resolve(address);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static getWalletBalance() {
+    return API.requestAPI(`${API_URL}/wallet/balance`);
+  }
 
-    static getWalletTransactions() {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/wallet/transactions`)
-                .then((res) => {
-                    const transactions = res.data;
-                    resolve(transactions);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static getWalletAddress() {
+    return API.requestAPI(`${API_URL}/wallet/address`);
+  }
 
-    static getWalletTransaction(txid) {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/wallet/transaction/${txid}`)
-                .then((res) => {
-                    const transaction = res.data;
-                    resolve(transaction);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static getWalletTransactions() {
+    return API.requestAPI(`${API_URL}/wallet/transactions`);
+  }
 
-    static getWalletUnspentTransactions() {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/wallet/unspent-transactions`)
-                .then((res) => {
-                    const transactions = res.data;
-                    resolve(transactions);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static getWalletTransaction(txid) {
+    return API.requestAPI(`${API_URL}/wallet/transaction/${txid}`);
+  }
 
-    static getWalletUnspentTransaction(txid) {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/wallet/unspent-transaction/${txid}`)
-                .then((res) => {
-                    const transaction = res.data;
-                    resolve(transaction);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static getWalletUnspentTransactions() {
+    return API.requestAPI(`${API_URL}/wallet/unspent-transactions`);
+  }
 
-    static getWalletUnspentTransactionOutputs(txid) {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/wallet/unspent-transaction-outputs/${txid}`)
-                .then((res) => {
-                    const outputs = res.data;
-                    resolve(outputs);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static getWalletUnspentTransaction(txid) {
+    return API.requestAPI(`${API_URL}/wallet/unspent-transaction/${txid}`);
+  }
 
-    static getWalletUnspentTransactionOutput(txid, index) {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/wallet/unspent-transaction-output/${txid}/${index}`)
-                .then((res) => {
-                    const output = res.data;
-                    resolve(output);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static getWalletUnspentTransactionOutputs(txid) {
+    return API.requestAPI(`${API_URL}/wallet/unspent-transaction-outputs/${txid}`);
+  }
 
-    static getWalletUnspentTransactionOutputAmount(txid, index) {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/wallet/unspent-transaction-output-amount/${txid}/${index}`)
-                .then((res) => {
-                    const amount = res.data;
-                    resolve(amount);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static getWalletUnspentTransactionOutput(txid, index) {
+    return API.requestAPI(`${API_URL}/wallet/unspent-transaction-output/${txid}/${index}`);
+  }
 
-    static getWalletUnspentTransactionOutputAddress(txid, index) {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/wallet/unspent-transaction-output-address/${txid}/${index}`)
-                .then((res) => {
-                    const address = res.data;
-                    resolve(address);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static getWalletUnspentTransactionOutputAmount(txid, index) {
+    return API.requestAPI(`${API_URL}/wallet/unspent-transaction-output-amount/${txid}/${index}`);
+  }
 
-    static getWalletUnspentTransactionOutputScriptPubKey(txid, index) {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/wallet/unspent-transaction-output-script-pub-key/${txid}/${index}`)
-                .then((res) => {
-                    const scriptPubKey = res.data;
-                    resolve(scriptPubKey);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static getWalletUnspentTransactionOutputAddress(txid, index) {
+    return API.requestAPI(`${API_URL}/wallet/unspent-transaction-output-address/${txid}/${index}`);
+  }
 
-    static getWalletUnspentTransactionOutputRedeemScript(txid, index) {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/wallet/unspent-transaction-output-redeem-script/${txid}/${index}`)
-                .then((res) => {
-                    const redeemScript = res.data;
-                    resolve(redeemScript);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static getWalletUnspentTransactionOutputScriptPubKey(txid, index) {
+    return API.requestAPI(`${API_URL}/wallet/unspent-transaction-output-script-pub-key/${txid}/${index}`);
+  }
 
-    static getWalletUnspentTransactionOutputWitnessScript(txid, index) {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/wallet/unspent-transaction-output-witness-script/${txid}/${index}`)
-                .then((res) => {
-                    const witnessScript = res.data;
-                    resolve(witnessScript);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static getWalletUnspentTransactionOutputRedeemScript(txid, index) {
+    return API.requestAPI(`${API_URL}/wallet/unspent-transaction-output-redeem-script/${txid}/${index}`);
+  }
 
-    static getWalletUnspentTransactionOutputIsSpent(txid, index) {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/wallet/unspent-transaction-output-is-spent/${txid}/${index}`)
-                .then((res) => {
-                    const isSpent = res.data;
-                    resolve(isSpent);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static getWalletUnspentTransactionOutputWitnessScript(txid, index) {
+    return API.requestAPI(`${API_URL}/wallet/unspent-transaction-output-witness-script/${txid}/${index}`);
+  }
 
-    static getWalletUnspentTransactionOutputIsConfirmed(txid, index) {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/wallet/unspent-transaction-output-is-confirmed/${txid}/${index}`)
-                .then((res) => {
-                    const isConfirmed = res.data;
-                    resolve(isConfirmed);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static getWalletUnspentTransactionOutputIsSpent(txid, index) {
+    return API.requestAPI(`${API_URL}/wallet/unspent-transaction-output-is-spent/${txid}/${index}`);
+  }
 
-    static getWalletUnspentTransactionOutputConfirmations(txid, index) {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/wallet/unspent-transaction-output-confirmations/${txid}/${index}`)
-                .then((res) => {
-                    const confirmations = res.data;
-                    resolve(confirmations);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static getWalletUnspentTransactionOutputIsConfirmed(txid, index) {
+    return API.requestAPI(`${API_URL}/wallet/unspent-transaction-output-is-confirmed/${txid}/${index}`);
+  }
 
-    static getWalletUnspentTransactionOutputBlockHeight(txid, index) {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/wallet/unspent-transaction-output-block-height/${txid}/${index}`)
-                .then((res) => {
-                    const blockHeight = res.data;
-                    resolve(blockHeight);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static getWalletUnspentTransactionOutputConfirmations(txid, index) {
+    return API.requestAPI(`${API_URL}/wallet/unspent-transaction-output-confirmations/${txid}/${index}`);
+  }
 
-    static getWalletUnspentTransactionOutputBlockHash(txid, index) {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/wallet/unspent-transaction-output-block-hash/${txid}/${index}`)
-                .then((res) => {
-                    const blockHash = res.data;
-                    resolve(blockHash);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static getWalletUnspentTransactionOutputBlockHeight(txid, index) {
+    return API.requestAPI(`${API_URL}/wallet/unspent-transaction-output-block-height/${txid}/${index}`);
+  }
 
-    static getWalletUnspentTransactionOutputBlockTime(txid, index) {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/wallet/unspent-transaction-output-block-time/${txid}/${index}`)
-                .then((res) => {
-                    const blockTime = res.data;
-                    resolve(blockTime);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static getWalletUnspentTransactionOutputBlockHash(txid, index) {
+    return API.requestAPI(`${API_URL}/wallet/unspent-transaction-output-block-hash/${txid}/${index}`);
+  }
 
-    static getWalletUnspentTransactionOutputTransaction(txid, index) {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/wallet/unspent-transaction-output-transaction/${txid}/${index}`)
-                .then((res) => {
-                    const transaction = res.data;
-                    resolve(transaction);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static getWalletUnspentTransactionOutputBlockTime(txid, index) {
+    return API.requestAPI(`${API_URL}/wallet/unspent-transaction-output-block-time/${txid}/${index}`);
+  }
 
-    static getWalletUnspentTransactionOutputTransactionId(txid, index) {
-        return new Promise((resolve, reject) => {
-            axios.get(`${API_URL}/wallet/unspent-transaction-output-transaction-id/${txid}/${index}`)
-                .then((res) => {
-                    const transactionId = res.data;
-                    resolve(transactionId);
-                })
-                .catch((err) => reject(err));
-        });
-    }
+  static getWalletUnspentTransactionOutputTransaction(txid, index) {
+    return API.requestAPI(`${API_URL}/wallet/unspent-transaction-output-transaction/${txid}/${index}`);
+  }
 
+  static getWalletUnspentTransactionOutputTransactionId(txid, index) {
+    return API.requestAPI(`${API_URL}/wallet/unspent-transaction-output-transaction-id/${txid}/${index}`);
+  }
 }
-
-export { API_URL };
-
