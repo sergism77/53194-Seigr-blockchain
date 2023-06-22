@@ -1,3 +1,5 @@
+'use strict';
+
 let genesisTransactionPool = [];
 
 const mineGenesisTransactionPool = ({ genesisTransaction }) => () => {

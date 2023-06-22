@@ -1,3 +1,5 @@
+'use strict';
+
 const createMerkleChild = (merkleNode, merkleLeaf) => {
     //create the merkle child
     let merkleChild = {};

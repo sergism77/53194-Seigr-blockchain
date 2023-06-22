@@ -1,5 +1,4 @@
-//this is the memoryStorageMiner class
-//it is a miner that stores the blockchain in memory
+'use strict';
 
 class memoryStorageMiner {
     constructor() {

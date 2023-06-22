@@ -1,3 +1,5 @@
+'use strict';
+
 const WalletPool = require('./walletPool');
 const BlockPool = require('./blockPool');
 const TransactionPool = require('./transactionPool');

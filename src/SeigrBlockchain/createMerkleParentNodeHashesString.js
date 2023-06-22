@@ -1,3 +1,5 @@
+'use strict';
+
 const createMerkleParentNodeHashesString = (merkleLeafHashesString) => {
     //create the merkle parent node hashes string
     let merkleParentNodeHashesString = "";

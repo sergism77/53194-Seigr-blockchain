@@ -1,3 +1,5 @@
+'use strict';
+
 class createGenesisTransaction {
     constructor(sender, receiver, amount) {
       this.lastBlockHash = ""; // the hash of the previous block

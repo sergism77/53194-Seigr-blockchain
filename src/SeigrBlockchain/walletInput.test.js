@@ -1,4 +1,5 @@
-// this is the walletInput.test.js
+'use strict';
+
 const WalletInput = require('./walletInput');
 const { verifySignature } = require('../utils');
 const Wallet = require('./wallet');

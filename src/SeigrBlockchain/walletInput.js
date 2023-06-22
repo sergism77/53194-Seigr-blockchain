@@ -1,3 +1,4 @@
+'use strict';
 
 const { REWARD_INPUT, MINING_REWARD } = require('../config');
 const { verifySignature } = require('../utils');

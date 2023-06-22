@@ -1,3 +1,5 @@
+'use strict';
+
 const BigInt = require('big-integer');
 
 const GENESIS_DATA = {

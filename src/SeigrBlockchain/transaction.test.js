@@ -1,4 +1,4 @@
-//this is the transaction.test.js file
+'use strict';
 
 const transaction = require('./transaction');
 const Wallet = require('./wallet');

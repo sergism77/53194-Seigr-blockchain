@@ -1,3 +1,5 @@
+'use strict';
+
 const assert = require('assert');
 const SHA256 = require('crypto-js/sha256');
 const EC = require('elliptic').ec;

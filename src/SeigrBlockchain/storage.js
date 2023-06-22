@@ -1,7 +1,4 @@
-//this is the storage class
-
-//this class will store the blocks in a map
-//the key will be the hash of the block
+'use strict';
 
 class Storage {
     constructor() {

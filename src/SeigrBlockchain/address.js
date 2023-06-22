@@ -1,3 +1,5 @@
+'use strict';
+
 const { v4: uuidv4 } = require('uuid');
 const { verifySignature } = require('./utils');
 const { REWARD_INPUT, MINING_REWARD } = require('./config');

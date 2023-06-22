@@ -1,3 +1,5 @@
+'use strict';
+
 const createMerkleLeaf = (transaction) => {
     //create the merkle leaf
     let merkleLeaf = {};

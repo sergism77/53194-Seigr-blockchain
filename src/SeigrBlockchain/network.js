@@ -1,6 +1,4 @@
-//this file contains all network related functions
-//
-
+'use strict';
 
 const Transaction = require('./transaction');
 const Wallet = require('./wallet');

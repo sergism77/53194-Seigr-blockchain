@@ -1,3 +1,5 @@
+'use strict';
+
 const { createMerkleParentNodeHash } = require('./createMerkleParentNodeHash.js');
 
 const createMerkleParentNodeHashesBase64 = (merkleLeafHashesBase64) => {

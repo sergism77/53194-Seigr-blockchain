@@ -1,3 +1,5 @@
+'use strict';
+
 const Blockchain = require('./blockchain');
 const TransactionPool = require('./transactionPool');
 const TransactionPoolMap = require('./transactionPoolMap');

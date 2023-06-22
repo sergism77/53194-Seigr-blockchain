@@ -1,3 +1,4 @@
+'use strict';
 
 const { createMachine, interpret } = require('xstate');
 

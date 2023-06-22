@@ -1,3 +1,5 @@
+'use strict';
+
 class PeerPoolDirectory {
     constructor() {
       this.peerPoolDirectory = [];

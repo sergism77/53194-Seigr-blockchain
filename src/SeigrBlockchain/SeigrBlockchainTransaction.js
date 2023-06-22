@@ -1,4 +1,4 @@
-//this is the SeigrBlockchainTransaction class
+'use strict';
 
 class SeigrBlockchainTransaction {
     constructor() {

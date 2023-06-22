@@ -1,3 +1,5 @@
+'use strict';
+
 const Block = require('./block');
 const cryptoHash = require('./utils');
 

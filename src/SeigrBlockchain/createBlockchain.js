@@ -1,3 +1,5 @@
+'use strict';
+
 const Blockchain = require('./blockchain');
 
 class createBlockchain extends Blockchain {

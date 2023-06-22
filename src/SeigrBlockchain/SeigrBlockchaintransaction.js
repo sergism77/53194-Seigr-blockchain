@@ -1,3 +1,5 @@
+'use strict';
+
 class SeigrBlockchainTransaction {
     constructor() {
         this.transactionId = null;

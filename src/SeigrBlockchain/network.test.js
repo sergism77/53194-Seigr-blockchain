@@ -1,5 +1,4 @@
-//this is the network.test.js file:
-//
+'use strict';
 
 const Network = require('./network');
 const Blockchain = require('../blockchain');

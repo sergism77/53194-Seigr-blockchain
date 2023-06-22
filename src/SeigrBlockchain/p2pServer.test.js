@@ -1,3 +1,4 @@
+'use strict';
 
 const P2pServer = require('./p2pServer');
 const Blockchain = require('./blockchain');

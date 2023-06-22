@@ -1,3 +1,5 @@
+'use strict';
+
 const createMerkleTree = (transactions) => {
     //create an array of merkle nodes
     let merkleNodes = transactions.map((transaction) => {

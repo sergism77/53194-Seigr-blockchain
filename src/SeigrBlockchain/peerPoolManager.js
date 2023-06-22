@@ -1,4 +1,4 @@
-//this is the PeerPoolManager class. It will be used to manage the PeerPool.
+'use strict';
 
 const PeerPoolManager = class { 
     //this is the constructor function.

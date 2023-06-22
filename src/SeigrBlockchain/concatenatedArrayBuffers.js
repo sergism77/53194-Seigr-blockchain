@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * Concatenates all the ArrayBuffer objects in arrayBuffers
  * @param {ArrayBuffer[]} arrayBuffers - An array of ArrayBuffer objects to concatenate

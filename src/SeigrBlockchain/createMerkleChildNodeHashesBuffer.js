@@ -1,3 +1,5 @@
+'use strict';
+
 const concatArrayBuffers = require("./concatArrayBuffers.js");
 
 const createMerkleChildNodeHashesBuffer = (merkleNodeHashesBuffer, merkleLeafHashesBuffer) => {

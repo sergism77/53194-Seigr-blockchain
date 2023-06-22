@@ -1,3 +1,5 @@
+'use strict';
+
 const { REWARD_INPUT, MINING_REWARD } = require('./config');
 const { Transaction } = require('./transaction');
 const createTransaction = require('./createTransaction');

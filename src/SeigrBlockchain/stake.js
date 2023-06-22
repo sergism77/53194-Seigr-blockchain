@@ -1,4 +1,4 @@
-//this is the stake.js file
+'use strict';
 
 const BlockchainNodeList = require('./blockchainNodeList.js');
 const BlockchainNodeListManager = require('./blockchainNodeListManager.js');

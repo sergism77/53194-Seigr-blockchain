@@ -1,3 +1,5 @@
+'use strict';
+
 const createMerklePath = (merkleTree, transactionHash) => {
     //create the merkle path
     let merklePath = [];

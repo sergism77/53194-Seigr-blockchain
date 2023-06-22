@@ -1,5 +1,4 @@
-//this is the function that mines a block
-//this function will mine a block for the Seigr blockchain
+'use strict';
 
 const { cryptoHash } = require('./utils');
 const { REWARD_INPUT, MINING_REWARD } = require('./config');

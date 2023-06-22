@@ -1,3 +1,4 @@
+'use strict';
 
 const minerWorkerMachine = require('xstate').Machine;
 const minerWorkerService = require('xstate').interpret;

@@ -1,3 +1,5 @@
+'use strict';
+
 class SEIGToken {
     constructor(owner) {
         this.totalSupply = 0;

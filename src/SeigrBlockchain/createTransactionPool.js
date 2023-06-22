@@ -1,6 +1,5 @@
-//this is the create transaction pool function
-//this function will create the transaction pool of the Seigr blockchain
-//
+'use strict';
+
 const { GENESIS_DATA } = require('./genesis');
 const { MINE_RATE } = require('./config');
 

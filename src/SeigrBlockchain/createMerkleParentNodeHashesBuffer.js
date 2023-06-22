@@ -1,3 +1,5 @@
+'use strict';
+
 const createMerkleParentNodeHashesBuffer = (merkleLeafHashesBuffer) => {
     //create the merkle parent node hashes buffer
     let merkleParentNodeHashesBuffer = new ArrayBuffer(0);

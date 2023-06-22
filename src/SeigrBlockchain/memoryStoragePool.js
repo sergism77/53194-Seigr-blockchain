@@ -1,4 +1,4 @@
-//this is the memoryStoragePool.js file
+'use strict';
 
 const { expect } = require("chai");
 const { ethers } = require("hardhat");

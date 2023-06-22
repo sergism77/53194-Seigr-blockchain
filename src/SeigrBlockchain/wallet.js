@@ -9,9 +9,13 @@ const crypto = require('crypto');
 const base58 = require('bs58');
 
 class Wallet {
-  constructor() {
+  constructor(keyPair) {
+    if (keyPair) {
+      this.keyPair = keyPair;
+    } else {
+      this.keyPair = ec.genKeyPair();
+    }
     this.balance = STARTING_BALANCE;
-    this.keyPair = ec.genKeyPair();
     this.address = this.generateAddress(this.keyPair.getPublic().encode('hex'));
     this.createGenesisWallet = createGenesisWallet;
     this.createWallet = createWallet;
@@ -23,7 +27,11 @@ class Wallet {
   }
 
   sign(data) {
-    return this.keyPair.sign(cryptoHash(data));
+    try {
+      return this.keyPair.sign(cryptoHash(data));
+    } catch (error) {
+      throw new Error('Error signing the data');
+    }
   }
 
   generateAddress(publicKey) {

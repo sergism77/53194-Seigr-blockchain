@@ -1,3 +1,5 @@
+'use strict';
+
 const createMerkleChildNodeHashBuffer = (merkleNodeHashBuffer1, merkleNodeHashBuffer2) => {
     //create the merkle child node hash buffer
     let merkleChildNodeHashBuffer = Buffer.alloc(0);

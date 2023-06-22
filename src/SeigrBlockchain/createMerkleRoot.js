@@ -1,3 +1,5 @@
+'use strict';
+
 const createMerkleRoot = (merkleTree) => {
     //create the merkle root
     let merkleRoot = merkleTree.hash;

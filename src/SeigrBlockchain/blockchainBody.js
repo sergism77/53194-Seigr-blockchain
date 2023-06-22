@@ -1,3 +1,5 @@
+'use strict';
+
 const SHA256 = require('crypto-js/sha256');
 const EC = require('elliptic').ec;
 const { v4: uuidv4 } = require('uuid');

@@ -1,3 +1,5 @@
+'use strict';
+
 class Explorer {
   constructor(blockchain) {
     this.blockchain = blockchain;

@@ -1,3 +1,5 @@
+'use strict';
+
 const createMerkleBranch = (merkleTree, transactionHash) => {
     //create the merkle branch
     let merkleBranch = [];

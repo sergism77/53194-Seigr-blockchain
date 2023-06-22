@@ -1,3 +1,5 @@
+'use strict';
+
 const createMerkleParentNode = (merkleNodes) => {
     //create a merkle parent node
     let merkleParentNode = {};

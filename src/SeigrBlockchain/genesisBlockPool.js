@@ -1,3 +1,5 @@
+'use strict';
+
 const mineGenesisBlockPool = ({ genesisBlock }) => () => {
     const genesisBlockPool = [genesisBlock];
     return genesisBlockPool;

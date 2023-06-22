@@ -1,6 +1,6 @@
+'use strict';
+
 const Websocket = require('ws');
-
-
 const P2P_PORT =  53194;
 const peers = process.env.PEERS ? process.env.PEERS.split(',') : []; //if there is no PEERS in the environment, then use an empty array
 

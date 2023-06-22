@@ -1,3 +1,5 @@
+'use strict';
+
 const createMerkleParentNodeFromTwoMerkleNodes = (merkleNode1, merkleNode2) => {
     //create the merkle parent node
     let merkleParentNode = {};

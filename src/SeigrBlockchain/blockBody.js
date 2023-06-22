@@ -1,3 +1,5 @@
+'use strict';
+
 class BlockBody {
     constructor({ transactions }) {
         this.transactions = transactions;

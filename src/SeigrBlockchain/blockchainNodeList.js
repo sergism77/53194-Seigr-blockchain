@@ -1,3 +1,5 @@
+'use strict';
+
 const BlockchainNode = require('./blockchainNode');
 
 class BlockchainNodeList {

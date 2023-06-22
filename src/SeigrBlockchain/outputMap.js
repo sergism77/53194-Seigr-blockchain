@@ -1,3 +1,5 @@
+'use strict';
+
 class outputMap {
     constructor({ recipient, amount, senderPublicKey }) {
         this.outputMap = {};

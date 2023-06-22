@@ -1,3 +1,4 @@
+'use strict';
 
 const Block = require('./block');
 const Transaction = require('./transaction');

@@ -1,3 +1,5 @@
+'use strict';
+
 class PeerPool {
     //this is the constructor function.
     constructor() {

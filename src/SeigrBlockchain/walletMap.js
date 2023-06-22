@@ -1,3 +1,4 @@
+'use strict';
 
 const WalletMap = require('./walletMap');
 const Wallet = require('./wallet');

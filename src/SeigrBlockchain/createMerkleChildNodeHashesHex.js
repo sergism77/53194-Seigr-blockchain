@@ -1,3 +1,5 @@
+'use strict';
+
 const createMerkleChildNodeHashesHex = (merkleNodeHashesHex, merkleLeafHashesHex) => {
     //create the merkle child node hashes hex
     let merkleChildNodeHashesHex = "";

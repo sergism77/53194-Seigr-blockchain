@@ -1,4 +1,4 @@
-//this is the output of the transaction
+'use strict';
 
 const SHA256 = require('crypto-js/sha256');
 const EC = require('elliptic').ec;

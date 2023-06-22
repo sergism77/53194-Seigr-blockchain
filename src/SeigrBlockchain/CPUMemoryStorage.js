@@ -1,3 +1,5 @@
+'use strict';
+
 const cryptoHash = require('./utils');
 
 class CPUMemoryStorage {

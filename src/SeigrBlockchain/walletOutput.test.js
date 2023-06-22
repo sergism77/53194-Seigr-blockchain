@@ -1,4 +1,5 @@
-//this is the walletOutput.test.js
+'use strict';
+
 const WalletOutput = require('./walletOutput');
 const { verifySignature } = require('../utils');
 const Wallet = require('./wallet');
