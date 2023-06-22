@@ -16,7 +16,8 @@ import { CreateWalletPool, GetWalletPool, UpdateWalletPool } from './walletPool'
 import { CreateBlockPool, GetBlockPool, SaveBlockPool, LoadBlockPool } from './blockPool';
 import { TransactionPool } from './transactionPool';
 import { CreateBlockchainPool } from './blockchainPool';
-import logger from './logger';
+const logger = require('./logger');
+
 
 const walletDirectory = path.join(process.env.HOME, 'Seigr', 'wallets');
 const blockDirectory = path.join(process.env.HOME, 'Seigr', 'blocks');
@@ -43,21 +44,28 @@ const ensureDirectoriesExist = async () => {
 
 const loadOrCreateSenderWallet = async () => {
   const senderWalletPath = path.join(walletDirectory, 'sender-wallet.json');
-  let newSenderWallet;
   try {
-    const walletData = await fs.readFile(senderWalletPath, 'utf8');
-    newSenderWallet = JSON.parse(walletData);
-  } catch (error) {
-    logger.error(`Error reading wallet from disk: ${error.message}`);
-    newSenderWallet = createWallet({ Wallet: Wallet });
+    await fs.access(senderWalletPath);
+    const senderWalletContents = await fs.readFile(senderWalletPath, 'utf8');
+    const senderWallet = JSON.parse(senderWalletContents);
+    logger.info('Sender wallet loaded successfully.');
+    return senderWallet;
+  } catch {
+    const ec = new EC('secp256k1');
+    const senderWallet = ec.genKeyPair();
+    const publicKey = senderWallet.getPublic().encode('hex', false);
+    const privateKey = senderWallet.getPrivate().toString(16);
+
+    const newSenderWallet = { publicKey, privateKey };
+
     try {
-      await fs.writeFile(senderWalletPath, JSON.stringify(newSenderWallet));
-      logger.info('New sender wallet generated successfully.');
+      await fs.writeFile(senderWalletPath, JSON.stringify(newSenderWallet), 'utf8');
+      logger.info('New sender wallet generated and saved successfully.');
     } catch (writeError) {
       logger.error(`Error writing sender wallet to disk: ${writeError.message}`);
     }
+    return newSenderWallet;
   }
-  return newSenderWallet;
 };
 
 
