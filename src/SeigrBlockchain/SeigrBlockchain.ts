@@ -1,7 +1,7 @@
-import { promises as fs } from 'fs';
+import { promises as fs, Dirent } from 'fs';
 import path from 'path';
 import os from 'os';
-import { ec as EC } from 'elliptic';
+import { ec as EC, ec } from 'elliptic';
 import { STARTING_BALANCE } from './config';
 import { cryptoHash, verifySignature } from './utils';
 import { Block, saveBlock, loadBlock } from './block.js';
@@ -25,6 +25,9 @@ const walletPoolDirectory = path.join(os.homedir(), 'Seigr', 'walletPools');
 const blockPoolDirectory = path.join(os.homedir(), 'Seigr', 'blockPools');
 const transactionPoolDirectory = path.join(os.homedir(), 'Seigr', 'transactionPools');
 
+/**
+ * Ensures that the required directories exist.
+ */
 const ensureDirectoriesExist = async (): Promise<void> => {
   try {
     await fs.mkdir(walletDirectory, { recursive: true });
@@ -35,11 +38,14 @@ const ensureDirectoriesExist = async (): Promise<void> => {
     await fs.mkdir(blockPoolDirectory, { recursive: true });
     await fs.mkdir(transactionPoolDirectory, { recursive: true });
   } catch (error) {
-    console.error('Error creating directories:', error);
-    throw error;
+    throw new Error(`Error creating directories: ${error}`);
   }
 };
 
+/**
+ * Loads or creates the sender wallet.
+ * @returns The sender wallet.
+ */
 const loadOrCreateSenderWallet = async (): Promise<Wallet> => {
   const senderWalletPath = path.join(walletDirectory, 'sender-wallet.json');
   let newSenderWallet;
@@ -48,12 +54,16 @@ const loadOrCreateSenderWallet = async (): Promise<Wallet> => {
     newSenderWallet = JSON.parse(walletData);
   } catch (error) {
     console.error(`Error reading wallet from disk: ${error}`);
-    newSenderWallet = createWallet({ Wallet });
+    newSenderWallet = new createWallet({ Wallet });
     await fs.writeFile(senderWalletPath, JSON.stringify(newSenderWallet));
   }
   return newSenderWallet;
 };
 
+/**
+ * Loads or creates the blockchain.
+ * @returns The blockchain.
+ */
 const loadOrCreateBlockchain = async (): Promise<Blockchain> => {
   const blockchainPath = path.join(blockchainDirectory, 'blockchain.json');
   try {
@@ -63,28 +73,37 @@ const loadOrCreateBlockchain = async (): Promise<Blockchain> => {
     const genesisWallet = await loadOrCreateSenderWallet();
     const genesisBlock = new GenesisBlock({ genesisWallet });
     await saveBlock(genesisBlock);
-    const blockchain = createBlockchain();
+    const blockchain = new createBlockchain();
     blockchain.addBlock(genesisBlock);
     await saveBlockchain(blockchain);
     return blockchain;
   }
 };
 
+/**
+ * Saves the blockchain to disk.
+ * @param blockchain The blockchain to save.
+ */
 const saveBlockchain = async (blockchain: Blockchain): Promise<void> => {
   const blockchainPath = path.join(blockchainDirectory, 'blockchain.json');
   try {
     await fs.writeFile(blockchainPath, JSON.stringify(blockchain));
   } catch (error) {
-    console.error('Error saving blockchain:', error);
-    throw error;
+    throw new Error(`Error saving blockchain: ${error}`);
   }
 };
 
+/**
+ * The SeigrBlockchain class.
+ */
 class SeigrBlockchainClass extends createBlockchain {
   chain: Block[];
   walletPool: ReturnType<typeof GetWalletPool>;
   blockPool: ReturnType<typeof GetBlockPool>;
 
+  /**
+   * Creates an instance of SeigrBlockchainClass.
+   */
   constructor() {
     super();
     this.chain = [];
@@ -92,11 +111,18 @@ class SeigrBlockchainClass extends createBlockchain {
     this.blockPool = null;
   }
 
+  /**
+   * Initializes the wallet pool and block pool.
+   */
   async initializePools() {
     this.walletPool = await CreateWalletPool();
     this.blockPool = await CreateBlockPool();
   }
 
+  /**
+   * Adds a block to the blockchain.
+   * @param transactions The transactions to include in the block.
+   */
   async addBlock(transactions: Record<string, Transaction>): Promise<void> {
     if (!transactions || Object.keys(transactions).length === 0) {
       throw new Error('Block does not contain any transactions.');
@@ -106,7 +132,8 @@ class SeigrBlockchainClass extends createBlockchain {
 
     const processedTransactions = Object.values(transactions);
 
-    const keyPair = EC.genKeyPair(); // Generate a key pair using elliptic's `ec` module
+    const ec = new EC('secp256k1');
+    const keyPair = ec.keyFromPrivate('private key');
 
     const minerIdentifier = keyPair.getPublic().encode('hex');
 
@@ -124,13 +151,13 @@ class SeigrBlockchainClass extends createBlockchain {
     try {
       await saveBlock(newBlock);
       await Promise.all(
-        processedTransactions.map((transaction) =>
+        processedTransactions.map((transaction: any) =>
           fs.unlink(path.join(transactionPoolDirectory, `${transaction.id}.json`))
         )
       );
 
       for (const transaction of processedTransactions) {
-        const wallet = new Wallet({ walletId: transaction.input.address });
+        const wallet = new Wallet({ walletId: (transaction as Transaction).input.address });
         const walletBalance = wallet.calculateBalance({ blockchain: this });
         await wallet.updateBalance({ blockchain: this, balance: walletBalance });
       }
@@ -142,11 +169,15 @@ class SeigrBlockchainClass extends createBlockchain {
       await this.blockPool.updateBlockchainPool(this);
     } catch (error) {
       console.error('Error adding block:', error);
-      throw error;
+      throw new Error(`Error adding block: ${error}`);
     }
   }
 }
 
+/**
+ * Initializes the blockchain.
+ * @returns The initialized blockchain.
+ */
 const createOrLoadBlockchain = async (): Promise<SeigrBlockchainClass> => {
   await ensureDirectoriesExist();
   const blockchain = await loadOrCreateBlockchain();
@@ -156,6 +187,7 @@ const createOrLoadBlockchain = async (): Promise<SeigrBlockchainClass> => {
 
 export default createOrLoadBlockchain;
 export {
+  SeigrBlockchainClass,
   walletDirectory,
   blockDirectory,
   transactionDirectory,
