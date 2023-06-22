@@ -4,37 +4,17 @@ const Block = require('./block');
 const cryptoHash = require('./utils');
 
 class CPU {
-  constructor(blockchain, block, transaction, wallet, miner, node, network, peer, peerlist, peerlistitem, cpu, cpuitem) {
+  constructor(blockchain) {
     this.chain = blockchain;
-    this.block = block;
-    this.transaction = transaction;
-    this.wallet = wallet;
-    this.miner = miner;
-    this.node = node;
-    this.network = network;
-    this.peer = peer;
-    this.peerlist = peerlist;
-    this.peerlistitem = peerlistitem;
-    this.cpu = cpu;
-    this.cpuitem = cpuitem;
   }
 
-  mineBlock({ data }) {
+  mineBlock(data) {
     const newBlock = Block.mineBlock({
       lastBlock: this.chain[this.chain.length - 1],
       data
     });
 
     this.chain.push(newBlock);
-  }
-
-  mineTransaction({ data }) {
-    const newTransaction = Transaction.mineTransaction({
-      lastTransaction: this.chain[this.chain.length - 1],
-      data
-    });
-
-    this.chain.push(newTransaction);
   }
 
   static isValidChain(chain) {
@@ -90,12 +70,11 @@ class CPU {
 
 class CPUMap {
   constructor() {
-    this.cpu = [];
-    this.cpuitem = null;
+    this.cpus = [];
   }
 
   addCPU(cpu) {
-    this.cpu.push(cpu);
+    this.cpus.push(cpu);
   }
 
   static isValidCPU(cpu) {
@@ -120,33 +99,12 @@ class CPUMap {
 
       if (hash !== validatedHash) return false;
     }
-
     return true;
-  }
-
-  replaceCPU(cpu) {
-    if (cpu.length <= this.cpu.length) {
-      console.error('The incoming cpu must be longer');
-      return;
-    }
-
-    if (!CPUMap.isValidCPU(cpu)) {
-      console.error('The incoming cpu must be valid');
-      return;
-    }
-
-    console.log('replacing cpu with', cpu);
-    this.cpu = cpu;
-  }
-
-  static genesis() {
-    return new this({
-      timestamp: 'Genesis time',
-      lastHash: '-----',
-      hash: 'hash-one',
-      data: []
-    });
   }
 }
 
-module.exports = { CPU, CPUMap };
+module.exports = {
+  CPU,
+  CPUMap,
+  Block,
+};

@@ -28,7 +28,7 @@ class CPUMemoryStorage {
   }
 
   replaceCPU(cpu) {
-    if (cpu.length <= this.cpu.length) {
+    if (cpu.length <= this._storage.size) {
       console.error('The incoming cpu must be longer');
       return;
     }
@@ -87,7 +87,7 @@ class CPUMemoryStorageMap {
   }
 
   replaceCPU(cpu) {
-    if (cpu.length <= this.cpu.length) {
+    if (cpu.length <= this.map.size) {
       console.error('The incoming cpu must be longer');
       return;
     }
