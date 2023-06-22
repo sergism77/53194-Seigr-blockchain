@@ -62,7 +62,7 @@ const loadOrCreateSenderWallet = async (): Promise<Wallet> => {
 };
 
 // Check if the blockchain exists
-const loadOrCreateBlockchain = async (): Promise<Blockchain> => {
+const createOrLoadBlockchain = async (): Promise<Blockchain> => {
   const blockchainPath = path.join(blockchainDirectory, 'blockchain.json');
   try {
     await fs.access(blockchainPath);
@@ -89,7 +89,7 @@ const saveBlockchain = async (blockchain: Blockchain): Promise<void> => {
   }
 };
 
-class SeigrBlockchainClass extends createBlockchain {
+class CustomBlockchain extends createBlockchain {
   chain: Block[];
   walletPool: any;
   blockPool: any;
@@ -134,8 +134,8 @@ class SeigrBlockchainClass extends createBlockchain {
 
       for (const transaction of Object.values(transactions)) {
         const wallet = new Wallet({ walletId: transaction.input.address });
-        const walletBalance = wallet.calculateBalance({ blockchain: this });
-        await wallet.updateBalance({ blockchain: this, balance: walletBalance });
+        const walletBalance = Wallet.calculateBalance({ blockchain: this });
+        await Wallet.updateBalance({ blockchain: this, balance: walletBalance });
       }
 
       this.chain.push(newBlock);
@@ -151,9 +151,9 @@ class SeigrBlockchainClass extends createBlockchain {
   }
 }
 
-const initializeBlockchain = async (): Promise<SeigrBlockchainClass> => {
+const initializeBlockchain = async (): Promise<CustomBlockchain> => {
   await ensureDirectoriesExist();
-  const blockchain = await loadOrCreateBlockchain();
+  const blockchain = await createOrLoadBlockchain();
   await blockchain.initializePools();
   return blockchain;
 };
