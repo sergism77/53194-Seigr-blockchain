@@ -1,12 +1,10 @@
-'use strict';
-
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
-import { cryptoHash, verifySignature } from './utils';
+import { ec as EC } from 'elliptic';
 import { STARTING_BALANCE } from './config';
-import { ec } from 'elliptic';
-import { createBlock, Block, loadBlock } from './block.js';
+import { cryptoHash, verifySignature } from './utils';
+import { Block, saveBlock, loadBlock } from './block.js';
 import { Transaction, CreateTransaction, LoadTransaction } from './transaction.js';
 import { createWallet } from './walletUtils';
 import Wallet from './wallet';
@@ -14,15 +12,10 @@ import { GenesisBlock } from './genesisBlock';
 import createBlockchain from './createBlockchain';
 import { Blockchain } from './blockchain';
 import loadBlockchain from './loadBlockchain';
-import { CreateWalletPool, UpdateWalletPool } from './walletPool';
-import { createBlockPool, getBlockPool, saveBlockPool, loadBlockPool } from './blockPool';
+import { CreateWalletPool, GetWalletPool, UpdateWalletPool } from './walletPool';
+import { CreateBlockPool, GetBlockPool, SaveBlockPool, LoadBlockPool } from './blockPool';
 import { TransactionPool } from './transactionPool';
 import { CreateBlockchainPool } from './blockchainPool';
-
-// Generate a new key pair for the miner
-const ec = new EC('secp256k1');
-const keyPair = ec.genKeyPair();
-const minerIdentifier = keyPair.getPublic().encode('hex');
 
 const walletDirectory = path.join(os.homedir(), 'Seigr', 'wallets');
 const blockDirectory = path.join(os.homedir(), 'Seigr', 'blocks');
@@ -32,7 +25,6 @@ const walletPoolDirectory = path.join(os.homedir(), 'Seigr', 'walletPools');
 const blockPoolDirectory = path.join(os.homedir(), 'Seigr', 'blockPools');
 const transactionPoolDirectory = path.join(os.homedir(), 'Seigr', 'transactionPools');
 
-// Ensure directories exist
 const ensureDirectoriesExist = async (): Promise<void> => {
   try {
     await fs.mkdir(walletDirectory, { recursive: true });
@@ -48,21 +40,21 @@ const ensureDirectoriesExist = async (): Promise<void> => {
   }
 };
 
-// Load or create the sender wallet
 const loadOrCreateSenderWallet = async (): Promise<Wallet> => {
   const senderWalletPath = path.join(walletDirectory, 'sender-wallet.json');
+  let newSenderWallet;
   try {
     const walletData = await fs.readFile(senderWalletPath, 'utf8');
-    return JSON.parse(walletData);
-  } catch {
-    const newSenderWallet = new createWallet({ Wallet });
+    newSenderWallet = JSON.parse(walletData);
+  } catch (error) {
+    console.error(`Error reading wallet from disk: ${error}`);
+    newSenderWallet = createWallet({ Wallet });
     await fs.writeFile(senderWalletPath, JSON.stringify(newSenderWallet));
-    return newSenderWallet;
   }
+  return newSenderWallet;
 };
 
-// Check if the blockchain exists
-const createOrLoadBlockchain = async (): Promise<Blockchain> => {
+const loadOrCreateBlockchain = async (): Promise<Blockchain> => {
   const blockchainPath = path.join(blockchainDirectory, 'blockchain.json');
   try {
     await fs.access(blockchainPath);
@@ -71,14 +63,13 @@ const createOrLoadBlockchain = async (): Promise<Blockchain> => {
     const genesisWallet = await loadOrCreateSenderWallet();
     const genesisBlock = new GenesisBlock({ genesisWallet });
     await saveBlock(genesisBlock);
-    const blockchain = new createBlockchain();
+    const blockchain = createBlockchain();
     blockchain.addBlock(genesisBlock);
     await saveBlockchain(blockchain);
     return blockchain;
   }
 };
 
-// Save the blockchain to disk
 const saveBlockchain = async (blockchain: Blockchain): Promise<void> => {
   const blockchainPath = path.join(blockchainDirectory, 'blockchain.json');
   try {
@@ -89,10 +80,10 @@ const saveBlockchain = async (blockchain: Blockchain): Promise<void> => {
   }
 };
 
-class CustomBlockchain extends createBlockchain {
+class SeigrBlockchainClass extends createBlockchain {
   chain: Block[];
-  walletPool: any;
-  blockPool: any;
+  walletPool: ReturnType<typeof GetWalletPool>;
+  blockPool: ReturnType<typeof GetBlockPool>;
 
   constructor() {
     super();
@@ -103,39 +94,45 @@ class CustomBlockchain extends createBlockchain {
 
   async initializePools() {
     this.walletPool = await CreateWalletPool();
-    this.blockPool = await createBlockPool();
+    this.blockPool = await CreateBlockPool();
   }
 
-  async addBlock(transactions: any): Promise<void> {
+  async addBlock(transactions: Record<string, Transaction>): Promise<void> {
     if (!transactions || Object.keys(transactions).length === 0) {
       throw new Error('Block does not contain any transactions.');
     }
 
     const previousHash = this.chain.length > 0 ? this.chain[this.chain.length - 1].hash : null;
 
+    const processedTransactions = Object.values(transactions);
+
+    const keyPair = EC.genKeyPair(); // Generate a key pair using elliptic's `ec` module
+
+    const minerIdentifier = keyPair.getPublic().encode('hex');
+
     const newBlock = new Block({
       timestamp: Date.now(),
       lastHash: previousHash,
       hash: cryptoHash(previousHash),
-      data: transactions,
+      data: processedTransactions,
       nonce: 0,
       difficulty: 0,
-      transactions: transactions,
+      transactions: processedTransactions,
       miner: minerIdentifier,
     });
 
     try {
       await saveBlock(newBlock);
       await Promise.all(
-        Object.values(transactions).map((transaction: any) =>
+        processedTransactions.map((transaction) =>
           fs.unlink(path.join(transactionPoolDirectory, `${transaction.id}.json`))
         )
       );
 
-      for (const transaction of Object.values(transactions)) {
+      for (const transaction of processedTransactions) {
         const wallet = new Wallet({ walletId: transaction.input.address });
-        const walletBalance = Wallet.calculateBalance({ blockchain: this });
-        await Wallet.updateBalance({ blockchain: this, balance: walletBalance });
+        const walletBalance = wallet.calculateBalance({ blockchain: this });
+        await wallet.updateBalance({ blockchain: this, balance: walletBalance });
       }
 
       this.chain.push(newBlock);
@@ -143,7 +140,6 @@ class CustomBlockchain extends createBlockchain {
       await this.walletPool.updateWalletPool();
       await this.blockPool.saveBlockPool();
       await this.blockPool.updateBlockchainPool(this);
-      await this.transactionPool.clearBlockchainTransactions(this);
     } catch (error) {
       console.error('Error adding block:', error);
       throw error;
@@ -151,17 +147,15 @@ class CustomBlockchain extends createBlockchain {
   }
 }
 
-const initializeBlockchain = async (): Promise<CustomBlockchain> => {
+const createOrLoadBlockchain = async (): Promise<SeigrBlockchainClass> => {
   await ensureDirectoriesExist();
-  const blockchain = await createOrLoadBlockchain();
+  const blockchain = await loadOrCreateBlockchain();
   await blockchain.initializePools();
   return blockchain;
 };
 
-const blockchainInstancePromise = initializeBlockchain();
-
+export default createOrLoadBlockchain;
 export {
-  blockchainInstancePromise as blockchainInstance,
   walletDirectory,
   blockDirectory,
   transactionDirectory,
