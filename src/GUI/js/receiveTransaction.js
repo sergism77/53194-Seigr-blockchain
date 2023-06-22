@@ -1,27 +1,32 @@
-const Wallet = require('../../SeigrBlockchain/wallet');
-
-function receiveTransaction(transactionData) {
+function receiveTransaction(transactionData, wallet) {
   // Implement the transaction receiving logic
   const transaction = parseTransaction(transactionData);
-  processReceivedTransaction(transaction);
+  processReceivedTransaction(transaction, wallet);
 }
 
 // Helper function to parse the transaction data
 function parseTransaction(transactionData) {
   // Implement the logic to parse the transaction data into a transaction object
   // Deserialize the JSON data or decode any necessary fields
-  const transaction = JSON.parse(transactionData);
-  // Return the parsed transaction object
-  return transaction;
+  try {
+    const transaction = JSON.parse(transactionData);
+    // Return the parsed transaction object
+    return transaction;
+  } catch (error) {
+    console.error("Error parsing transaction data:", error);
+    // You can show an error message or handle the error gracefully
+    return null;
+  }
 }
 
 // Helper function to process the received transaction
-function processReceivedTransaction(transaction) {
+function processReceivedTransaction(transaction, wallet) {
   // Implement the logic to process the received transaction
-  // Update the wallet balance or display the transaction details
-
-  // Create a new wallet instance
-  const wallet = new Wallet();
+  if (!transaction) {
+    console.error("Invalid transaction data");
+    // You can show an error message or handle the error gracefully
+    return;
+  }
 
   // Update the wallet balance
   const amount = transaction.amount;

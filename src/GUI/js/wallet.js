@@ -1,7 +1,7 @@
 const { ipcMain, clipboard } = require('electron');
 const Wallet = require('./wallet');
 
-ipcMain.handle('create-wallet', (event) => {
+ipcMain.handle('create-wallet', () => {
   const wallet = new Wallet();
   return wallet;
 });
@@ -13,9 +13,13 @@ ipcMain.handle('view-balance', (event, wallet) => {
 
 ipcMain.handle(
   'send-transaction',
-  (event, { senderWallet, recipient, amount }) => {
+  async (event, { senderWallet, recipient, amount }) => {
+    if (amount <= 0) {
+      throw new Error('Amount must be a positive number');
+    }
+
     try {
-      const transaction = senderWallet.createTransaction({
+      const transaction = await senderWallet.createTransaction({
         recipient,
         amount,
       });
@@ -26,8 +30,8 @@ ipcMain.handle(
   }
 );
 
-ipcMain.handle('receive-transaction', (event, transaction) => {
-  const isValid = Wallet.verifyTransaction({ transaction });
+ipcMain.handle('receive-transaction', async (event, transaction) => {
+  const isValid = await Wallet.verifyTransaction({ transaction });
   if (isValid) {
     return transaction;
   } else {
@@ -35,13 +39,10 @@ ipcMain.handle('receive-transaction', (event, transaction) => {
   }
 });
 
-ipcMain.handle('show-address', (event, wallet) => {
+ipcMain.handle('get-address', async (event, wallet, copyToClipboard) => {
   const address = wallet.address;
-  return address;
-});
-
-ipcMain.handle('copy-address', (event, wallet) => {
-  const address = wallet.address;
-  clipboard.writeText(address);
+  if (copyToClipboard) {
+    clipboard.writeText(address);
+  }
   return address;
 });

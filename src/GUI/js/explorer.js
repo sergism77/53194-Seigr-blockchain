@@ -1,8 +1,34 @@
 const { ipcRenderer } = require('electron');
 
-class Explorer {
+export default class Explorer {
   constructor() {
     // ... any initialization code specific to the Electron app's Explorer ...
+
+    // Listen for async-reply message from main process
+    ipcRenderer.on('async-reply', (event, arg) => {
+      console.log(arg);
+    }
+    );
+
+    // Listen for async-error message from main process
+    ipcRenderer.on('async-error', (event, arg) => {
+      console.log(arg);
+    }
+    );
+
+    // Listen for sync-reply message from main process
+    ipcRenderer.on('sync-reply', (event, arg) => {
+      console.log(arg);
+    }
+    );
+
+    // Listen for sync-error message from main process
+    ipcRenderer.on('sync-error', (event, arg) => {
+      console.log(arg);
+    }
+    );
+
+    
   }
 
   displayBlocks() {
@@ -33,5 +59,3 @@ class Explorer {
     ipcRenderer.send('get-current-mining-effort');
   }
 }
-
-module.exports = Explorer;

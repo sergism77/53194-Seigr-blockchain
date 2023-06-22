@@ -1,7 +1,7 @@
-const { Peer } = require("../..SeigrBlockchain/peer");
-const { PeerPool } = require("../..SeigrBlockchain/peerPool");
-const { PeerPoolDirectory } = require("../..SeigrBlockchain/peerPoolDirectory");
-const { PeerPoolManager } = require("../..SeigrBlockchain/peerPoolManager");
+const { Peer } = require("../../SeigrBlockchain/peer");
+const { PeerPool } = require("../../SeigrBlockchain/peerPool");
+const { PeerPoolDirectory } = require("../../SeigrBlockchain/peerPoolDirectory");
+const { PeerPoolManager } = require("../../SeigrBlockchain/peerPoolManager");
 
 // Initialize the peerPool, peerPoolDirectory, peerPoolManager, etc. with Seigr Blockchain (your existing code)
 
@@ -14,8 +14,13 @@ addPeerBtn.addEventListener("click", () => {
   // Create a new peer
   const newPeer = new Peer(peerAddress);
 
-  // Add the peer to the peer pool
-  PeerPool.addPeer(newPeer);
+  try {
+    // Add the peer to the peer pool
+    PeerPool.addPeer(newPeer);
+  } catch (error) {
+    console.error("Failed to add peer:", error.message);
+    // You can show an error message or handle the error gracefully
+  }
 
   // Clear the input field
   peerAddressInput.value = "";
