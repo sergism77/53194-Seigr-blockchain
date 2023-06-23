@@ -1,76 +1,50 @@
 'use strict';
 
+const chaindata = require('./db/chaindata.js');
+const db = require('./db/db.js');
+
 class Storage {
-    constructor() {
-        this.storage = new Map();
-    }
+  constructor() {
+    this.chaindata = new chaindata();
+    this.db = new db();
+  }
 
-    //this function will add the block to the storage
-    addBlock(block) {
-        this.storage.set(block.hash, block);
-    }
+  addBlock(block) {
+    this.chaindata.addBlockToChaindata(block);
+    this.db.addBlock(block);
+  }
 
-    //this function will return the block by hash
-    getBlockByHash(hash) {
-        return this.storage.get(hash);
-    }
+  getBlockByHash(hash) {
+    return this.db.getBlockByHash(hash);
+  }
 
-    //this function will return the block by height
-    getBlockByHeight(height) {
-        for (let block of this.storage.values()) {
-            if (block.height === height) {
-                return block;
-            }
-        }
-    }
+  getBlockByHeight(height) {
+    return this.db.getBlock(height);
+  }
 
-    //this function will return the block by address
-    getBlockByAddress(address) {
-        let blocks = [];
-        for (let block of this.storage.values()) {
-            if (block.address === address) {
-                blocks.push(block);
-            }
-        }
-        return blocks;
-    }
+  getBlocksByAddress(address) {
+    return this.db.getBlockByWalletAddress(address);
+  }
 
-    //this function will return the block by address and height
-    getBlockByAddressAndHeight(address, height) {
-        for (let block of this.storage.values()) {
-            if (block.address === address && block.height === height) {
-                return block;
-            }
-        }
-    }
+  getBlocksByAddressAndHeight(address, height) {
+    return this.db.getBlockByAddressAndHeight(address, height);
+  }
 
-    //this function will return the block by address and hash
-    getBlockByAddressAndHash(address, hash) {
-        for (let block of this.storage.values()) {
-            if (block.address === address && block.hash === hash) {
-                return block;
-            }
-        }
-    }
+  getBlockByAddressAndHash(address, hash) {
+    return this.db.getBlockByAddressAndHash(address, hash);
+  }
 
-    //this function will return the block by height and hash
-    getBlockByHeightAndHash(height, hash) {
-        for (let block of this.storage.values()) {
-            if (block.height === height && block.hash === hash) {
-                return block;
-            }
-        }
-    }
+  getBlockByHeightAndHash(height, hash) {
+    return this.db.getBlockByHeightAndHash(height, hash);
+  }
 
-    //this function will return the block by address, height and hash
-    getBlockByAddressAndHeightAndHash(address, height, hash) {
-        for (let block of this.storage.values()) {
-            if (block.address === address && block.height === height && block.hash === hash) {
-                return block;
-            }
-        }
-    }
+  getBlockByAddressAndHeightAndHash(address, height, hash) {
+    return this.db.getBlockByAddressAndHeightAndHash(address, height, hash);
+  }
 
+  getChaindataLength() {
+    return this.chaindata.getChaindataLength();
+  }
 }
 
 module.exports = Storage;
