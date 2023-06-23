@@ -1,27 +1,21 @@
-//this is the chaindata file for the SeigrBlockchain
+// this is a simpler version of the file without extending the db class.
 
-class chaindata extends db {
+class Chaindata {
     constructor() {
-        super();
-        this.chaindata = [];
-        this.chaindataLength = 0;
+      this.chaindata = [];
     }
-
-    //this function adds a block to the chaindata
+  
     addBlockToChaindata(block) {
-        this.chaindata.push(block);
-        this.chaindataLength++;
+      this.chaindata.push(block);
     }
-
-    //this function gets a block from the chaindata
-    getBlockFromChaindata(block) {
-        return this.chaindata[block];
+  
+    getBlockFromChaindata(blockIndex) {
+      return this.chaindata[blockIndex];
     }
-
-    //this function gets the length of the chaindata
+  
     getChaindataLength() {
-        return this.chaindataLength;
+      return this.chaindata.length;
     }
-}
-
-module.exports = chaindata;
+  }
+  
+  module.exports = Chaindata;
