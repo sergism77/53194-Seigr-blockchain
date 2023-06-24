@@ -11,6 +11,7 @@ class Peer {
   blockchainLastBlockHash: any;
   blockchainLastBlockTimestamp: any;
   blockchainLastBlockDate: any;
+    static forEach: any;
 
   constructor() {
     this.id = null;
@@ -422,59 +423,18 @@ class PeerListItem {
     return null;
   }
 
-  getPeerListItemByPeerBlockchainLastBlockHash(peerBlockchainLastBlockHash: any) {
+  forEach(callback: any) {
     for (let i = 0; i < this.peerListItems.length; i++) {
-      if (this.peerListItems[i].peer.blockchainLastBlockHash === peerBlockchainLastBlockHash) {
-        return this.peerListItems[i];
-      }
+      callback(this.peerListItems[i]);
     }
-    return null;
   }
 
-  getPeerListItemByPeerBlockchainLastBlockTimestamp(peerBlockchainLastBlockTimestamp: any) {
+  forEachPeer(callback: any) {
     for (let i = 0; i < this.peerListItems.length; i++) {
-      if (this.peerListItems[i].peer.blockchainLastBlockTimestamp === peerBlockchainLastBlockTimestamp) {
-        return this.peerListItems[i];
-      }
+      callback(this.peerListItems[i].peer);
     }
-    return null;
   }
 
-  getPeerListItemByPeerBlockchainLastBlockDate(peerBlockchainLastBlockDate: any) {
-    for (let i = 0; i < this.peerListItems.length; i++) {
-      if (this.peerListItems[i].peer.blockchainLastBlockDate === peerBlockchainLastBlockDate) {
-        return this.peerListItems[i];
-      }
-    }
-    return null;
-  }
-
-  getPeerListItemByPeerBlockchainLastBlockHash(peerBlockchainLastBlockHash: any) {
-    for (let i = 0; i < this.peerListItems.length; i++) {
-      if (this.peerListItems[i].peer.blockchainLastBlockHash === peerBlockchainLastBlockHash) {
-        return this.peerListItems[i];
-      }
-    }
-    return null;
-  }
-
-  getPeerListItemByPeerBlockchainLastBlockTimestamp(peerBlockchainLastBlockTimestamp: any) {
-    for (let i = 0; i < this.peerListItems.length; i++) {
-      if (this.peerListItems[i].peer.blockchainLastBlockTimestamp === peerBlockchainLastBlockTimestamp) {
-        return this.peerListItems[i];
-      }
-    }
-    return null;
-  }
-
-  getPeerListItemByPeerBlockchainLastBlockDate(peerBlockchainLastBlockDate: any) {
-    for (let i = 0; i < this.peerListItems.length; i++) {
-      if (this.peerListItems[i].peer.blockchainLastBlockDate === peerBlockchainLastBlockDate) {
-        return this.peerListItems[i];
-      }
-    }
-    return null;
-  }
 }
 
 export { Peer, PeerList, PeerListItem };
