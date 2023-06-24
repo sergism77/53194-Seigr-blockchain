@@ -54,7 +54,7 @@ const createMenu = () => {
     },
     {
       label: 'Explorer',
-      click() { win.loadFile('./GUI/html/explorer.html'); } // Use relative path
+      click() { win.loadFile('src/GUI/html/explorer.html'); } // Use relative path
     },
     {
       label: 'Network',
