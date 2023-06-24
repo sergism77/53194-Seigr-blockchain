@@ -1,67 +1,73 @@
 const level = require('level');
-const chaindata = require('./chaindata');
+const JSONStream = require('JSONStream');
 const path = require('path');
-const app = require('electron').remote.app;
+const { app } = require('electron').remote;
 
 class LevelSandbox {
   constructor() {
-    this.chaindata = new chaindata();
-    this.chaindataLength = 0;
-    this.db = level(path.join(app.getPath('userData'), 'chaindata'));
+    this.dbLocation = path.join(app.getPath('userData'), 'chaindata');
+    this.db = level(this.dbLocation);
+  }
 
-    this.getBlockHeight()
-      .then((height) => {
-        this.chaindataLength = height + 1;
-      })
-      .catch((err) => {
+  async getBlocksByAddress(address) {
+    const blocks = [];
+
+    // Parse all values first to avoid repeating parsing in iteration
+    const stream = this.db.createReadStream();
+    const parser = JSONStream.parse('*');
+    stream.pipe(parser);
+
+    // Iterate over parsed array to filter by 'address'
+    for await (const block of parser) {
+      if (block.body.address === address) {
+        blocks.push(block);
+      }
+    }
+
+    return blocks;
+  }
+
+  async addBlock(block) {
+    return new Promise((resolve, reject) => {
+      this.getBlockHeight().then((height) => {
+        block.height = height + 1;
+        this.db.put(block.height, JSON.stringify(block), (err) => {
+          if (err) {
+            console.error(err);
+            reject(err);
+          } else {
+            resolve(`Added block #${block.height}`);
+          }
+        });
+      }).catch((err) => {
         console.error(err);
-      });
-  }
-
-  //this function adds a block to the chaindata
-  addBlockToChaindata(block) {
-    this.chaindata.addBlockToChaindata(block);
-    this.chaindataLength++;
-  }
-
-  //this function gets a block from the chaindata
-  getBlockFromChaindata(block) {
-    return this.chaindata.getBlockFromChaindata(block);
-  }
-
-  //this function gets the length of the chaindata
-  getChaindataLength() {
-    return this.chaindataLength;
-  }
-
-  //this function adds a block to the db
-  addBlockToDB(block) {
-    return new Promise((resolve, reject) => {
-      this.db.put(block.height, JSON.stringify(block), (err) => {
-        if (err) {
-          console.error(err);
-          reject(err);
-        }
-        resolve(`Added block #${block.height}`);
+        reject(err);
       });
     });
   }
 
-  //this function gets a block from the db
-  getBlockFromDB(key) {
+  async removeBlockFromDB(key) {
     return new Promise((resolve, reject) => {
-      this.db.get(key, (err, value) => {
+      this.db.del(key, (err) => {
         if (err) {
           console.error(err);
           reject(err);
+        } else {
+          resolve(`Deleted block with key ${key}`);
         }
-        resolve(JSON.parse(value));
       });
     });
   }
 
-  //this function gets the height of the db
-  getBlockHeight() {
+  async removeBlockFromChaindata(block) {
+    // Remove block from chaindata
+    const index = this.chaindata.indexOf(block);
+    if (index !== -1) {
+      this.chaindata.splice(index, 1);
+    }
+  }
+
+  async getBlockHeight() {
     return new Promise((resolve, reject) => {
       let height = -1;
       this.db.createReadStream()
@@ -74,46 +80,6 @@ class LevelSandbox {
         })
         .on('close', () => {
           resolve(height);
-        });
-    });
-  }
-
-  //this function gets a block by its hash
-  getBlockByHash(hash) {
-    return new Promise((resolve, reject) => {
-      let block = null;
-      this.db.createReadStream()
-        .on('data', (data) => {
-          if (JSON.parse(data.value).hash === hash) {
-            block = JSON.parse(data.value);
-          }
-        })
-        .on('error', (err) => {
-          console.error(err);
-          reject(err);
-        })
-        .on('close', () => {
-          resolve(block);
-        });
-    });
-  }
-
-  //this function gets a block by its address
-  getBlockByAddress(address) {
-    return new Promise((resolve, reject) => {
-      let blocks = [];
-      this.db.createReadStream()
-        .on('data', (data) => {
-          if (JSON.parse(data.value).body.address === address) {
-            blocks.push(JSON.parse(data.value));
-          }
-        })
-        .on('error', (err) => {
-          console.error(err);
-          reject(err);
-        })
-        .on('close', () => {
-          resolve(blocks);
         });
     });
   }

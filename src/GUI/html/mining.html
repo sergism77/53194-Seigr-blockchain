@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <link rel="stylesheet" href="./bower_components/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="styles.css" />
-    <meta charset="UTF-8" />
+<head>
+  <link rel="stylesheet" href="./bower_components/bootstrap/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8" />
   <title>Mining Status</title>
 </head>
 <body>
@@ -12,20 +12,19 @@
 
     <div class="mining-info">
       <h3>Total Hashrate:</h3>
-      <p id="total-hashrate">0 hashes/s</p>
+      <p id="total-hashrate" aria-label="Total Hashrate">0 hashes/s</p>
     </div>
 
     <div class="mining-info">
       <h3>Total Blocks Mined:</h3>
-      <p id="total-blocks-mined">0</p>
+      <p id="total-blocks-mined" aria-label="Total Blocks Mined">0</p>
     </div>
 
     <div class="mining-settings">
       <h2>Mining Settings</h2>
       <label for="threads-input">Number of Threads:</label>
-      <input type="number" id="threads-input" min="1" max="8" value="1">
-      <button type="submit" class="btn btn-dark" id="apply-settings-btn">Apply Settings</button>
-    
+      <input type="number" id="threads-input" min="1" max="8" value="1" aria-label="Number of Threads">
+      <button type="submit" class="btn btn-dark" id="apply-settings-btn" aria-label="Apply Settings">Apply Settings</button>
     </div>
   </div>
 

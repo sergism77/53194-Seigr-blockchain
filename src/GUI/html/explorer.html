@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <link rel="stylesheet" href="./bower_components/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="styles.css" />
-    <meta charset="UTF-8" />
+<head>
+  <link rel="stylesheet" href="./bower_components/bootstrap/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8" />
   <title>Explorer</title>
 </head>
 <body>
@@ -87,9 +87,6 @@
   <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
   <script src="src/GUI/js/explorer.js"></script>
   <script>
-    // Create an instance of the Explorer class with the Seigr Blockchain and PeerPoolDirectory
-    const explorer = new Explorer(seigrBlockchainInstance, peerPoolDirectoryInstance);
-
     // Function to display the blockchain blocks in the UI
     function displayBlocks() {
       explorer.displayBlocks();
