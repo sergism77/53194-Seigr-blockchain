@@ -34,7 +34,12 @@ class Address {
     this.outputs = data.outputs;
   }
 
-  static verifyAddress(address: Address) {
+  /**
+   * Verifies the address by checking the signature.
+   * @param address The address to verify.
+   * @returns True if the address is valid, false otherwise.
+   */
+  static verifyAddress(address: Address): boolean {
     return ec.verify(
       address.input.address,
       address.input.signature,
@@ -42,11 +47,20 @@ class Address {
     );
   }
 
+  /**
+   * Creates a new key pair for an address.
+   * @returns The newly created key pair.
+   */
   static createAddress() {
     return ec.genKeyPair();
   }
 
-  static createHash(data: any) {
+  /**
+   * Creates a hash of the given data.
+   * @param data The data to hash.
+   * @returns The hash value.
+   */
+  static hash(data: any) {
     return CryptoHash(
       data.timestamp,
       data.lastHash,
@@ -56,14 +70,27 @@ class Address {
     );
   }
 
+  /**
+   * Signs the data hash using the private key.
+   * @param dataHash The hash of the data to sign.
+   * @param privateKey The private key used for signing.
+   * @returns The signature.
+   */
   static signAddress(dataHash: any, privateKey: string) {
     const key = ec.keyFromPrivate(privateKey);
     return key.sign(dataHash);
   }
 
+  /**
+   * Creates a new transaction from the sender wallet to the recipient.
+   * @param senderWallet The sender's wallet.
+   * @param recipient The recipient's address.
+   * @param amount The amount to transfer.
+   * @returns The created transaction.
+   */
   static createTransaction({ senderWallet, recipient, amount }: any) {
-    if (amount > senderWallet.balance) {
-      throw new Error('Amount exceeds balance');
+    if (amount > senderWallet.balance || amount <= 0) {
+      throw new Error('Invalid transaction amount');
     }
 
     const dataHash = CryptoHash(
@@ -93,7 +120,12 @@ class Address {
     });
   }
 
-  static rewardTransaction({ minerWallet }: any) {
+  /**
+   * Creates a reward transaction for the miner.
+   * @param minerWallet The miner's wallet.
+   * @returns The created reward transaction.
+   */
+  static createRewardTransaction({ minerWallet }: any) {
     const input: AddressInput = REWARD_INPUT;
     const outputs: AddressOutput[] = [
       { address: minerWallet.address, amount: MINING_REWARD }
@@ -106,13 +138,19 @@ class Address {
     });
   }
 
+  /**
+   * Updates the transaction by transferring funds from the sender to the recipient.
+   * @param senderWallet The sender's wallet.
+   * @param recipient The recipient's address.
+   * @param amount The amount to transfer.
+   */
   update({ senderWallet, recipient, amount }: any) {
     const senderOutput = this.outputs.find(
       (output) => output.address === senderWallet.address
     );
 
-    if (amount > senderOutput.amount) {
-      throw new Error('Amount exceeds balance');
+    if (amount > senderOutput.amount || amount <= 0) {
+      throw new Error('Invalid transaction amount');
     }
 
     senderOutput.amount = senderOutput.amount - amount;
@@ -135,6 +173,10 @@ class Address {
     };
   }
 
+  /**
+   * Returns the transaction as a key-value map.
+   * @returns The transaction as a key-value map.
+   */
   transactionMap() {
     return {
       id: this.id,
@@ -143,7 +185,12 @@ class Address {
     };
   }
 
-  static validTransaction(transaction: any) {
+  /**
+   * Checks if a transaction is valid by verifying the input and outputs.
+   * @param transaction The transaction to validate.
+   * @returns True if the transaction is valid, false otherwise.
+   */
+  static isValidTransaction(transaction: any): boolean {
     const { input, outputs } = transaction;
 
     const outputTotal = outputs.reduce(
@@ -156,7 +203,7 @@ class Address {
       return false;
     }
 
-    if (!VerifySignature({ publicKey: input.address, data: input, signature: input.signature })) {
+    if (!VerifySignature(input.address, input, input.signature)) {
       console.error(`Invalid signature from ${input.address}`);
       return false;
     }
@@ -164,19 +211,18 @@ class Address {
     return true;
   }
 
+  /**
+   * Clears the blockchain transaction pool by removing transactions that are already in the chain.
+   * @param chain The blockchain chain.
+   * @param transactionPool The transaction pool to clear.
+   */
   static clearBlockchainTransactions({ chain, transactionPool }: any) {
-    const transactionsToKeep: any[] = [];
-
-    for (const block of chain.slice(1)) {
-      for (const transaction of block.data) {
-        if (!transactionPool.includes(transaction)) {
-          transactionsToKeep.push(transaction);
-        }
-      }
-    }
+    const transactionsToKeep = chain
+      .slice(1)
+      .flatMap((block: any) => block.data);
 
     transactionPool.length = 0;
-    Array.prototype.push.apply(transactionPool, transactionsToKeep);
+    transactionPool.push(...transactionsToKeep);
   }
 }
 
@@ -187,8 +233,31 @@ class AddressPool {
     this.addressPool = [];
   }
 
-  static validAddressPool(addressPool: Address[]) {
-    for (const address of addressPool) {
+  /**
+   * Adds an address to the address pool.
+   * @param address The address to add.
+   */
+  addAddress(address: Address) {
+    this.addressPool.push(address);
+  }
+
+  /**
+   * Removes an address from the address pool.
+   * @param address The address to remove.
+   */
+  removeAddress(address: Address) {
+    const index = this.addressPool.indexOf(address);
+    if (index > -1) {
+      this.addressPool.splice(index, 1);
+    }
+  }
+
+  /**
+   * Checks if the address pool is valid by verifying all addresses in the pool.
+   * @returns True if the address pool is valid, false otherwise.
+   */
+  isValidAddressPool(): boolean {
+    for (const address of this.addressPool) {
       if (address.input.address === REWARD_INPUT.address) {
         console.error('The miner reward input is invalid');
         return false;
@@ -213,68 +282,16 @@ class AddressPool {
     return true;
   }
 
-  static clearBlockchainAddressPool({ chain, addressPool }: any) {
-    const addressesToKeep: Address[] = [];
+  /**
+   * Clears the blockchain address pool by removing addresses that are already in the chain.
+   * @param chain The blockchain chain.
+   */
+  clearBlockchainAddressPool(chain: any[]) {
+    const addressesToKeep = chain
+      .slice(1)
+      .flatMap((block: any) => block.data);
 
-    for (const block of chain.slice(1)) {
-      for (const address of block.data) {
-        if (!addressPool.includes(address)) {
-          addressesToKeep.push(address);
-        }
-      }
-    }
-
-    addressPool.length = 0;
-    Array.prototype.push.apply(addressPool, addressesToKeep);
-  }
-}
-
-class AddressMiner {
-  addressMiner: Address[];
-
-  constructor() {
-    this.addressMiner = [];
-  }
-
-  static validAddressMiner(addressMiner: Address[]) {
-    for (const address of addressMiner) {
-      if (address.input.address === REWARD_INPUT.address) {
-        console.error('The miner reward input is invalid');
-        return false;
-      }
-
-      const totalOutputAmount = address.outputs.reduce(
-        (total, output) => total + output.amount,
-        0
-      );
-
-      if (totalOutputAmount !== address.input.amount) {
-        console.error(`The address ${address.input.address} has an invalid balance`);
-        return false;
-      }
-
-      if (!Address.verifyAddress(address)) {
-        console.error(`The address ${address.input.address} has an invalid signature`);
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  static clearBlockchainAddressMiner({ chain, addressMiner }: any) {
-    const addressesToKeep: Address[] = [];
-
-    for (const block of chain.slice(1)) {
-      for (const address of block.data) {
-        if (!addressMiner.includes(address)) {
-          addressesToKeep.push(address);
-        }
-      }
-    }
-
-    addressMiner.length = 0;
-    Array.prototype.push.apply(addressMiner, addressesToKeep);
+    this.addressPool = addressesToKeep;
   }
 }
 
@@ -290,28 +307,4 @@ class AddressMap {
   }
 }
 
-class AddressPoolMap {
-  static createAddressPoolMap(addressPool: Address[]) {
-    const addressPoolMap = new Map<string, Address>();
-
-    for (const address of addressPool) {
-      addressPoolMap.set(address.id, address);
-    }
-
-    return addressPoolMap;
-  }
-}
-
-class AddressMinerMap {
-  static createAddressMinerMap(addressMiner: Address[]) {
-    const addressMinerMap = new Map<string, Address>();
-
-    for (const address of addressMiner) {
-      addressMinerMap.set(address.id, address);
-    }
-
-    return addressMinerMap;
-  }
-}
-
-export { Address, AddressPool, AddressMiner, AddressMap, AddressPoolMap, AddressMinerMap };
+export { Address, AddressPool, AddressMap };
