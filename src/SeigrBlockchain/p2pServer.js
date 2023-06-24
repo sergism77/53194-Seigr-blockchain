@@ -3,7 +3,8 @@
 const Websocket = require('ws');
 const P2P_PORT =  53194;
 const peers = process.env.PEERS ? process.env.PEERS.split(',') : []; //if there is no PEERS in the environment, then use an empty array
-
+const ConnectToPeers = require('./connectToPeers');
+const Listen = require('./listen');
 class P2pServer {
     constructor(blockchain) {
         this.blockchain = blockchain;
@@ -475,66 +476,4 @@ class P2pServer {
 
 }
 
-class listen {
-    constructor() {
-        this.sockets = [];
-    }
-
-    listen() {
-        const server = new Websocket.Server({ port: P2P_PORT });
-
-        server.on('connection', socket => this.connectSocket(socket));
-
-        console.log(`Listening for peer-to-peer connections on: ${P2P_PORT}`);
-    }
-
-    connectSocket(socket) {
-        this.sockets.push(socket);
-        console.log('Socket connected');
-
-        this.messageHandler(socket);
-    }
-
-    messageHandler(socket) {
-        socket.on('message', message => {
-            const data = JSON.parse(message);
-
-            console.log(data);
-        });
-    }
-}
-
-class connectToPeers {
-    constructor() {
-        this.sockets = [];
-    }
-
-    connectToPeers() {
-        peers.forEach(peer => {
-            //ws://localhost:53194
-            const socket = new Websocket(peer);
-
-            socket.on('open', () => this.connectSocket(socket));
-        });
-    }
-
-    connectSocket(socket) {
-        this.sockets.push(socket);
-        console.log('Socket connected');
-
-        this.messageHandler(socket);
-    }
-
-    messageHandler(socket) {
-        socket.on('message', message => {
-            const data = JSON.parse(message);
-
-            console.log(data);
-        });
-    }
-}
-
-
-
-
-module.exports = { P2pServer, listen, connectToPeers }
+module.exports = P2pServer;
