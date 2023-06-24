@@ -9,7 +9,7 @@ interface AddressInput {
   timestamp: number;
   address: string;
   amount: number;
-  signature: any;
+  signature: EC.Signature;
 }
 
 interface AddressOutput {
@@ -48,10 +48,10 @@ class Address {
   }
 
   /**
-   * Creates a new key pair for an address.
-   * @returns The newly created key pair.
+   * Generates a new elliptic curve key pair.
+   * @returns An elliptic curve key pair.
    */
-  static createAddress() {
+  static genKeyPair() {
     return ec.genKeyPair();
   }
 
@@ -76,7 +76,7 @@ class Address {
    * @param privateKey The private key used for signing.
    * @returns The signature.
    */
-  static signAddress(dataHash: any, privateKey: string) {
+  static signAddress(dataHash: string, privateKey: string) {
     const key = ec.keyFromPrivate(privateKey);
     return key.sign(dataHash);
   }
@@ -88,44 +88,42 @@ class Address {
    * @param amount The amount to transfer.
    * @returns The created transaction.
    */
-  static createTransaction({ senderWallet, recipient, amount }: any) {
-    if (amount > senderWallet.balance || amount <= 0) {
+  static createTransaction(senderWallet: Address, recipient: string, amount: number): AddressData {
+    if (amount > senderWallet.input.amount || amount <= 0) {
       throw new Error('Invalid transaction amount');
     }
 
-    const dataHash = CryptoHash(
-      Date.now(),
-      senderWallet.address,
-      senderWallet.balance,
-      recipient,
-      amount
-    );
+    const data = {
+      timestamp: Date.now(),
+      lastHash: senderWallet.id,
+      data: {
+        senderAddress: senderWallet.input.address,
+        recipientAddress: recipient,
+        amount: amount
+      }
+    };
 
     const input: AddressInput = {
       timestamp: Date.now(),
-      address: senderWallet.address,
-      amount: senderWallet.balance,
-      signature: senderWallet.signAddress(dataHash)
+      address: senderWallet.input.address,
+      amount: senderWallet.input.amount,
+      signature: Address.signAddress(Address.hash(data), senderWallet.privateKey)
     };
 
     const outputs: AddressOutput[] = [
-      { address: senderWallet.address, amount: senderWallet.balance - amount },
-      { address: recipient, amount }
+      { address: recipient, amount: amount },
+      { address: senderWallet.input.address, amount: senderWallet.input.amount - amount }
     ];
 
-    return new Address({
-      id: uuidv4(),
-      input,
-      outputs
-    });
+    return new Address({id: uuidv4(), input: input, outputs: outputs});
   }
 
   /**
    * Creates a reward transaction for the miner.
-   * @param minerWallet The miner's wallet.
-   * @returns The created reward transaction.
+   * @param minerWallet The wallet of the miner.
+   * @returns The reward transaction.
    */
-  static createRewardTransaction({ minerWallet }: any) {
+  static createRewardTransaction(minerWallet: any): AddressData {
     const input: AddressInput = REWARD_INPUT;
     const outputs: AddressOutput[] = [
       { address: minerWallet.address, amount: MINING_REWARD }
@@ -139,45 +137,47 @@ class Address {
   }
 
   /**
-   * Updates the transaction by transferring funds from the sender to the recipient.
+   * Updates the transaction with new sender, recipient, and amount.
    * @param senderWallet The sender's wallet.
    * @param recipient The recipient's address.
    * @param amount The amount to transfer.
    */
-  update({ senderWallet, recipient, amount }: any) {
-    const senderOutput = this.outputs.find(
-      (output) => output.address === senderWallet.address
-    );
+  update({ senderWallet, recipient, amount }: { senderWallet: Address, recipient: string, amount: number }): void {
+    const senderOutput = this.outputs.find((output) => output.address === senderWallet.input.address);
 
-    if (amount > senderOutput.amount || amount <= 0) {
-      throw new Error('Invalid transaction amount');
+    if (!senderOutput) {
+      throw new Error('Sender output not found');
     }
 
-    senderOutput.amount = senderOutput.amount - amount;
+    if (amount > senderOutput.amount) {
+      throw new Error('Amount exceeds balance');
+    }
+
+    senderOutput.amount -= amount;
 
     this.outputs.push({ address: recipient, amount });
 
     const dataHash = CryptoHash(
       Date.now(),
-      senderWallet.address,
-      senderWallet.balance,
+      senderWallet.input.address,
+      senderOutput.amount,
       recipient,
       amount
     );
 
     this.input = {
       timestamp: Date.now(),
-      address: senderWallet.address,
-      amount: senderWallet.balance,
-      signature: senderWallet.signAddress(dataHash)
+      address: senderWallet.input.address,
+      amount: senderOutput.amount,
+      signature: Address.signAddress(dataHash, senderWallet.privateKey)
     };
   }
 
   /**
-   * Returns the transaction as a key-value map.
-   * @returns The transaction as a key-value map.
+   * Converts the transaction to a key-value format.
+   * @returns The transaction in key-value format.
    */
-  transactionMap() {
+  transactionMap(): { id: string, input: AddressInput, outputs: AddressOutput[] } {
     return {
       id: this.id,
       input: this.input,
@@ -186,7 +186,7 @@ class Address {
   }
 
   /**
-   * Checks if a transaction is valid by verifying the input and outputs.
+   * Checks if the transaction is valid.
    * @param transaction The transaction to validate.
    * @returns True if the transaction is valid, false otherwise.
    */
@@ -212,14 +212,20 @@ class Address {
   }
 
   /**
-   * Clears the blockchain transaction pool by removing transactions that are already in the chain.
+   * Clears the blockchain transactions by removing transactions that are already present in the chain.
    * @param chain The blockchain chain.
-   * @param transactionPool The transaction pool to clear.
+   * @param transactionPool The transaction pool.
    */
-  static clearBlockchainTransactions({ chain, transactionPool }: any) {
-    const transactionsToKeep = chain
-      .slice(1)
-      .flatMap((block: any) => block.data);
+  static clearBlockchainTransactions(chain: any[], transactionPool: any[]): void {
+    const transactionsToKeep: any[] = [];
+
+    for (const block of chain.slice(1)) {
+      for (const transaction of block.data) {
+        if (!transactionPool.includes(transaction)) {
+          transactionsToKeep.push(transaction);
+        }
+      }
+    }
 
     transactionPool.length = 0;
     transactionPool.push(...transactionsToKeep);
@@ -234,26 +240,26 @@ class AddressPool {
   }
 
   /**
-   * Adds an address to the address pool.
+   * Adds an address to the pool.
    * @param address The address to add.
    */
-  addAddress(address: Address) {
+  addAddress(address: Address): void {
     this.addressPool.push(address);
   }
 
   /**
-   * Removes an address from the address pool.
+   * Removes an address from the pool.
    * @param address The address to remove.
    */
-  removeAddress(address: Address) {
-    const index = this.addressPool.indexOf(address);
-    if (index > -1) {
+  removeAddress(address: Address): void {
+    const index = this.addressPool.findIndex((addr) => addr.id === address.id);
+    if (index !== -1) {
       this.addressPool.splice(index, 1);
     }
   }
 
   /**
-   * Checks if the address pool is valid by verifying all addresses in the pool.
+   * Validates the address pool.
    * @returns True if the address pool is valid, false otherwise.
    */
   isValidAddressPool(): boolean {
@@ -286,20 +292,29 @@ class AddressPool {
    * Clears the blockchain address pool by removing addresses that are already in the chain.
    * @param chain The blockchain chain.
    */
-  clearBlockchainAddressPool(chain: any[]) {
-    const addressesToKeep = chain
-      .slice(1)
-      .flatMap((block: any) => block.data);
+  clearBlockchainAddressPool(chain: any[]): void {
+    const addressesToKeep: Address[] = [];
 
-    this.addressPool = addressesToKeep;
+    for (const block of chain.slice(1)) {
+      for (const address of block.data) {
+        if (!this.addressPool.includes(address)) {
+          addressesToKeep.push(address);
+        }
+      }
+    }
+
+    this.addressPool.length = 0;
+    this.addressPool.push(...addressesToKeep);
   }
-}
 
-class AddressMap {
-  static createAddressMap(addressPool: Address[]) {
+  /**
+   * Creates an address map from the address pool.
+   * @returns The address map.
+   */
+  createAddressMap(): Map<string, Address> {
     const addressMap = new Map<string, Address>();
 
-    for (const address of addressPool) {
+    for (const address of this.addressPool) {
       addressMap.set(address.id, address);
     }
 
@@ -307,4 +322,75 @@ class AddressMap {
   }
 }
 
-export { Address, AddressPool, AddressMap };
+class AddressMiner {
+  addressMiner: Address[];
+
+  constructor() {
+    this.addressMiner = [];
+  }
+
+  /**
+   * Validates the address miner.
+   * @returns True if the address miner is valid, false otherwise.
+   */
+  isValidAddressMiner(): boolean {
+    for (const address of this.addressMiner) {
+      if (address.input.address === REWARD_INPUT.address) {
+        console.error('The miner reward input is invalid');
+        return false;
+      }
+
+      const totalOutputAmount = address.outputs.reduce(
+        (total, output) => total + output.amount,
+        0
+      );
+
+      if (totalOutputAmount !== address.input.amount) {
+        console.error(`The address ${address.input.address} has an invalid balance`);
+        return false;
+      }
+
+      if (!Address.verifyAddress(address)) {
+        console.error(`The address ${address.input.address} has an invalid signature`);
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Clears the blockchain address miner by removing addresses that are already in the chain.
+   * @param chain The blockchain chain.
+   */
+  clearBlockchainAddressMiner(chain: any[]): void {
+    const addressesToKeep: Address[] = [];
+
+    for (const block of chain.slice(1)) {
+      for (const address of block.data) {
+        if (!this.addressMiner.includes(address)) {
+          addressesToKeep.push(address);
+        }
+      }
+    }
+
+    this.addressMiner.length = 0;
+    this.addressMiner.push(...addressesToKeep);
+  }
+
+  /**
+   * Creates an address miner map from the address miner.
+   * @returns The address miner map.
+   */
+  createAddressMinerMap(): Map<string, Address> {
+    const addressMinerMap = new Map<string, Address>();
+
+    for (const address of this.addressMiner) {
+      addressMinerMap.set(address.id, address);
+    }
+
+    return addressMinerMap;
+  }
+}
+
+export { Address, AddressPool, AddressMiner };

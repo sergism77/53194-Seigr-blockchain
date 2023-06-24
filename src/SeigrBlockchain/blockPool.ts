@@ -2,20 +2,20 @@
 
 let blockPool: any[] = [];
 
-const CreateBlockPool = (): void => {
+const createBlockPool = (): void => {
   blockPool = [];
 };
 
-const GetBlockPool = (): any[] => {
+const getBlockPool = (): any[] => {
   return [...blockPool];
 };
 
-const SaveBlockPool = (): any[] => {
+const saveBlockPool = (): any[] => {
   return [...blockPool];
 };
 
-const LoadBlockPool = (): any[] => {
+const loadBlockPool = (): any[] => {
   return [...blockPool];
 };
 
-export { CreateBlockPool, GetBlockPool, SaveBlockPool, LoadBlockPool };
+export { createBlockPool, getBlockPool, saveBlockPool, loadBlockPool };
