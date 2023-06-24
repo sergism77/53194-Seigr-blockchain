@@ -1,6 +1,18 @@
 {
-    "compilerOptions": {
-      "esModuleInterop": true
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "target": "es6",
+    "lib": ["es2015", "dom"],
+    "strict": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "alwaysStrict": true,
+    "outDir": "./dist",
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": ["*"]
     }
   }
-  
+}
