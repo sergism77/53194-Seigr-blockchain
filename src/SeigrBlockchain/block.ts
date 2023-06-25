@@ -1,22 +1,16 @@
-'use strict';
-
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
 import { CryptoHash } from './utils';
 import { STARTING_BALANCE } from './config';
 import ec from 'elliptic';
-import { VerifySignature } from './utils';
-import { createGenesisWallet, createWallet, saveWallet, loadWallet } from './walletUtils';
-import { createGenesisBlock, saveGenesisBlock, loadGenesisBlock } from './genesisBlock.js';
-import { MINE_RATE } from './config';
 import { Transaction } from './transaction';
 import { GENESIS_DATA } from './genesis';
 
 const walletDirectory = path.join(os.homedir(), 'Seigr', 'wallets');
 const blockchainDirectory = path.join(os.homedir(), 'Seigr', 'blockchain');
 
-class Block {
+export class Block {
   index: number;
   timestamp: number;
   previousHash: string;
@@ -106,13 +100,15 @@ class Block {
   static async loadBlock(hash: string) {
     const blockPath = path.join(blockchainDirectory, `${hash}.json`);
     try {
-      const blockJson = await fs.readFile(blockPath);
+      const blockJsonBuffer = await fs.readFile(blockPath);
+      const blockJson = blockJsonBuffer.toString(); // Convert Buffer to string
       return new this(JSON.parse(blockJson));
     } catch (error) {
       console.error(`Failed to load block at ${blockPath}`, error);
       return null;
     }
   }
+  
 
   static mineBlock({ lastBlock, data }: { lastBlock: Block, data: any }) {
     const timestamp = Date.now();
@@ -130,7 +126,7 @@ class Block {
   }
 }
 
-const SaveBlock = async (block: Block) => {
+export const SaveBlock = async (block: Block) => {
   const blockPath = path.join(blockchainDirectory, `${block.hash}.json`);
   try {
     await fs.writeFile(blockPath, JSON.stringify(block));
@@ -139,10 +135,11 @@ const SaveBlock = async (block: Block) => {
   }
 };
 
-const LoadBlock = async (blockHash: string) => {
+export const LoadBlock = async (blockHash: string) => {
   const blockPath = path.join(blockchainDirectory, `${blockHash}.json`);
   try {
-    const blockJson = await fs.readFile(blockPath);
+    const blockJsonBuffer = await fs.readFile(blockPath);
+    const blockJson = blockJsonBuffer.toString(); // Convert Buffer to string
     return JSON.parse(blockJson);
   } catch (error) {
     console.error(`Failed to load block at ${blockPath}`, error);
@@ -150,4 +147,3 @@ const LoadBlock = async (blockHash: string) => {
   }
 };
 
-export { Block, SaveBlock, LoadBlock };
