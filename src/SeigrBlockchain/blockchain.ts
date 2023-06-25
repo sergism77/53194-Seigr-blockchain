@@ -3,8 +3,8 @@
 import os from 'os';
 import fs from 'fs/promises';
 import path from 'path';
-import { cryptoHash } from './utils';
-import { createBlock, Block, saveBlock } from './block.js';
+import { CryptoHash } from './utils';
+import { LoadBlock, Block, SaveBlock } from './block.js';
 import { createWallet } from './walletUtils';
 import Wallet from './wallet';
 import { GenesisBlock } from './genesisBlock';

@@ -1,8 +1,8 @@
 'use strict';
 
-import { REWARD_INPUT, MINING_REWARD } from '../config';
-import { verifySignature } from '../utils';
-import { Wallet } from './Wallet';
+import { REWARD_INPUT, MINING_REWARD } from './config';
+import { VerifySignature } from './utils';
+import Wallet from './wallet';
 
 export class WalletInput {
     timestamp: number;
@@ -21,7 +21,7 @@ export class WalletInput {
         const { address, amount, signature } = walletInput;
         const publicKey = address;
 
-        return verifySignature({ publicKey, data: amount, signature });
+        return VerifySignature({ publicKey, data: amount, signature });
     }
 
     static rewardTransaction({ minerWallet }: { minerWallet: Wallet }): WalletInput {

@@ -3,10 +3,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
-import { cryptoHash } from './utils';
+import { CryptoHash } from './utils';
 import { STARTING_BALANCE } from './config';
 import * as elliptic from 'elliptic';
-import { verifySignature } from './utils';
+import { VerifySignature } from './utils';
 
 const ec = new elliptic.ec('secp256k1');
 
@@ -49,7 +49,7 @@ class Wallet {
   }
 
   sign(data: string): elliptic.ec.Signature {
-    return this.keyPair.sign(cryptoHash(data));
+    return this.keyPair.sign(CryptoHash(data));
   }
 
   createTransaction({ recipient, amount, chain }: { recipient: string, amount: number, chain: any[] }): Transaction {

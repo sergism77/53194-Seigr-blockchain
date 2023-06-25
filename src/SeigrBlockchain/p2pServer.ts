@@ -4,6 +4,9 @@ import * as Websocket from 'ws';
 import { P2P_PORT, PEERS } from './config';
 import ConnectToPeers from './connectToPeers';
 import Listen from './listen';
+import Blockchain from './blockchain';
+import { mineGenesisBlock } from './genesisBlock';
+
 
 
 //const Websocket = require('ws');
@@ -72,10 +75,10 @@ class P2pServer {
 
     //start creating blocks if the node is fully synced
     mineBlocks () {
-        if (blockchain.chain.length === 0) {
+        if (Blockchain.chain.length === 0) {
             console.log('blockchain is empty');
             console.log('creating genesis block');
-            mineGenesisBlock({ genesisBlock });
+            mineGenesisBlock({ mineGenesisBlock });
             console.log('genesis block created');
             console.log('creating genesis transaction pool');
             mineGenesisTransactionPool({ genesisTransaction });

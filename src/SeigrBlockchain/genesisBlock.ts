@@ -3,7 +3,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
-import { cryptoHash } from './utils';
+import { CryptoHash } from './utils';
 import { STARTING_BALANCE } from './config';
 import { createWallet, saveWallet, loadWallet } from './walletUtils';
 
@@ -21,7 +21,7 @@ class GenesisBlock {
     this.timestamp = Date.now();
     this.previousHash = '0'.repeat(64);
     this.data = 'genesis block';
-    this.hash = cryptoHash(this.index, this.timestamp, this.previousHash, this.data);
+    this.hash = CryptoHash(this.index, this.timestamp, this.previousHash, this.data);
     this.saveGenesisBlock({ genesisWallet });
   }
 

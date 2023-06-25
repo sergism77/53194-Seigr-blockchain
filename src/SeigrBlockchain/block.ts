@@ -3,10 +3,10 @@
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
-import { cryptoHash } from './utils';
+import { CryptoHash } from './utils';
 import { STARTING_BALANCE } from './config';
 import ec from 'elliptic';
-import { verifySignature } from './utils';
+import { VerifySignature } from './utils';
 import { createGenesisWallet, createWallet, saveWallet, loadWallet } from './walletUtils';
 import { createGenesisBlock, saveGenesisBlock, loadGenesisBlock } from './genesisBlock.js';
 import { MINE_RATE } from './config';
@@ -56,7 +56,7 @@ class Block {
     const { index, timestamp, hash, data, nonce, difficulty, transactions, miner } = block;
     const lastDifficulty = lastBlock.difficulty;
     const lastHash = lastBlock.hash;
-    const expectedHash = cryptoHash(index, timestamp, lastHash, data, nonce, difficulty);
+    const expectedHash = CryptoHash(index, timestamp, lastHash, data, nonce, difficulty);
     if (hash !== expectedHash) return false;
     if (Math.abs(lastDifficulty - difficulty) > 1) return false;
     return true;
@@ -123,14 +123,14 @@ class Block {
     let hash, miner;
     do {
       nonce++;
-      hash = cryptoHash(index, timestamp, lastHash, data, nonce, difficulty);
+      hash = CryptoHash(index, timestamp, lastHash, data, nonce, difficulty);
       miner = ec.genKeyPair().getPublic().encode('hex');
     } while (hash.substring(0, difficulty) !== '0'.repeat(difficulty));
     return new this({ index, timestamp, lastHash, data, nonce, difficulty, hash, miner });
   }
 }
 
-const saveBlock = async (block: Block) => {
+const SaveBlock = async (block: Block) => {
   const blockPath = path.join(blockchainDirectory, `${block.hash}.json`);
   try {
     await fs.writeFile(blockPath, JSON.stringify(block));
@@ -139,7 +139,7 @@ const saveBlock = async (block: Block) => {
   }
 };
 
-const loadBlock = async (blockHash: string) => {
+const LoadBlock = async (blockHash: string) => {
   const blockPath = path.join(blockchainDirectory, `${blockHash}.json`);
   try {
     const blockJson = await fs.readFile(blockPath);
@@ -150,4 +150,4 @@ const loadBlock = async (blockHash: string) => {
   }
 };
 
-export { Block, saveBlock, loadBlock };
+export { Block, SaveBlock, LoadBlock };
