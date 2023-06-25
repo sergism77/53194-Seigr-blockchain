@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -6,31 +6,27 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("./config");
 const utils_1 = require("./utils");
 const transaction_1 = __importDefault(require("./transaction"));
-const elliptic_1 = __importDefault(require("elliptic"));
-const walletUtils_1 = require("./walletUtils");
+const elliptic_1 = require("elliptic");
 const crypto_1 = __importDefault(require("crypto"));
 const bs58_1 = __importDefault(require("bs58"));
-const secp256k1 = new elliptic_1.default.ec('secp256k1');
+const ellipticCurve = new elliptic_1.ec('secp256k1');
 class Wallet {
     constructor(keyPair) {
         if (keyPair) {
             this.keyPair = keyPair;
         }
         else {
-            this.keyPair = secp256k1.genKeyPair();
+            this.keyPair = ellipticCurve.genKeyPair();
         }
         this.balance = config_1.STARTING_BALANCE;
         this.address = this.generateAddress(this.keyPair.getPublic().encode('hex'));
-        this.createGenesisWallet = walletUtils_1.createGenesisWallet;
-        this.createWallet = walletUtils_1.createWallet;
-        this.saveWallet = walletUtils_1.saveWallet;
     }
     publicKey() {
         return this.keyPair.getPublic().encode('hex');
     }
     sign(data) {
         try {
-            return this.keyPair.sign((0, utils_1.cryptoHash)(data));
+            return this.keyPair.sign((0, utils_1.CryptoHash)(data));
         }
         catch (error) {
             throw new Error('Error signing the data');
@@ -63,7 +59,7 @@ class Wallet {
             console.error(`Invalid transaction from ${address}`);
             return false;
         }
-        if (!(0, utils_1.verifySignature)({ publicKey: address, data: outputMap, signature })) {
+        if (!(0, utils_1.VerifySignature)({ publicKey: address, data: outputMap, signature })) {
             console.error(`Invalid signature from ${address}`);
             return false;
         }

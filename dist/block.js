@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -17,24 +17,25 @@ const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
 const os_1 = __importDefault(require("os"));
 const utils_1 = require("./utils");
-const elliptic_1 = __importDefault(require("elliptic"));
-const config_1 = require("./config");
 const transaction_1 = require("./transaction");
 const genesis_1 = require("./genesis");
+const lodash_1 = require("lodash");
+const elliptic_1 = require("elliptic");
+const ellipticCurve = new elliptic_1.ec('secp256k1');
 const walletDirectory = path_1.default.join(os_1.default.homedir(), 'Seigr', 'wallets');
 const blockchainDirectory = path_1.default.join(os_1.default.homedir(), 'Seigr', 'blockchain');
 class Block {
-    constructor({ index, timestamp, previousHash, lastHash, hash, data, nonce, difficulty, transactions, miner }) {
-        this.index = index;
-        this.timestamp = timestamp;
-        this.previousHash = previousHash;
-        this.lastHash = lastHash;
-        this.hash = hash;
-        this.data = data;
-        this.nonce = nonce;
-        this.difficulty = difficulty;
-        this.transactions = transactions;
-        this.miner = miner;
+    constructor(data) {
+        this.index = data.index;
+        this.timestamp = data.timestamp;
+        this.previousHash = data.previousHash;
+        this.lastHash = data.lastHash;
+        this.hash = data.hash;
+        this.data = data.data;
+        this.nonce = data.nonce;
+        this.difficulty = data.difficulty;
+        this.transactions = data.transactions;
+        this.miner = data.miner;
     }
     static genesis() {
         return new Block(genesis_1.GENESIS_DATA);
@@ -43,7 +44,7 @@ class Block {
         const { difficulty } = originalBlock;
         if (difficulty < 1)
             return 1;
-        if (timestamp - originalBlock.timestamp > config_1.MINE_RATE)
+        if (timestamp - originalBlock.timestamp > Block.MINE_RATE)
             return difficulty - 1;
         return difficulty + 1;
     }
@@ -51,7 +52,7 @@ class Block {
         const { index, timestamp, hash, data, nonce, difficulty, transactions, miner } = block;
         const lastDifficulty = lastBlock.difficulty;
         const lastHash = lastBlock.hash;
-        const expectedHash = (0, utils_1.cryptoHash)(index, timestamp, lastHash, data, nonce, difficulty);
+        const expectedHash = (0, utils_1.CryptoHash)(index, timestamp, lastHash, data, nonce, difficulty);
         if (hash !== expectedHash)
             return false;
         if (Math.abs(lastDifficulty - difficulty) > 1)
@@ -59,7 +60,7 @@ class Block {
         return true;
     }
     static isValidChain(chain) {
-        if (JSON.stringify(chain[0]) !== JSON.stringify(Block.genesis()))
+        if (!(0, lodash_1.isEqual)(chain[0], Block.genesis()))
             return false;
         for (let i = 1; i < chain.length; i++) {
             const block = chain[i];
@@ -80,14 +81,14 @@ class Block {
             console.error('The incoming chain must be valid');
             return;
         }
-        console.log('replacing chain with', chain);
+        console.log('Replacing chain with', chain);
         this.chain = chain;
     }
     static mineTransactionPool({ transactionPool, wallet }) {
         const validTransactions = transactionPool.validTransactions().slice();
         validTransactions.push(transaction_1.Transaction.rewardTransaction({ minerWallet: wallet }));
-        const block = this.mineBlock({ lastBlock: this.chain[this.chain.length - 1], data: validTransactions });
-        this.chain.push(block);
+        const block = Block.mineBlock({ lastBlock: Block.chain[Block.chain.length - 1], data: validTransactions, wallet });
+        Block.chain.push(block);
         return block;
     }
     saveBlock() {
@@ -105,7 +106,8 @@ class Block {
         return __awaiter(this, void 0, void 0, function* () {
             const blockPath = path_1.default.join(blockchainDirectory, `${hash}.json`);
             try {
-                const blockJson = yield promises_1.default.readFile(blockPath);
+                const blockJsonBuffer = yield promises_1.default.readFile(blockPath);
+                const blockJson = blockJsonBuffer.toString(); // Convert Buffer to string
                 return new this(JSON.parse(blockJson));
             }
             catch (error) {
@@ -114,7 +116,7 @@ class Block {
             }
         });
     }
-    static mineBlock({ lastBlock, data }) {
+    static mineBlock({ lastBlock, data, wallet }) {
         const timestamp = Date.now();
         const lastHash = lastBlock.hash;
         const index = lastBlock.index + 1;
@@ -123,13 +125,15 @@ class Block {
         let hash, miner;
         do {
             nonce++;
-            hash = (0, utils_1.cryptoHash)(index, timestamp, lastHash, data, nonce, difficulty);
-            miner = elliptic_1.default.genKeyPair().getPublic().encode('hex');
+            hash = (0, utils_1.CryptoHash)(index, timestamp, lastHash, data, nonce, difficulty);
+            miner = ellipticCurve.keyFromPrivate(wallet.getPrivateKey()).getPublic().encode('hex', true);
         } while (hash.substring(0, difficulty) !== '0'.repeat(difficulty));
         return new this({ index, timestamp, lastHash, data, nonce, difficulty, hash, miner });
     }
 }
 exports.Block = Block;
+Block.chain = [];
+Block.MINE_RATE = 60000; // Define MINE_RATE static property
 const saveBlock = (block) => __awaiter(void 0, void 0, void 0, function* () {
     const blockPath = path_1.default.join(blockchainDirectory, `${block.hash}.json`);
     try {
@@ -143,7 +147,8 @@ exports.saveBlock = saveBlock;
 const loadBlock = (blockHash) => __awaiter(void 0, void 0, void 0, function* () {
     const blockPath = path_1.default.join(blockchainDirectory, `${blockHash}.json`);
     try {
-        const blockJson = yield promises_1.default.readFile(blockPath);
+        const blockJsonBuffer = yield promises_1.default.readFile(blockPath);
+        const blockJson = blockJsonBuffer.toString(); // Convert Buffer to string
         return JSON.parse(blockJson);
     }
     catch (error) {

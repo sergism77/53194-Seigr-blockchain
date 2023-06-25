@@ -1,43 +1,35 @@
-'use strict';
-
 import { STARTING_BALANCE } from './config';
-import { cryptoHash, verifySignature } from './utils';
-import Transaction from './transaction';
-import ec from 'elliptic';
-import { createGenesisWallet, createWallet, saveWallet } from './walletUtils';
+import { CryptoHash, VerifySignature } from './utils';
+import { Transaction } from './transaction';
+import { ec as EC } from 'elliptic';
 import crypto from 'crypto';
 import base58 from 'bs58';
 
-const secp256k1 = new ec.ec('secp256k1');
+const ellipticCurve = new EC('secp256k1');
 
 class Wallet {
-  keyPair: ec.ec.KeyPair;
+  keyPair: EC.KeyPair;
   balance: number;
   address: string;
-  createGenesisWallet: () => void;
-  createWallet: () => void;
-  saveWallet: () => void;
 
-  constructor(keyPair?: ec.ec.KeyPair) {
+  constructor(keyPair?: EC.KeyPair) {
     if (keyPair) {
       this.keyPair = keyPair;
     } else {
-      this.keyPair = secp256k1.genKeyPair();
+      this.keyPair = ellipticCurve.genKeyPair();
     }
     this.balance = STARTING_BALANCE;
     this.address = this.generateAddress(this.keyPair.getPublic().encode('hex'));
-    this.createGenesisWallet = createGenesisWallet;
-    this.createWallet = createWallet;
-    this.saveWallet = saveWallet;
   }
 
   publicKey(): string {
-    return this.keyPair.getPublic().encode('hex');
+    return this.keyPair.getPublic().encode('hex', true);
   }
+  
 
-  sign(data: string): ec.ec.Signature {
+  sign(data: string): EC.Signature {
     try {
-      return this.keyPair.sign(cryptoHash(data));
+      return this.keyPair.sign(CryptoHash(data));
     } catch (error) {
       throw new Error('Error signing the data');
     }
@@ -50,6 +42,10 @@ class Wallet {
     const addressWithChecksum = Buffer.concat([addressBytes, checksum.subarray(0, 4)]);
     const address = base58.encode(addressWithChecksum);
     return address;
+  }
+
+  getPrivateKey(): string {
+    return this.keyPair.getPrivate().toString(16);
   }
 
   createTransaction({ recipient, amount, chain }: { recipient: string, amount: number, chain?: any[] }): Transaction {
@@ -78,7 +74,7 @@ class Wallet {
       console.error(`Invalid transaction from ${address}`);
       return false;
     }
-    if (!verifySignature({ publicKey: address, data: outputMap, signature })) {
+    if (!VerifySignature(address, JSON.stringify(outputMap), signature)) {
       console.error(`Invalid signature from ${address}`);
       return false;
     }

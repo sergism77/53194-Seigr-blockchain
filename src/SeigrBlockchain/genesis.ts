@@ -33,6 +33,14 @@ interface GenesisData {
   maxTransactionFee: number;
   milestones: Milestones;
   coinbaseAddress: string;
+  index: number;
+  previousHash: string;
+  lastHash: string;
+  hash: string;
+  data: any;
+  nonce: number;
+  transactions: any[];
+  miner: string;
 }
 
 const GENESIS_DATA: GenesisData = {

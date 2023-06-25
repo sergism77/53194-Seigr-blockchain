@@ -1,14 +1,13 @@
-'use strict';
-
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 import { CryptoHash } from './utils';
 import { STARTING_BALANCE } from './config';
-import * as elliptic from 'elliptic';
+import { ec as EC, KeyPair } from 'elliptic';
 import { VerifySignature } from './utils';
+import { Transaction } from './transaction';
 
-const ec = new elliptic.ec('secp256k1');
+const ellipticCurve = new EC('secp256k1');
 
 const walletDirectory = path.join(os.homedir(), 'SeigrBlockchain', 'wallets');
 
@@ -35,12 +34,12 @@ class WalletUtils {
 
 class Wallet {
   balance: number;
-  keyPair: elliptic.ec.KeyPair;
+  keyPair: KeyPair;
   address: string;
 
   constructor() {
     this.balance = STARTING_BALANCE;
-    this.keyPair = ec.genKeyPair();
+    this.keyPair = ellipticCurve.genKeyPair();
     this.address = this.keyPair.getPublic().encode('hex');
   }
 
@@ -48,7 +47,7 @@ class Wallet {
     return this.keyPair.getPublic().encode('hex');
   }
 
-  sign(data: string): elliptic.ec.Signature {
+  sign(data: string): EC.Signature {
     return this.keyPair.sign(CryptoHash(data));
   }
 
@@ -97,7 +96,7 @@ class Wallet {
     const { balance, keyPair, address } = JSON.parse(walletData);
     const wallet = new Wallet();
     wallet.balance = balance;
-    wallet.keyPair = ec.keyFromPrivate(keyPair.privateKey, 'hex');
+    wallet.keyPair = ellipticCurve.keyFromPrivate(keyPair.privateKey, 'hex');
     wallet.address = address;
     return wallet;
   }

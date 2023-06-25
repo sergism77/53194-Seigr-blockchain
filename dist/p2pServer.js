@@ -22,10 +22,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.P2pServer = void 0;
 const Websocket = __importStar(require("ws"));
 const config_1 = require("./config");
+const blockchain_1 = __importDefault(require("./blockchain"));
+const genesisBlock_1 = require("./genesisBlock");
 //const Websocket = require('ws');
 //const P2P_PORT =  53194;
 //const peers = process.env.PEERS ? process.env.PEERS.split(',') : []; //if there is no PEERS in the environment, then use an empty array
@@ -77,10 +82,10 @@ class P2pServer {
     }
     //start creating blocks if the node is fully synced
     mineBlocks() {
-        if (blockchain.chain.length === 0) {
+        if (blockchain_1.default.chain.length === 0) {
             console.log('blockchain is empty');
             console.log('creating genesis block');
-            mineGenesisBlock({ genesisBlock });
+            (0, genesisBlock_1.mineGenesisBlock)({ mineGenesisBlock: genesisBlock_1.mineGenesisBlock });
             console.log('genesis block created');
             console.log('creating genesis transaction pool');
             mineGenesisTransactionPool({ genesisTransaction });

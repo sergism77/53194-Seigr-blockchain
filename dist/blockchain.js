@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const os_1 = __importDefault(require("os"));
 const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
-const utils_1 = require("./utils");
 const block_js_1 = require("./block.js");
 const wallet_1 = __importDefault(require("./wallet"));
 const walletPool_1 = require("./walletPool");
@@ -37,7 +36,7 @@ class Blockchain {
             const newBlock = new block_js_1.Block({
                 timestamp: Date.now(),
                 lastHash: previousHash,
-                hash: (0, utils_1.cryptoHash)(previousHash),
+                hash: cryptoHash(previousHash),
                 data: transactions,
                 nonce: 0,
                 difficulty: 0,
@@ -45,7 +44,7 @@ class Blockchain {
                 miner: minerIdentifier,
             });
             try {
-                yield (0, block_js_1.saveBlock)(newBlock);
+                yield saveBlock(newBlock);
                 for (const transaction of Object.values(transactions)) {
                     if (transaction.id) {
                         yield promises_1.default.unlink(path_1.default.join(transactionPoolDirectory, `${transaction.id}.json`));

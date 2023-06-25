@@ -1,60 +1,17 @@
-'use strict';
-
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 import { CryptoHash, VerifySignature } from './utils';
 import { STARTING_BALANCE } from './config';
+import Wallet from './wallet';
 import * as elliptic from 'elliptic';
+import { ec as EC } from 'elliptic';
 import * as crypto from 'crypto';
 
 const ec = new elliptic.ec('secp256k1');
 
 // Update transactionDirectory to be configurable
 const transactionDirectory = path.join(os.homedir(), 'Seigr', 'transactions');
-
-class Wallet {
-  /**
-   * Represents a wallet that holds a key pair for signing transactions.
-   * @constructor
-   */
-  keyPair: elliptic.ec.KeyPair;
-  publicKey: string;
-  balance: number;
-
-  constructor() {
-    this.keyPair = ec.genKeyPair();
-    this.publicKey = this.keyPair.getPublic('hex');
-    this.balance = STARTING_BALANCE;
-  }
-
-  /**
-   * Signs the given data using the wallet's private key.
-   * @param {string} data - The data to sign.
-   * @returns {string} - The signature.
-   */
-  sign(data: string): string {
-    return this.keyPair.sign(CryptoHash(data)).toDER('hex');
-  }
-
-  /**
-   * Retrieves the transaction history for the user from the transaction directory.
-   * @returns {Transaction[]} - The array of transactions.
-   */
-  getTransactionHistory(): Transaction[] {
-    const transactions: Transaction[] = [];
-    const files = fs.readdirSync(transactionDirectory);
-
-    for (const file of files) {
-      const transactionFile = path.join(transactionDirectory, file);
-      const transactionData = fs.readFileSync(transactionFile, 'utf8');
-      const transaction = JSON.parse(transactionData);
-      transactions.push(transaction);
-    }
-
-    return transactions;
-  }
-}
 
 class Transaction {
   /**
@@ -88,7 +45,7 @@ class Transaction {
     const outputMap: { [key: string]: number } = {};
 
     outputMap[recipient] = amount;
-    outputMap[senderWallet.publicKey] = senderWallet.balance - amount;
+    outputMap[senderWallet.publicKey()] = senderWallet.balance - amount;
 
     return outputMap;
   }
@@ -105,13 +62,18 @@ class Transaction {
     address: string;
     signature: string;
   } {
+    const signature = senderWallet.sign(JSON.stringify(outputMap));
+  
     return {
       timestamp: Date.now(),
       amount: senderWallet.balance,
-      address: senderWallet.publicKey,
-      signature: senderWallet.sign(JSON.stringify(outputMap)),
+      address: senderWallet.publicKey(),
+      signature: signature.toDER('hex'),
     };
   }
+  
+  
+  
 
   /**
    * Validates a transaction's amount and signature.
@@ -135,6 +97,38 @@ class Transaction {
     }
 
     return true;
+  }
+
+  static rewardTransaction({ minerWallet }: { minerWallet: Wallet }): Transaction {
+    return new this({
+      senderWallet: Wallet.blockchainWallet(),
+      recipient: minerWallet.publicKey(),
+      amount: 50,
+    });
+  }
+
+  /**
+   * Updates the transaction with a new recipient.
+   * @param {string} recipient - The new recipient's public key.
+   * @param {number} amount - The new transaction amount.
+   * @returns {Transaction} - The updated transaction.
+   * @throws {Error} - Indicates that the amount exceeds the sender's balance.
+   */
+  update({ recipient, amount }: { recipient: string; amount: number }): Transaction {
+    if (amount > this.outputMap[this.input.address]) {
+      throw new Error('Amount exceeds balance');
+    }
+
+    if (!this.outputMap[recipient]) {
+      this.outputMap[recipient] = amount;
+    }
+
+    this.outputMap[recipient] += amount;
+    this.outputMap[this.input.address] -= amount;
+
+    this.input = this.createInput({ senderWallet: Wallet.blockchainWallet(), outputMap: this.outputMap });
+
+    return this;
   }
 }
 
@@ -201,4 +195,4 @@ const encryptPrivateKey = (privateKey: string, passphrase: string) => {
   };
 };
 
-export { Transaction, CreateTransaction, SaveTransaction, LoadTransaction, Wallet, encryptPrivateKey };
+export { Transaction, CreateTransaction, SaveTransaction, LoadTransaction, encryptPrivateKey };

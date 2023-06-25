@@ -1,4 +1,7 @@
-'use strict';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Config = exports.STARTING_BALANCE = void 0;
+exports.STARTING_BALANCE = 0;
 class Config {
     constructor() {
         this.chainID = 53194;
@@ -81,4 +84,4 @@ class Config {
         return this.socketClient;
     }
 }
-module.exports = Config;
+exports.Config = Config;

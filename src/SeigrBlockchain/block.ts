@@ -5,6 +5,11 @@ import { CryptoHash } from './utils';
 import { Transaction } from './transaction';
 import { GENESIS_DATA } from './genesis';
 import { isEqual } from 'lodash';
+import Wallet from './wallet';
+import { TransactionPool } from './transactionPool';
+import { ec } from 'elliptic';
+
+const ellipticCurve = new ec('secp256k1');
 
 const walletDirectory = path.join(os.homedir(), 'Seigr', 'wallets');
 const blockchainDirectory = path.join(os.homedir(), 'Seigr', 'blockchain');
@@ -34,7 +39,8 @@ export class Block {
   transactions: Transaction[];
   miner: string;
 
-  static chain: Block[] = []; // Define static chain property
+  static chain: Block[] = [];
+  static MINE_RATE: number = 60000; // Define MINE_RATE static property
 
   constructor(data: BlockData) {
     this.index = data.index;
@@ -56,7 +62,7 @@ export class Block {
   static adjustDifficulty({ originalBlock, timestamp }: { originalBlock: Block, timestamp: number }): number {
     const { difficulty } = originalBlock;
     if (difficulty < 1) return 1;
-    if (timestamp - originalBlock.timestamp > MINE_RATE) return difficulty - 1;
+    if (timestamp - originalBlock.timestamp > Block.MINE_RATE) return difficulty - 1;
     return difficulty + 1;
   }
 
@@ -97,8 +103,8 @@ export class Block {
   static mineTransactionPool({ transactionPool, wallet }: { transactionPool: TransactionPool, wallet: Wallet }): Block {
     const validTransactions = transactionPool.validTransactions().slice();
     validTransactions.push(Transaction.rewardTransaction({ minerWallet: wallet }));
-    const block = this.mineBlock({ lastBlock: this.chain[this.chain.length - 1], data: validTransactions });
-    this.chain.push(block);
+    const block = Block.mineBlock({ lastBlock: Block.chain[Block.chain.length - 1], data: validTransactions, wallet });
+    Block.chain.push(block);
     return block;
   }
 
@@ -123,7 +129,7 @@ export class Block {
     }
   }
 
-  static mineBlock({ lastBlock, data }: { lastBlock: Block, data: any }): Block {
+  static mineBlock({ lastBlock, data, wallet }: { lastBlock: Block, data: any, wallet: Wallet }): Block {
     const timestamp = Date.now();
     const lastHash = lastBlock.hash;
     const index = lastBlock.index + 1;
@@ -133,13 +139,13 @@ export class Block {
     do {
       nonce++;
       hash = CryptoHash(index, timestamp, lastHash, data, nonce, difficulty);
-      miner = ec.genKeyPair().getPublic().encode('hex');
+      miner = ellipticCurve.keyFromPrivate(wallet.getPrivateKey()).getPublic().encode('hex', true);
     } while (hash.substring(0, difficulty) !== '0'.repeat(difficulty));
     return new this({ index, timestamp, lastHash, data, nonce, difficulty, hash, miner });
   }
 }
 
-export const SaveBlock = async (block: Block): Promise<void> => {
+export const saveBlock = async (block: Block): Promise<void> => {
   const blockPath = path.join(blockchainDirectory, `${block.hash}.json`);
   try {
     await fs.writeFile(blockPath, JSON.stringify(block));
@@ -148,7 +154,7 @@ export const SaveBlock = async (block: Block): Promise<void> => {
   }
 };
 
-export const LoadBlock = async (blockHash: string): Promise<any> => {
+export const loadBlock = async (blockHash: string): Promise<Block | null> => {
   const blockPath = path.join(blockchainDirectory, `${blockHash}.json`);
   try {
     const blockJsonBuffer = await fs.readFile(blockPath);
@@ -159,3 +165,20 @@ export const LoadBlock = async (blockHash: string): Promise<any> => {
     return null;
   }
 };
+
+// Create an instance of the Block class
+const block = new Block({
+  index: 0,
+  timestamp: Date.now(),
+  previousHash: '',
+  lastHash: '',
+  hash: '',
+  data: {},
+  nonce: 0,
+  difficulty: 0,
+  transactions: [],
+  miner: '',
+});
+
+// Use the block instance as needed
+console.log(block);

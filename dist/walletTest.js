@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const wallet_1 = __importDefault(require("./wallet"));
 const transaction_1 = __importDefault(require("./transaction"));
 const blockchain_1 = __importDefault(require("./blockchain"));
-const util_1 = require("../SeigrBlockchain/util");
+const utils_1 = require("./utils");
 class WalletTest {
     constructor() {
         this.wallet = new wallet_1.default();
@@ -23,7 +23,7 @@ class WalletTest {
         const data = 'test-data';
         const signature = this.wallet.sign(data);
         console.log('signature: ', signature);
-        console.log('verify signature: ', (0, util_1.verifySignature)(this.wallet.publicKey, data, signature));
+        console.log('verify signature: ', (0, utils_1.verifySignature)(this.wallet.publicKey, data, signature));
     }
     testCreateTransaction() {
         const recipient = 'test-recipient';

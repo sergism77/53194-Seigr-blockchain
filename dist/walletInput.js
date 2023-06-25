@@ -1,8 +1,8 @@
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.WalletInput = void 0;
-const config_1 = require("../config");
-const utils_1 = require("../utils");
+const config_1 = require("./config");
+const utils_1 = require("./utils");
 class WalletInput {
     constructor({ wallet, amount, signature }) {
         this.timestamp = Date.now();
@@ -13,7 +13,7 @@ class WalletInput {
     static validTransaction(walletInput) {
         const { address, amount, signature } = walletInput;
         const publicKey = address;
-        return (0, utils_1.verifySignature)({ publicKey, data: amount, signature });
+        return (0, utils_1.VerifySignature)({ publicKey, data: amount, signature });
     }
     static rewardTransaction({ minerWallet }) {
         return new this({

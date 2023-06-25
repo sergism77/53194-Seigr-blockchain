@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -27,8 +27,9 @@ const path = __importStar(require("path"));
 const os = __importStar(require("os"));
 const utils_1 = require("./utils");
 const config_1 = require("./config");
-const elliptic = __importStar(require("elliptic"));
-const ec = new elliptic.ec('secp256k1');
+const elliptic_1 = require("elliptic");
+const transaction_1 = require("./transaction");
+const ellipticCurve = new elliptic_1.ec('secp256k1');
 const walletDirectory = path.join(os.homedir(), 'SeigrBlockchain', 'wallets');
 class WalletUtils {
     static createWallet() {
@@ -49,14 +50,14 @@ class WalletUtils {
 class Wallet {
     constructor() {
         this.balance = config_1.STARTING_BALANCE;
-        this.keyPair = ec.genKeyPair();
+        this.keyPair = ellipticCurve.genKeyPair();
         this.address = this.keyPair.getPublic().encode('hex');
     }
     publicKey() {
         return this.keyPair.getPublic().encode('hex');
     }
     sign(data) {
-        return this.keyPair.sign((0, utils_1.cryptoHash)(data));
+        return this.keyPair.sign((0, utils_1.CryptoHash)(data));
     }
     createTransaction({ recipient, amount, chain }) {
         if (chain) {
@@ -68,7 +69,7 @@ class Wallet {
         if (amount > this.balance) {
             throw new Error('Amount exceeds balance');
         }
-        return new Transaction({ senderWallet: this, recipient, amount });
+        return new transaction_1.Transaction({ senderWallet: this, recipient, amount });
     }
     static calculateBalance({ chain, address }) {
         let hasConductedTransaction = false;
@@ -99,7 +100,7 @@ class Wallet {
         const { balance, keyPair, address } = JSON.parse(walletData);
         const wallet = new Wallet();
         wallet.balance = balance;
-        wallet.keyPair = ec.keyFromPrivate(keyPair.privateKey, 'hex');
+        wallet.keyPair = ellipticCurve.keyFromPrivate(keyPair.privateKey, 'hex');
         wallet.address = address;
         return wallet;
     }
