@@ -2,13 +2,25 @@ import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
 import { CryptoHash } from './utils';
-import { STARTING_BALANCE } from './config';
-import ec from 'elliptic';
 import { Transaction } from './transaction';
 import { GENESIS_DATA } from './genesis';
+import { isEqual } from 'lodash';
 
 const walletDirectory = path.join(os.homedir(), 'Seigr', 'wallets');
 const blockchainDirectory = path.join(os.homedir(), 'Seigr', 'blockchain');
+
+interface BlockData {
+  index: number;
+  timestamp: number;
+  previousHash: string;
+  lastHash: string;
+  hash: string;
+  data: any;
+  nonce: number;
+  difficulty: number;
+  transactions: Transaction[];
+  miner: string;
+}
 
 export class Block {
   index: number;
@@ -22,31 +34,33 @@ export class Block {
   transactions: Transaction[];
   miner: string;
 
-  constructor({ index, timestamp, previousHash, lastHash, hash, data, nonce, difficulty, transactions, miner }: { index: number, timestamp: number, previousHash: string, lastHash: string, hash: string, data: any, nonce: number, difficulty: number, transactions: Transaction[], miner: string }) {
-    this.index = index;
-    this.timestamp = timestamp;
-    this.previousHash = previousHash;
-    this.lastHash = lastHash;
-    this.hash = hash;
-    this.data = data;
-    this.nonce = nonce;
-    this.difficulty = difficulty;
-    this.transactions = transactions;
-    this.miner = miner;
+  static chain: Block[] = []; // Define static chain property
+
+  constructor(data: BlockData) {
+    this.index = data.index;
+    this.timestamp = data.timestamp;
+    this.previousHash = data.previousHash;
+    this.lastHash = data.lastHash;
+    this.hash = data.hash;
+    this.data = data.data;
+    this.nonce = data.nonce;
+    this.difficulty = data.difficulty;
+    this.transactions = data.transactions;
+    this.miner = data.miner;
   }
 
-  static genesis() {
+  static genesis(): Block {
     return new Block(GENESIS_DATA);
   }
 
-  static adjustDifficulty({ originalBlock, timestamp }: { originalBlock: Block, timestamp: number }) {
+  static adjustDifficulty({ originalBlock, timestamp }: { originalBlock: Block, timestamp: number }): number {
     const { difficulty } = originalBlock;
     if (difficulty < 1) return 1;
     if (timestamp - originalBlock.timestamp > MINE_RATE) return difficulty - 1;
     return difficulty + 1;
   }
 
-  static isValidBlock(block: Block, lastBlock: Block) {
+  static isValidBlock(block: Block, lastBlock: Block): boolean {
     const { index, timestamp, hash, data, nonce, difficulty, transactions, miner } = block;
     const lastDifficulty = lastBlock.difficulty;
     const lastHash = lastBlock.hash;
@@ -56,8 +70,8 @@ export class Block {
     return true;
   }
 
-  static isValidChain(chain: Block[]) {
-    if (JSON.stringify(chain[0]) !== JSON.stringify(Block.genesis())) return false;
+  static isValidChain(chain: Block[]): boolean {
+    if (!isEqual(chain[0], Block.genesis())) return false;
     for (let i = 1; i < chain.length; i++) {
       const block = chain[i];
       const lastBlock = chain[i - 1];
@@ -67,7 +81,7 @@ export class Block {
     return true;
   }
 
-  static replaceChain(chain: Block[]) {
+  static replaceChain(chain: Block[]): void {
     if (chain.length <= this.chain.length) {
       console.error('The incoming chain must be longer');
       return;
@@ -76,11 +90,11 @@ export class Block {
       console.error('The incoming chain must be valid');
       return;
     }
-    console.log('replacing chain with', chain);
+    console.log('Replacing chain with', chain);
     this.chain = chain;
   }
 
-  static mineTransactionPool({ transactionPool, wallet }: { transactionPool: TransactionPool, wallet: Wallet }) {
+  static mineTransactionPool({ transactionPool, wallet }: { transactionPool: TransactionPool, wallet: Wallet }): Block {
     const validTransactions = transactionPool.validTransactions().slice();
     validTransactions.push(Transaction.rewardTransaction({ minerWallet: wallet }));
     const block = this.mineBlock({ lastBlock: this.chain[this.chain.length - 1], data: validTransactions });
@@ -88,7 +102,7 @@ export class Block {
     return block;
   }
 
-  async saveBlock() {
+  async saveBlock(): Promise<void> {
     const blockPath = path.join(blockchainDirectory, `${this.hash}.json`);
     try {
       await fs.writeFile(blockPath, JSON.stringify(this));
@@ -97,7 +111,7 @@ export class Block {
     }
   }
 
-  static async loadBlock(hash: string) {
+  static async loadBlock(hash: string): Promise<Block | null> {
     const blockPath = path.join(blockchainDirectory, `${hash}.json`);
     try {
       const blockJsonBuffer = await fs.readFile(blockPath);
@@ -108,9 +122,8 @@ export class Block {
       return null;
     }
   }
-  
 
-  static mineBlock({ lastBlock, data }: { lastBlock: Block, data: any }) {
+  static mineBlock({ lastBlock, data }: { lastBlock: Block, data: any }): Block {
     const timestamp = Date.now();
     const lastHash = lastBlock.hash;
     const index = lastBlock.index + 1;
@@ -126,7 +139,7 @@ export class Block {
   }
 }
 
-export const SaveBlock = async (block: Block) => {
+export const SaveBlock = async (block: Block): Promise<void> => {
   const blockPath = path.join(blockchainDirectory, `${block.hash}.json`);
   try {
     await fs.writeFile(blockPath, JSON.stringify(block));
@@ -135,7 +148,7 @@ export const SaveBlock = async (block: Block) => {
   }
 };
 
-export const LoadBlock = async (blockHash: string) => {
+export const LoadBlock = async (blockHash: string): Promise<any> => {
   const blockPath = path.join(blockchainDirectory, `${blockHash}.json`);
   try {
     const blockJsonBuffer = await fs.readFile(blockPath);
@@ -146,4 +159,3 @@ export const LoadBlock = async (blockHash: string) => {
     return null;
   }
 };
-

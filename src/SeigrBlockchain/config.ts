@@ -1,6 +1,7 @@
-'use strict';
+export const STARTING_BALANCE = 0;
 
-class Config {
+export class Config {
+
     chainID: number;
     chainName: string;
     mineRate: number;
@@ -142,5 +143,3 @@ class Config {
         return this.socketClient;
     }
 }
-
-export = Config;

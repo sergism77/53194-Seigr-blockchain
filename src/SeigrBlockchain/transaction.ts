@@ -3,13 +3,14 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
-import { cryptoHash, verifySignature } from './utils';
+import { CryptoHash, VerifySignature } from './utils';
 import { STARTING_BALANCE } from './config';
 import * as elliptic from 'elliptic';
 import * as crypto from 'crypto';
 
 const ec = new elliptic.ec('secp256k1');
 
+// Update transactionDirectory to be configurable
 const transactionDirectory = path.join(os.homedir(), 'Seigr', 'transactions');
 
 class Wallet {
@@ -23,7 +24,7 @@ class Wallet {
 
   constructor() {
     this.keyPair = ec.genKeyPair();
-    this.publicKey = this.keyPair.getPublic().encode('hex');
+    this.publicKey = this.keyPair.getPublic('hex');
     this.balance = STARTING_BALANCE;
   }
 
@@ -33,7 +34,25 @@ class Wallet {
    * @returns {string} - The signature.
    */
   sign(data: string): string {
-    return this.keyPair.sign(cryptoHash(data)).toDER('hex');
+    return this.keyPair.sign(CryptoHash(data)).toDER('hex');
+  }
+
+  /**
+   * Retrieves the transaction history for the user from the transaction directory.
+   * @returns {Transaction[]} - The array of transactions.
+   */
+  getTransactionHistory(): Transaction[] {
+    const transactions: Transaction[] = [];
+    const files = fs.readdirSync(transactionDirectory);
+
+    for (const file of files) {
+      const transactionFile = path.join(transactionDirectory, file);
+      const transactionData = fs.readFileSync(transactionFile, 'utf8');
+      const transaction = JSON.parse(transactionData);
+      transactions.push(transaction);
+    }
+
+    return transactions;
   }
 }
 
@@ -56,7 +75,7 @@ class Transaction {
   };
 
   constructor({ senderWallet, recipient, amount }: { senderWallet: Wallet; recipient: string; amount: number }) {
-    this.id = cryptoHash(Date.now().toString());
+    this.id = CryptoHash(Date.now().toString());
     this.outputMap = this.createOutputMap({
       senderWallet,
       recipient,
@@ -74,7 +93,13 @@ class Transaction {
     return outputMap;
   }
 
-  createInput({ senderWallet, outputMap }: { senderWallet: Wallet; outputMap: { [key: string]: number } }): {
+  createInput({
+    senderWallet,
+    outputMap,
+  }: {
+    senderWallet: Wallet;
+    outputMap: { [key: string]: number };
+  }): {
     timestamp: number;
     amount: number;
     address: string;
@@ -84,10 +109,15 @@ class Transaction {
       timestamp: Date.now(),
       amount: senderWallet.balance,
       address: senderWallet.publicKey,
-      signature: senderWallet.sign(outputMap),
+      signature: senderWallet.sign(JSON.stringify(outputMap)),
     };
   }
 
+  /**
+   * Validates a transaction's amount and signature.
+   * @param {Transaction} transaction - The transaction to validate.
+   * @returns {boolean} - Indicates whether the transaction is valid.
+   */
   static validateTransaction(transaction: Transaction): boolean {
     const {
       input: { address, amount, signature },
@@ -99,18 +129,12 @@ class Transaction {
       return false;
     }
 
-    if (!verifySignature({ publicKey: address, data: outputMap, signature })) {
+    if (!VerifySignature(address, JSON.stringify(outputMap), signature)) {
       console.error(`Invalid signature from ${address}`);
       return false;
     }
 
     return true;
-  }
-
-  signTransaction() {
-    const key = ec.keyFromPrivate(this.senderWallet.keyPair.getPrivate());
-    const sign = key.sign(this.calculateHash());
-    this.input.signature = sign.toDER('hex');
   }
 }
 
@@ -127,6 +151,9 @@ class SaveTransaction {
     this.transaction = transaction;
   }
 
+  /**
+   * Saves the transaction to a file.
+   */
   saveTransaction() {
     const transactionFile = path.join(transactionDirectory, `${this.transaction.id}.json`);
     fs.writeFileSync(transactionFile, JSON.stringify(this.transaction));
