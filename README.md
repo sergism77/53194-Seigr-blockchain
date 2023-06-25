@@ -3,7 +3,7 @@
 Seigr Blockchain
 ================
 
-Seigr blockchain is a decentralized blockchain project written in Javascript. This blockchain will focus on beekeeping, research, art and gaming. The Seigr blockchain is a hybrid blockchain that will use both Proof of Work and Proof of Stake. 
+Seigr blockchain is a decentralized blockchain project. This blockchain will focus on beekeeping, research, art and gaming. The Seigr blockchain is a hybrid blockchain that will use both Proof of Work and Proof of Stake. 
 
 Using a GUI, users will be able to interact with the blockchain. The GUI, written in Javascript, will allow users to manage their own nodes (full or light), create wallets, send and receive transactions, and mine blocks. From the GUI, users will also be able to access dApps (decentralized applications) that will be built on the Seigr blockchain.
 
