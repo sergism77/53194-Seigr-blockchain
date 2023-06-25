@@ -5,7 +5,7 @@ import { newWallet } from './newWallet';
 import { saveWallet } from './saveWallet';
 import Transaction from './transaction';
 import Blockchain from './blockchain';
-import { verifySignature } from '../SeigrBlockchain/util';
+import { verifySignature } from './utils';
 import { STARTING_BALANCE } from './config';
 
 class WalletTest {

@@ -1,6 +1,6 @@
 'use strict';
 
-import { verifySignature } from '../utils';
+import { VerifySignature } from './utils';
 
 class WalletOutput {
     timestamp: number;

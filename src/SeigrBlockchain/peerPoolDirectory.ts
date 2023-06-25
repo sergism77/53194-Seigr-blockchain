@@ -29,6 +29,9 @@ class PeerPoolDirectory {
   }
 
   public getPeerPoolDirectoryElement(index: number): any {
+    if (index < 0 || index >= this.peerPoolDirectory.length) {
+      throw new Error(`Index ${index} is out of bounds for peerPoolDirectory`);
+    }
     return this.peerPoolDirectory[index];
   }
 
@@ -125,90 +128,40 @@ class PeerPoolDirectory {
   }
 
   public broadcast(message: any): void {
-    for (let i = 0; i < this.peerPoolDirectory.length; i++) {
-      const peer = this.peerPoolDirectory[i];
+    for (const peer of this.peerPoolDirectory) {
       if (peer && typeof peer.send === "function") {
         peer.send(message);
       }
     }
   }
 
-  public broadcastExcept(message: any, peer: any): void {
-    for (let i = 0; i < this.peerPoolDirectory.length; i++) {
-      const otherPeer = this.peerPoolDirectory[i];
-      if (otherPeer !== peer && typeof otherPeer.send === "function") {
-        otherPeer.send(message);
+  public broadcastExcept(message: any, excludedPeer: any): void {
+    for (const peer of this.peerPoolDirectory) {
+      if (peer !== excludedPeer && typeof peer.send === "function") {
+        peer.send(message);
       }
     }
   }
 
   public broadcastTo(peerPool: any[], message: any): void {
-    for (let i = 0; i < peerPool.length; i++) {
-      const peer = peerPool[i];
+    for (const peer of peerPool) {
       if (peer && typeof peer.send === "function") {
         peer.send(message);
       }
     }
   }
 
-  public broadcastToExcept(peerPool: any[], message: any, peer: any): void {
-    for (let i = 0; i < peerPool.length; i++) {
-      const otherPeer = peerPool[i];
-      if (otherPeer !== peer && typeof otherPeer.send === "function") {
-        otherPeer.send(message);
+  public broadcastToExcept(peerPool: any[], message: any, excludedPeer: any): void {
+    for (const peer of peerPool) {
+      if (peer !== excludedPeer && typeof peer.send === "function") {
+        peer.send(message);
       }
-    }
-  }
-
-  public receive(message: any, peer: any): void {
-    if (message.type === "request" && message.request === "peerPoolDirectory") {
-      peer.send({
-        type: "response",
-        response: "peerPoolDirectory",
-        peerPoolDirectory: this.peerPoolDirectory,
-      });
     }
   }
 
   public receiveFrom(message: any, peerPool: any[], peer: any): void {
     if (message.type === "request" && message.request === "peerPoolDirectory") {
-      peer.send({
-        type: "response",
-        response: "peerPoolDirectory",
-        peerPoolDirectory: this.peerPoolDirectory,
-      });
-    }
-  }
-
-  public receiveFromExcept(message: any, peerPool: any[], peer: any): void {
-    if (message.type === "request" && message.request === "peerPoolDirectory") {
-      peer.send({
-        type: "response",
-        response: "peerPoolDirectory",
-        peerPoolDirectory: this.peerPoolDirectory,
-      });
-    }
-  }
-
-  public receiveFromAll(message: any, peerPool: any[]): void {
-    if (message.type === "request" && message.request === "peerPoolDirectory") {
-      for (let i = 0; i < peerPool.length; i++) {
-        const peer = peerPool[i];
-        if (peer && typeof peer.send === "function") {
-          peer.send({
-            type: "response",
-            response: "peerPoolDirectory",
-            peerPoolDirectory: this.peerPoolDirectory,
-          });
-        }
-      }
-    }
-  }
-
-  public receiveFromAllExcept(message: any, peerPool: any[], peer: any): void {
-    if (message.type === "request" && message.request === "peerPoolDirectory") {
-      for (let i = 0; i < peerPool.length; i++) {
-        const otherPeer = peerPool[i];
+      for (const otherPeer of peerPool) {
         if (otherPeer !== peer && typeof otherPeer.send === "function") {
           otherPeer.send({
             type: "response",
@@ -220,25 +173,17 @@ class PeerPoolDirectory {
     }
   }
 
-  public receiveFromAllTo(message: any, peerPool: any[], peer: any): void {
-    if (message.type === "request" && message.request === "peerPoolDirectory") {
-      peer.send({
-        type: "response",
-        response: "peerPoolDirectory",
-        peerPoolDirectory: this.peerPoolDirectory,
-      });
-    }
-  }
-
-  public send(message: any, peer: any): void {
+  public sendTo(peer: any, message: any): void {
     if (peer && typeof peer.send === "function") {
       peer.send(message);
     }
   }
 
-  public sendTo(peerPool: any[], message: any, peer: any): void {
-    if (peer && typeof peer.send === "function") {
-      peer.send(message);
+  public sendToPeers(peerPool: any[], message: any): void {
+    for (const peer of peerPool) {
+      if (peer && typeof peer.send === "function") {
+        peer.send(message);
+      }
     }
   }
 

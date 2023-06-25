@@ -25,7 +25,9 @@ class PeerList {
   }
 
   addPeer(peer: Peer) {
-    this.peers.push(peer);
+    if (!this.peers.includes(peer)) {
+      this.peers.push(peer);
+    }
   }
 
   removePeer(peer: Peer) {
@@ -103,7 +105,11 @@ class PeerList {
     return this.peers.find(peer => peer.blockchainLastBlockDate === blockchainLastBlockDate) || null;
   }
 
-  broadcast = (message: any) => {
+  getPeerPoolSize() {
+    return this.peers.length;
+  }
+
+  broadcast(message: any) {
     this.peers.forEach(peer => peer.send(message));
   }
 }

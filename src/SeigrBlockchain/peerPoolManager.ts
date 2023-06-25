@@ -12,9 +12,9 @@ class PeerPoolManager {
   peerList: PeerList;
   peerPoolDirectory: PeerPoolDirectory;
 
-  constructor() {
+  constructor(peerPoolDirectory: any = {}) {
     this.peerList = new PeerList();
-    this.peerPoolDirectory = new PeerPoolDirectory();
+    this.peerPoolDirectory = new PeerPoolDirectory(peerPoolDirectory);
   }
 
   addPeer(peer: Peer) {
@@ -31,7 +31,7 @@ class PeerPoolManager {
     if (typeof peer.connect === "function") {
       peer.connect();
     } else {
-      throw new Error("Peer does not have the connect method");
+      throw new Error("The peer does not have the connect method");
     }
   }
 
@@ -39,7 +39,7 @@ class PeerPoolManager {
     if (typeof peer.disconnect === "function") {
       peer.disconnect();
     } else {
-      throw new Error("Peer does not have the disconnect method");
+      throw new Error("The peer does not have the disconnect method");
     }
   }
 
@@ -47,7 +47,7 @@ class PeerPoolManager {
     if (typeof peer.send === "function") {
       peer.send(message);
     } else {
-      throw new Error("Peer does not have the send method");
+      throw new Error("The peer does not have the send method");
     }
   }
 
@@ -55,7 +55,7 @@ class PeerPoolManager {
     if (typeof peer.receive === "function") {
       peer.receive(message);
     } else {
-      throw new Error("Peer does not have the receive method");
+      throw new Error("The peer does not have the receive method");
     }
   }
 
@@ -63,7 +63,7 @@ class PeerPoolManager {
     if (typeof this.peerList.broadcast === "function") {
       this.peerList.broadcast(message);
     } else {
-      throw new Error("PeerList does not have the broadcast method");
+      throw new Error("The PeerList does not have the broadcast method");
     }
   }
 
@@ -71,7 +71,7 @@ class PeerPoolManager {
     if (typeof this.peerList.connect === "function") {
       this.peerList.connect();
     } else {
-      throw new Error("PeerList does not have the connect method");
+      throw new Error("The PeerList does not have the connect method");
     }
   }
 
@@ -79,7 +79,7 @@ class PeerPoolManager {
     if (typeof this.peerList.disconnect === "function") {
       this.peerList.disconnect();
     } else {
-      throw new Error("PeerList does not have the disconnect method");
+      throw new Error("The PeerList does not have the disconnect method");
     }
   }
 
@@ -87,7 +87,7 @@ class PeerPoolManager {
     if (typeof this.peerList.send === "function") {
       this.peerList.send(message);
     } else {
-      throw new Error("PeerList does not have the send method");
+      throw new Error("The PeerList does not have the send method");
     }
   }
 
@@ -95,7 +95,7 @@ class PeerPoolManager {
     if (typeof this.peerList.receive === "function") {
       this.peerList.receive(message);
     } else {
-      throw new Error("PeerList does not have the receive method");
+      throw new Error("The PeerList does not have the receive method");
     }
   }
 
@@ -103,7 +103,7 @@ class PeerPoolManager {
     if (typeof this.peerPoolDirectory.connect === "function") {
       this.peerPoolDirectory.connect();
     } else {
-      throw new Error("PeerPoolDirectory does not have the connect method");
+      throw new Error("The PeerPoolDirectory does not have the connect method");
     }
   }
 
@@ -111,7 +111,7 @@ class PeerPoolManager {
     if (typeof this.peerPoolDirectory.disconnect === "function") {
       this.peerPoolDirectory.disconnect();
     } else {
-      throw new Error("PeerPoolDirectory does not have the disconnect method");
+      throw new Error("The PeerPoolDirectory does not have the disconnect method");
     }
   }
 
@@ -119,7 +119,7 @@ class PeerPoolManager {
     if (typeof this.peerPoolDirectory.send === "function") {
       this.peerPoolDirectory.send(message);
     } else {
-      throw new Error("PeerPoolDirectory does not have the send method");
+      throw new Error("The PeerPoolDirectory does not have the send method");
     }
   }
 
@@ -127,7 +127,7 @@ class PeerPoolManager {
     if (typeof this.peerPoolDirectory.receive === "function") {
       this.peerPoolDirectory.receive(message);
     } else {
-      throw new Error("PeerPoolDirectory does not have the receive method");
+      throw new Error("The PeerPoolDirectory does not have the receive method");
     }
   }
 
@@ -135,7 +135,7 @@ class PeerPoolManager {
     if (typeof this.peerPoolDirectory.broadcast === "function") {
       this.peerPoolDirectory.broadcast(message);
     } else {
-      throw new Error("PeerPoolDirectory does not have the broadcast method");
+      throw new Error("The PeerPoolDirectory does not have the broadcast method");
     }
   }
 }

@@ -1,10 +1,17 @@
 'use strict';
 
-const Websocket = require('ws');
-const P2P_PORT =  53194;
-const peers = process.env.PEERS ? process.env.PEERS.split(',') : []; //if there is no PEERS in the environment, then use an empty array
-const ConnectToPeers = require('./connectToPeers');
-const Listen = require('./listen');
+import * as Websocket from 'ws';
+import { P2P_PORT, PEERS } from './config';
+import ConnectToPeers from './connectToPeers';
+import Listen from './listen';
+
+
+//const Websocket = require('ws');
+//const P2P_PORT =  53194;
+//const peers = process.env.PEERS ? process.env.PEERS.split(',') : []; //if there is no PEERS in the environment, then use an empty array
+//const ConnectToPeers = require('./connectToPeers');
+//const Listen = require('./listen');
+
 class P2pServer {
     constructor(blockchain) {
         this.blockchain = blockchain;
@@ -476,4 +483,4 @@ class P2pServer {
 
 }
 
-module.exports = P2pServer;
+export { P2pServer };
