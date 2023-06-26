@@ -5,7 +5,6 @@ import * as elliptic from 'elliptic';
 import * as crypto from 'crypto';
 import { CryptoHash, VerifySignature } from './utils';
 import { STARTING_BALANCE } from './config';
-import Wallet from './wallet';
 
 const ec = new elliptic.ec('secp256k1');
 
@@ -32,13 +31,17 @@ interface TxOut {
 
 const isTxInStructureValid = (txIn: TxIn): boolean => {
   if (txIn === null) {
-    throw new Error('txIn is null');
+    console.log(`txIn is null`);
+    return false;
   } else if (typeof txIn.signature !== 'string') {
-    throw new Error('Invalid signature type in txIn');
+    console.log(`invalid signature type in txIn`);
+    return false;
   } else if (typeof txIn.txOutId !== 'string') {
-    throw new Error('Invalid txOutId type in txIn');
+    console.log(`invalid txOutId type in txIn`);
+    return false;
   } else if (typeof txIn.txOutIndex !== 'number') {
-    throw new Error('Invalid txOutIndex type in txIn');
+    console.log(`invalid txOutIndex type in txIn`);
+    return false;
   } else {
     return true;
   }
@@ -46,11 +49,14 @@ const isTxInStructureValid = (txIn: TxIn): boolean => {
 
 const isTxOutStructureValid = (txOut: TxOut): boolean => {
   if (txOut === null) {
-    throw new Error('txOut is null');
+    console.log(`txOut is null`);
+    return false;
   } else if (typeof txOut.address !== 'string') {
-    throw new Error('Invalid address type in txOut');
+    console.log(`invalid address type in txOut`);
+    return false;
   } else if (typeof txOut.amount !== 'number') {
-    throw new Error('Invalid amount type in txOut');
+    console.log(`invalid amount type in txOut`);
+    return false;
   } else {
     return true;
   }
@@ -98,6 +104,13 @@ const isValidTransactionStructure = (transaction: any): boolean => {
   return true;
 };
 
+/**
+ * Find an unspent transaction output (UTXO) by transaction ID and output index.
+ * @param transactionId - The transaction ID to search for.
+ * @param outputIndex - The output index to search for.
+ * @param unspentTxOuts - The array of unspent transaction outputs to search in.
+ * @returns The found unspent transaction output (UTXO), or undefined if not found.
+ */
 const findUnspentTxOut = (
   transactionId: string,
   outputIndex: number,
@@ -119,39 +132,35 @@ class Transaction {
   };
 
   constructor({ senderWallet, recipient, amount }: { senderWallet: Wallet; recipient: string; amount: number }) {
-    if (!senderWallet || !recipient || amount <= 0) {
+    if (!(senderWallet && recipient && amount > 0)) {
       throw new Error('Invalid transaction parameters');
     }
     
-    this.id = CryptoHash(Date.now().toString());
-    this.outputMap = this.createOutputMap(senderWallet, recipient, amount);
-    this.input = this.createInput(senderWallet, this.outputMap);
+    const timestamp = Date.now();
+    const pubKey = senderWallet.publicKey( );
+
+    const outputMap = this.createOutputMap(senderWallet, recipient, amount);
+
+    const signature = senderWallet.sign(JSON.stringify(outputMap));
+
+    this.id = CryptoHash(timestamp + pubKey + JSON.stringify(outputMap) + signature);
+    this.outputMap = outputMap;
+    this.input = { timestamp, amount, address: pubKey, signature };
   }
 
   private createOutputMap(senderWallet: Wallet, recipient: string, amount: number): { [key: string]: number } {
-    if (senderWallet.balance < amount) {
+    if (!(senderWallet && recipient && amount > 0)) {
+      throw new Error('Incomplete Parameters for Transaction');
+    }
+
+    if (amount > senderWallet.balance()) {
       throw new Error('Amount exceeds sender balance');
     }
 
+    const pbKey = senderWallet.publicKey( );
     return {
+      [pbKey]: senderWallet.balance() - amount,
       [recipient]: amount,
-      [senderWallet.publicKey()]: senderWallet.balance - amount,
-    };
-  }
-
-  private createInput(senderWallet: Wallet, outputMap: { [key: string]: number }): {
-    timestamp: number;
-    amount: number;
-    address: string;
-    signature: string;
-  } {
-    const signature = senderWallet.sign(JSON.stringify(outputMap));
-
-    return {
-      timestamp: Date.now(),
-      amount: senderWallet.balance,
-      address: senderWallet.publicKey(),
-      signature: signature.toDER('hex'),
     };
   }
 
@@ -171,45 +180,65 @@ class Transaction {
 
     return true;
   }
+}
 
-  update({ recipient, amount }: { recipient: string; amount: number }): Transaction {
-    const transaction = this;
+class Wallet {
+  private balance: number;
+  private pubKey: string;
+  private pvtKey: string;
 
-    if (amount > transaction.outputMap[transaction.input.address]) {
-      throw new Error('Amount exceeds balance');
+  constructor() {
+    this.balance = STARTING_BALANCE;
+    this.pubKey = '';
+    this.pvtKey = '';
+  }
+
+  getBalance(): number {
+    return this.balance;
+  }
+
+  getPublicKey(): string {
+    return this.pubKey;
+  }
+
+  transferTo(to: string, amount: number) {
+    if (!(to && amount > 0)) {
+      throw new Error('Insufficient command parameters');
     }
 
-    const updatedOutputMap = { ...transaction.outputMap };
-
-    if (!updatedOutputMap[recipient]) {
-      updatedOutputMap[recipient] = amount;
-    } else {
-      updatedOutputMap[recipient] += amount;
+    if (!(amount <= this.balance)) {
+      throw new Error('Balance insufficient');
     }
 
-    updatedOutputMap[transaction.input.address] -= amount;
+    // Transaction logic goes here
+  }
 
-    const updatedTransaction = new Transaction({
-      senderWallet: null, // The senderWallet will be null in the updated transaction
-      recipient,
-      amount,
-    });
+  setKeys() {
+    this.pubKey = this.generatePublicKey();
+    this.pvtKey = this.generatePrivateKey();
+  }
 
-    updatedTransaction.outputMap = updatedOutputMap;
+  generatePublicKey(): string {
+    // Generate and return public key
+    return '';
+  }
 
-    return updatedTransaction;
+  generatePrivateKey(): string {
+    // Generate and return private key
+    return '';
+  }
+
+  sign(data: string): string {
+    // Sign the data using the private key and return the signature
+    return '';
   }
 }
 
-class SaveTransaction {
-  readonly transaction: Transaction;
-  readonly directory: string;
+class TransactionIO {
+  private transaction: Transaction;
+  private directory: string;
 
   constructor({ transaction, directory = 'default-path' }: { transaction: Transaction; directory?: string }) {
-    if (!transaction || !directory) {
-      throw new Error('Invalid SaveTransaction parameters');
-    }
-    
     this.transaction = transaction;
     this.directory = directory;
   }
@@ -242,12 +271,8 @@ const CreateTransaction = ({
   recipient: string;
   amount: number;
 }): Transaction => {
-  if (!senderWallet || !recipient || amount <= 0) {
-    throw new Error('Invalid transaction parameters');
-  }
-
-  if (amount > senderWallet.balance) {
-    throw new Error('Amount exceeds sender balance');
+  if (amount > senderWallet.getBalance()) {
+    throw new Error('Amount exceeds balance');
   }
 
   return new Transaction({
@@ -280,10 +305,6 @@ const LoadTransactions = ({
 };
 
 const encryptPrivateKey = (privateKey: string, passphrase: string) => {
-  if (!privateKey || !passphrase) {
-    throw new Error('Invalid encryption parameters');
-  }
-
   const iv = crypto.randomBytes(16);
   const key = crypto.scryptSync(passphrase, 'salt', 24);
   const cipher = crypto.createCipheriv('aes-192-cbc', key, iv);
@@ -297,10 +318,6 @@ const encryptPrivateKey = (privateKey: string, passphrase: string) => {
 };
 
 const decryptPrivateKey = (encryptedPrivateKey: string, iv: string, passphrase: string) => {
-  if (!encryptedPrivateKey || !iv || !passphrase) {
-    throw new Error('Invalid decryption parameters');
-  }
-
   const key = crypto.scryptSync(passphrase, 'salt', 24);
   const decipher = crypto.createDecipheriv('aes-192-cbc', key, Buffer.from(iv, 'hex'));
   let decryptedPrivateKey = decipher.update(encryptedPrivateKey, 'hex', 'utf8');
@@ -311,7 +328,7 @@ const decryptPrivateKey = (encryptedPrivateKey: string, iv: string, passphrase: 
 export {
   Transaction,
   CreateTransaction,
-  SaveTransaction,
+  TransactionIO,
   LoadTransactions,
   encryptPrivateKey,
   decryptPrivateKey,
