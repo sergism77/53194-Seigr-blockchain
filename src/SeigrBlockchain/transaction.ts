@@ -32,17 +32,13 @@ interface TxOut {
 
 const isTxInStructureValid = (txIn: TxIn): boolean => {
   if (txIn === null) {
-    console.log(`txIn is null`);
-    return false;
+    throw new Error('txIn is null');
   } else if (typeof txIn.signature !== 'string') {
-    console.log(`invalid signature type in txIn`);
-    return false;
+    throw new Error('Invalid signature type in txIn');
   } else if (typeof txIn.txOutId !== 'string') {
-    console.log(`invalid txOutId type in txIn`);
-    return false;
+    throw new Error('Invalid txOutId type in txIn');
   } else if (typeof txIn.txOutIndex !== 'number') {
-    console.log(`invalid txOutIndex type in txIn`);
-    return false;
+    throw new Error('Invalid txOutIndex type in txIn');
   } else {
     return true;
   }
@@ -50,14 +46,11 @@ const isTxInStructureValid = (txIn: TxIn): boolean => {
 
 const isTxOutStructureValid = (txOut: TxOut): boolean => {
   if (txOut === null) {
-    console.log(`txOut is null`);
-    return false;
+    throw new Error('txOut is null');
   } else if (typeof txOut.address !== 'string') {
-    console.log(`invalid address type in txOut`);
-    return false;
+    throw new Error('Invalid address type in txOut');
   } else if (typeof txOut.amount !== 'number') {
-    console.log(`invalid amount type in txOut`);
-    return false;
+    throw new Error('Invalid amount type in txOut');
   } else {
     return true;
   }
@@ -105,13 +98,6 @@ const isValidTransactionStructure = (transaction: any): boolean => {
   return true;
 };
 
-/**
- * Find an unspent transaction output (UTXO) by transaction ID and output index.
- * @param transactionId - The transaction ID to search for.
- * @param outputIndex - The output index to search for.
- * @param unspentTxOuts - The array of unspent transaction outputs to search in.
- * @returns The found unspent transaction output (UTXO), or undefined if not found.
- */
 const findUnspentTxOut = (
   transactionId: string,
   outputIndex: number,
@@ -122,31 +108,38 @@ const findUnspentTxOut = (
   );
 };
 
-
 class Transaction {
-  id: string;
-  outputMap: { [key: string]: number };
-  input: {
-    timestamp: number;
-    amount: number;
-    address: string;
-    signature: string;
+  readonly id: string;
+  readonly outputMap: { [key: string]: number };
+  readonly input: {
+    readonly timestamp: number;
+    readonly amount: number;
+    readonly address: string;
+    readonly signature: string;
   };
 
   constructor({ senderWallet, recipient, amount }: { senderWallet: Wallet; recipient: string; amount: number }) {
+    if (!senderWallet || !recipient || amount <= 0) {
+      throw new Error('Invalid transaction parameters');
+    }
+    
     this.id = CryptoHash(Date.now().toString());
     this.outputMap = this.createOutputMap(senderWallet, recipient, amount);
     this.input = this.createInput(senderWallet, this.outputMap);
   }
 
-  createOutputMap(senderWallet: Wallet, recipient: string, amount: number): { [key: string]: number } {
+  private createOutputMap(senderWallet: Wallet, recipient: string, amount: number): { [key: string]: number } {
+    if (senderWallet.balance < amount) {
+      throw new Error('Amount exceeds sender balance');
+    }
+
     return {
       [recipient]: amount,
       [senderWallet.publicKey()]: senderWallet.balance - amount,
     };
   }
 
-  createInput(senderWallet: Wallet, outputMap: { [key: string]: number }): {
+  private createInput(senderWallet: Wallet, outputMap: { [key: string]: number }): {
     timestamp: number;
     amount: number;
     address: string;
@@ -179,29 +172,44 @@ class Transaction {
     return true;
   }
 
-  update({ recipient, amount }: { recipient: string; amount: number }): void {
+  update({ recipient, amount }: { recipient: string; amount: number }): Transaction {
     const transaction = this;
 
     if (amount > transaction.outputMap[transaction.input.address]) {
       throw new Error('Amount exceeds balance');
     }
 
-    if (!transaction.outputMap[recipient]) {
-      transaction.outputMap[recipient] = amount;
+    const updatedOutputMap = { ...transaction.outputMap };
+
+    if (!updatedOutputMap[recipient]) {
+      updatedOutputMap[recipient] = amount;
     } else {
-      transaction.outputMap[recipient] += amount;
+      updatedOutputMap[recipient] += amount;
     }
 
-    transaction.outputMap[transaction.input.address] -= amount;
-    transaction.input.amount = transaction.outputMap[transaction.input.address];
+    updatedOutputMap[transaction.input.address] -= amount;
+
+    const updatedTransaction = new Transaction({
+      senderWallet: null, // The senderWallet will be null in the updated transaction
+      recipient,
+      amount,
+    });
+
+    updatedTransaction.outputMap = updatedOutputMap;
+
+    return updatedTransaction;
   }
 }
 
 class SaveTransaction {
-  transaction: Transaction;
-  directory: string;
+  readonly transaction: Transaction;
+  readonly directory: string;
 
   constructor({ transaction, directory = 'default-path' }: { transaction: Transaction; directory?: string }) {
+    if (!transaction || !directory) {
+      throw new Error('Invalid SaveTransaction parameters');
+    }
+    
     this.transaction = transaction;
     this.directory = directory;
   }
@@ -234,8 +242,12 @@ const CreateTransaction = ({
   recipient: string;
   amount: number;
 }): Transaction => {
+  if (!senderWallet || !recipient || amount <= 0) {
+    throw new Error('Invalid transaction parameters');
+  }
+
   if (amount > senderWallet.balance) {
-    throw new Error('Amount exceeds balance');
+    throw new Error('Amount exceeds sender balance');
   }
 
   return new Transaction({
@@ -268,6 +280,10 @@ const LoadTransactions = ({
 };
 
 const encryptPrivateKey = (privateKey: string, passphrase: string) => {
+  if (!privateKey || !passphrase) {
+    throw new Error('Invalid encryption parameters');
+  }
+
   const iv = crypto.randomBytes(16);
   const key = crypto.scryptSync(passphrase, 'salt', 24);
   const cipher = crypto.createCipheriv('aes-192-cbc', key, iv);
@@ -281,6 +297,10 @@ const encryptPrivateKey = (privateKey: string, passphrase: string) => {
 };
 
 const decryptPrivateKey = (encryptedPrivateKey: string, iv: string, passphrase: string) => {
+  if (!encryptedPrivateKey || !iv || !passphrase) {
+    throw new Error('Invalid decryption parameters');
+  }
+
   const key = crypto.scryptSync(passphrase, 'salt', 24);
   const decipher = crypto.createDecipheriv('aes-192-cbc', key, Buffer.from(iv, 'hex'));
   let decryptedPrivateKey = decipher.update(encryptedPrivateKey, 'hex', 'utf8');
