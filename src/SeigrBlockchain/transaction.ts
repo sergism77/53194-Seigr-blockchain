@@ -1,11 +1,11 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import * as os from 'os';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+import elliptic from 'elliptic';
+import crypto from 'crypto';
 import { CryptoHash, VerifySignature } from './utils';
 import { STARTING_BALANCE } from './config';
 import Wallet from './wallet';
-import * as elliptic from 'elliptic';
-import * as crypto from 'crypto';
 
 const ec = new elliptic.ec('secp256k1');
 
@@ -18,7 +18,6 @@ interface UnspentTxOut {
   readonly address: string;
   readonly amount: string | number;
 }
-
 
 interface TxIn {
   readonly transactionId: string;
@@ -37,7 +36,11 @@ function getTransactionId(transaction: any): string {
 }
 
 function isValidTransactionStructure(transaction: any): boolean {
-  if (typeof transaction.id !== 'string' || typeof transaction.input !== 'object' || typeof transaction.outputMap !== 'object') {
+  if (
+    typeof transaction.id !== 'string' ||
+    typeof transaction.input !== 'object' ||
+    typeof transaction.outputMap !== 'object'
+  ) {
     return false;
   }
 
@@ -47,7 +50,12 @@ function isValidTransactionStructure(transaction: any): boolean {
     return false;
   }
 
-  if (typeof input.timestamp !== 'number' || typeof input.amount !== 'number' || typeof input.address !== 'string' || typeof input.signature !== 'string') {
+  if (
+    typeof input.timestamp !== 'number' ||
+    typeof input.amount !== 'number' ||
+    typeof input.address !== 'string' ||
+    typeof input.signature !== 'string'
+  ) {
     return false;
   }
 
@@ -74,7 +82,6 @@ function findUnspentTxOut(
   );
 }
 
-
 class Transaction {
   id: string;
   outputMap: { [key: string]: number };
@@ -92,12 +99,10 @@ class Transaction {
   }
 
   createOutputMap(senderWallet: Wallet, recipient: string, amount: number): { [key: string]: number } {
-    const outputMap: { [key: string]: number } = {};
-
-    outputMap[recipient] = amount;
-    outputMap[senderWallet.publicKey()] = senderWallet.balance - amount;
-
-    return outputMap;
+    return {
+      [recipient]: amount,
+      [senderWallet.publicKey()]: senderWallet.balance - amount,
+    };
   }
 
   createInput(senderWallet: Wallet, outputMap: { [key: string]: number }): {
@@ -180,7 +185,7 @@ const LoadTransaction = ({ transactionId }: { transactionId: string }): Transact
   const transactionFile = path.join(transactionDirectory, `${transactionId}.json`);
 
   if (!fs.existsSync(transactionFile)) {
-    throw new Error('Transaction file not found');
+    throw new Error(`Transaction file '${transactionFile}' not found`);
   }
 
   const transactionData = fs.readFileSync(transactionFile, 'utf8');
@@ -188,7 +193,7 @@ const LoadTransaction = ({ transactionId }: { transactionId: string }): Transact
   try {
     return JSON.parse(transactionData);
   } catch (error) {
-    throw new Error('Invalid transaction file');
+    throw new Error(`Invalid JSON data in transaction file '${transactionFile}': ${error.message}`);
   }
 };
 
@@ -205,12 +210,21 @@ const encryptPrivateKey = (privateKey: string, passphrase: string) => {
   };
 };
 
+const decryptPrivateKey = (encryptedPrivateKey: string, iv: string, passphrase: string) => {
+  const key = crypto.scryptSync(passphrase, 'salt', 24);
+  const decipher = crypto.createDecipheriv('aes-192-cbc', key, Buffer.from(iv, 'hex'));
+  let decryptedPrivateKey = decipher.update(encryptedPrivateKey, 'hex', 'utf8');
+  decryptedPrivateKey += decipher.final('utf8');
+  return decryptedPrivateKey;
+};
+
 export {
   Transaction,
   CreateTransaction,
   SaveTransaction,
   LoadTransaction,
   encryptPrivateKey,
+  decryptPrivateKey,
   UnspentTxOut,
   TxIn,
   TxOut,
