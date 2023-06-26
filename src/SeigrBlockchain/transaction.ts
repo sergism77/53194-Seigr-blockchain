@@ -105,6 +105,13 @@ const isValidTransactionStructure = (transaction: any): boolean => {
   return true;
 };
 
+/**
+ * Find an unspent transaction output (UTXO) by transaction ID and output index.
+ * @param transactionId - The transaction ID to search for.
+ * @param outputIndex - The output index to search for.
+ * @param unspentTxOuts - The array of unspent transaction outputs to search in.
+ * @returns The found unspent transaction output (UTXO), or undefined if not found.
+ */
 const findUnspentTxOut = (
   transactionId: string,
   outputIndex: number,
@@ -114,6 +121,7 @@ const findUnspentTxOut = (
     (utxo) => utxo.txOutId === transactionId && utxo.txOutIndex === outputIndex
   );
 };
+
 
 class Transaction {
   id: string;
