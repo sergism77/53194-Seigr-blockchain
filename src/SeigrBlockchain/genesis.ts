@@ -41,6 +41,7 @@ interface GenesisData {
   nonce: number;
   transactions: any[];
   miner: string;
+  id: string;
 }
 
 const GENESIS_DATA: GenesisData = {

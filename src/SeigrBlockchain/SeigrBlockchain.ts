@@ -3,29 +3,28 @@ import path from 'path';
 import os from 'os';
 import { ec as EC } from 'elliptic';
 import { STARTING_BALANCE } from './config';
-import { cryptoHash, verifySignature } from './utils';
-import { Block, saveBlock, loadBlock } from './block.js';
-import { Wallet } from './wallet';
+import { CryptoHash, VerifySignature } from './utils';
+import { Block, SaveBlock, LoadBlock } from './block';
+import Wallet from './wallet';
 import { Transaction } from './transaction';
 import { createWallet } from './walletUtils';
 import { GenesisBlock } from './genesisBlock';
-import createBlockchain from './createBlockchain';
-import { Blockchain } from './blockchain';
+import createBlockchain  from './createBlockchain';
+import  Blockchain from './blockchain';
 import loadBlockchain from './loadBlockchain';
 import { CreateWalletPool, GetWalletPool, UpdateWalletPool } from './walletPool';
 import { CreateBlockPool, GetBlockPool, SaveBlockPool, LoadBlockPool } from './blockPool';
 import { TransactionPool } from './transactionPool';
 import { CreateBlockchainPool } from './blockchainPool';
-const logger = require('./logger');
+import logger from './logger';
 
-
-const walletDirectory = path.join(process.env.HOME, 'Seigr', 'wallets');
-const blockDirectory = path.join(process.env.HOME, 'Seigr', 'blocks');
-const transactionDirectory = path.join(process.env.HOME, 'Seigr', 'transactions');
-const blockchainDirectory = path.join(process.env.HOME, 'Seigr', 'blockchain');
-const walletPoolDirectory = path.join(process.env.HOME, 'Seigr', 'walletPools');
-const blockPoolDirectory = path.join(process.env.HOME, 'Seigr', 'blockPools');
-const transactionPoolDirectory = path.join(process.env.HOME, 'Seigr', 'transactionPools');
+const walletDirectory = path.join(os.homedir(), 'Seigr', 'wallets');
+const blockDirectory = path.join(os.homedir(), 'Seigr', 'blocks');
+const transactionDirectory = path.join(os.homedir(), 'Seigr', 'transactions');
+const blockchainDirectory = path.join(os.homedir(), 'Seigr', 'blockchain');
+const walletPoolDirectory = path.join(os.homedir(), 'Seigr', 'walletPools');
+const blockPoolDirectory = path.join(os.homedir(), 'Seigr', 'blockPools');
+const transactionPoolDirectory = path.join(os.homedir(), 'Seigr', 'transactionPools');
 
 const ensureDirectoriesExist = async () => {
   try {
@@ -77,7 +76,7 @@ const loadOrCreateBlockchain = async () => {
   } catch {
     const genesisWallet = await loadOrCreateSenderWallet();
     const genesisBlock = new GenesisBlock({ genesisWallet });
-    await saveBlock(genesisBlock);
+    await SaveBlock(genesisBlock);
     const blockchain = new createBlockchain();
     blockchain.addBlock(genesisBlock);
     await saveBlockchain(blockchain);
@@ -104,7 +103,7 @@ const createBlock = (previousHash, processedTransactions) => {
   return new Block({
     timestamp: Date.now(),
     lastHash: previousHash,
-    hash: cryptoHash(previousHash),
+    hash: CryptoHash(previousHash),
     data: processedTransactions,
     nonce: 0,
     difficulty: 0,
@@ -140,7 +139,7 @@ class SeigrBlockchain {
     const newBlock = createBlock(previousHash, processedTransactions);
 
     try {
-      await saveBlock(newBlock);
+      await SaveBlock(newBlock);
       await Promise.all(
         processedTransactions.map((transaction) =>
           fs.unlink(path.join(transactionPoolDirectory, `${transaction.id}.json`))

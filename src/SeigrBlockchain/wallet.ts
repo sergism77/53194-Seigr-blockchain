@@ -19,13 +19,13 @@ class Wallet {
       this.keyPair = ellipticCurve.genKeyPair();
     }
     this.balance = STARTING_BALANCE;
-    this.address = this.generateAddress(this.keyPair.getPublic().encode('hex'));
+    this.address = this.generateAddress(this.keyPair);
   }
+  
 
   publicKey(): string {
     return this.keyPair.getPublic().encode('hex', true);
   }
-  
 
   sign(data: string): EC.Signature {
     try {
@@ -35,14 +35,23 @@ class Wallet {
     }
   }
 
-  generateAddress(publicKey: string): string {
-    const publicKeyHash = crypto.createHash('sha256').update(publicKey).digest();
+  generateAddress(keyPair: EC.KeyPair): string {
+    const publicKey = keyPair.getPublic();
+    const publicKeyHex = publicKey.encode('hex', true);
+    const publicKeyBuffer = Buffer.from(publicKeyHex, 'hex');
+    const publicKeyHash = crypto.createHash('sha256').update(publicKeyBuffer).digest();
     const addressBytes = Buffer.concat([Buffer.from([0x53, 0x19, 0x4e]), publicKeyHash]);
     const checksum = crypto.createHash('sha256').update(addressBytes).digest();
     const addressWithChecksum = Buffer.concat([addressBytes, checksum.subarray(0, 4)]);
     const address = base58.encode(addressWithChecksum);
     return address;
   }
+  
+  
+  
+  
+    
+  
 
   getPrivateKey(): string {
     return this.keyPair.getPrivate().toString(16);

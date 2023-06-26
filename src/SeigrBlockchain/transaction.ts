@@ -5,7 +5,6 @@ import { CryptoHash, VerifySignature } from './utils';
 import { STARTING_BALANCE } from './config';
 import Wallet from './wallet';
 import * as elliptic from 'elliptic';
-import { ec as EC } from 'elliptic';
 import * as crypto from 'crypto';
 
 const ec = new elliptic.ec('secp256k1');
@@ -14,14 +13,6 @@ const ec = new elliptic.ec('secp256k1');
 const transactionDirectory = path.join(os.homedir(), 'Seigr', 'transactions');
 
 class Transaction {
-  /**
-   * Represents a transaction in the blockchain.
-   * @constructor
-   * @param {Object} options - The options for creating a transaction.
-   * @param {Wallet} options.senderWallet - The sender's wallet.
-   * @param {string} options.recipient - The recipient's public key.
-   * @param {number} options.amount - The transaction amount.
-   */
   id: string;
   outputMap: { [key: string]: number };
   input: {
@@ -63,7 +54,7 @@ class Transaction {
     signature: string;
   } {
     const signature = senderWallet.sign(JSON.stringify(outputMap));
-  
+
     return {
       timestamp: Date.now(),
       amount: senderWallet.balance,
@@ -71,20 +62,10 @@ class Transaction {
       signature: signature.toDER('hex'),
     };
   }
-  
-  
-  
 
-  /**
-   * Validates a transaction's amount and signature.
-   * @param {Transaction} transaction - The transaction to validate.
-   * @returns {boolean} - Indicates whether the transaction is valid.
-   */
-  static validateTransaction(transaction: Transaction): boolean {
-    const {
-      input: { address, amount, signature },
-      outputMap,
-    } = transaction;
+  verifyTransaction(): boolean {
+    const { address, amount, signature } = this.input;
+    const { outputMap } = this;
 
     if (amount !== outputMap[address]) {
       console.error(`Invalid transaction from ${address}`);
@@ -99,62 +80,36 @@ class Transaction {
     return true;
   }
 
-  static rewardTransaction({ minerWallet }: { minerWallet: Wallet }): Transaction {
-    return new this({
-      senderWallet: Wallet.blockchainWallet(),
-      recipient: minerWallet.publicKey(),
-      amount: 50,
-    });
-  }
-
-  /**
-   * Updates the transaction with a new recipient.
-   * @param {string} recipient - The new recipient's public key.
-   * @param {number} amount - The new transaction amount.
-   * @returns {Transaction} - The updated transaction.
-   * @throws {Error} - Indicates that the amount exceeds the sender's balance.
-   */
-  update({ recipient, amount }: { recipient: string; amount: number }): Transaction {
+  update({ recipient, amount }: { recipient: string; amount: number }): void {
     if (amount > this.outputMap[this.input.address]) {
       throw new Error('Amount exceeds balance');
     }
 
     if (!this.outputMap[recipient]) {
       this.outputMap[recipient] = amount;
+    } else {
+      this.outputMap[recipient] += amount;
     }
 
-    this.outputMap[recipient] += amount;
     this.outputMap[this.input.address] -= amount;
-
-    this.input = this.createInput({ senderWallet: Wallet.blockchainWallet(), outputMap: this.outputMap });
-
-    return this;
+    this.input.amount = this.outputMap[this.input.address];
   }
 }
 
 class SaveTransaction {
-  /**
-   * Saves the transaction to a file.
-   * @constructor
-   * @param {Object} options - The options for saving the transaction.
-   * @param {Transaction} options.transaction - The transaction to be saved.
-   */
   transaction: Transaction;
 
   constructor({ transaction }: { transaction: Transaction }) {
     this.transaction = transaction;
   }
 
-  /**
-   * Saves the transaction to a file.
-   */
-  saveTransaction() {
+  saveTransaction(): void {
     const transactionFile = path.join(transactionDirectory, `${this.transaction.id}.json`);
     fs.writeFileSync(transactionFile, JSON.stringify(this.transaction));
   }
 }
 
-const CreateTransaction = ({ senderWallet, recipient, amount }: { senderWallet: Wallet; recipient: string; amount: number }) => {
+const CreateTransaction = ({ senderWallet, recipient, amount }: { senderWallet: Wallet; recipient: string; amount: number }): Transaction => {
   if (amount > senderWallet.balance) {
     throw new Error('Amount exceeds balance');
   }
@@ -166,7 +121,7 @@ const CreateTransaction = ({ senderWallet, recipient, amount }: { senderWallet: 
   });
 };
 
-const LoadTransaction = ({ transactionId }: { transactionId: string }) => {
+const LoadTransaction = ({ transactionId }: { transactionId: string }): Transaction => {
   const transactionFile = path.join(transactionDirectory, `${transactionId}.json`);
 
   if (!fs.existsSync(transactionFile)) {

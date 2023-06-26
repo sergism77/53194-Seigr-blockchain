@@ -34,7 +34,7 @@ class Blockchain {
     const newBlock = new Block({
       timestamp: Date.now(),
       lastHash: previousHash,
-      hash: cryptoHash(previousHash),
+      hash: CryptoHash(previousHash),
       data: transactions,
       nonce: 0,
       difficulty: 0,
@@ -43,7 +43,7 @@ class Blockchain {
     });
 
     try {
-      await saveBlock(newBlock);
+      await SaveBlock(newBlock);
 
       for (const transaction of Object.values(transactions)) {
         if (transaction.id) {

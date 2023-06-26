@@ -13,7 +13,28 @@ class BlockchainPool {
     this.blockchain = blockchain;
   }
 
-  public updateBlockchainPool(): any {
+  public UpdateBlockchainPool(): any {
+    try {
+      const blockchainPool = this.blockchain.getBlocks();
+      const blockchainPoolString = JSON.stringify(blockchainPool);
+      fs.mkdirSync(blockchainDirectory, { recursive: true });
+      fs.writeFileSync(path.join(blockchainDirectory, 'blockchain.json'), blockchainPoolString);
+      return blockchainPool;
+    } catch (error) {
+      console.error('Error updating blockchain pool:', error);
+      throw error;
+    }
+  }
+}
+
+class UpdateBlockchainPool {
+  private blockchain: any;
+
+  constructor({ blockchain }: { blockchain: any }) {
+    this.blockchain = blockchain;
+  }
+
+  public UpdateBlockchainPool(): any {
     try {
       const blockchainPool = this.blockchain.getBlocks();
       const blockchainPoolString = JSON.stringify(blockchainPool);
@@ -31,4 +52,4 @@ const CreateBlockchainPool = ({ blockchain }: { blockchain: any }): BlockchainPo
   return new BlockchainPool({ blockchain });
 };
 
-export { BlockchainPool, CreateBlockchainPool };
+export { BlockchainPool, CreateBlockchainPool, UpdateBlockchainPool };
