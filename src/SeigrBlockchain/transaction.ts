@@ -1,8 +1,8 @@
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
-import elliptic from 'elliptic';
-import crypto from 'crypto';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as os from 'os';
+import * as elliptic from 'elliptic';
+import * as crypto from 'crypto';
 import { CryptoHash, VerifySignature } from './utils';
 import { STARTING_BALANCE } from './config';
 import Wallet from './wallet';
@@ -13,15 +13,15 @@ const ec = new elliptic.ec('secp256k1');
 const transactionDirectory = path.join(os.homedir(), 'Seigr', 'transactions');
 
 interface UnspentTxOut {
-  readonly transactionId: string;
-  readonly index: number;
+  readonly txOutId: string;
+  readonly txOutIndex: number;
   readonly address: string;
-  readonly amount: string | number;
+  readonly amount: number;
 }
 
 interface TxIn {
-  readonly transactionId: string;
-  readonly index: number;
+  readonly txOutId: string;
+  readonly txOutIndex: number;
   readonly signature: string;
 }
 
@@ -30,12 +30,45 @@ interface TxOut {
   readonly amount: number;
 }
 
-function getTransactionId(transaction: any): string {
+const isTxInStructureValid = (txIn: TxIn): boolean => {
+  if (txIn === null) {
+    console.log(`txIn is null`);
+    return false;
+  } else if (typeof txIn.signature !== 'string') {
+    console.log(`invalid signature type in txIn`);
+    return false;
+  } else if (typeof txIn.txOutId !== 'string') {
+    console.log(`invalid txOutId type in txIn`);
+    return false;
+  } else if (typeof txIn.txOutIndex !== 'number') {
+    console.log(`invalid txOutIndex type in txIn`);
+    return false;
+  } else {
+    return true;
+  }
+};
+
+const isTxOutStructureValid = (txOut: TxOut): boolean => {
+  if (txOut === null) {
+    console.log(`txOut is null`);
+    return false;
+  } else if (typeof txOut.address !== 'string') {
+    console.log(`invalid address type in txOut`);
+    return false;
+  } else if (typeof txOut.amount !== 'number') {
+    console.log(`invalid amount type in txOut`);
+    return false;
+  } else {
+    return true;
+  }
+};
+
+const getTransactionId = (transaction: any): string => {
   const transactionData = JSON.stringify(transaction);
   return CryptoHash(transactionData);
-}
+};
 
-function isValidTransactionStructure(transaction: any): boolean {
+const isValidTransactionStructure = (transaction: any): boolean => {
   if (
     typeof transaction.id !== 'string' ||
     typeof transaction.input !== 'object' ||
@@ -70,17 +103,17 @@ function isValidTransactionStructure(transaction: any): boolean {
   }
 
   return true;
-}
+};
 
-function findUnspentTxOut(
+const findUnspentTxOut = (
   transactionId: string,
   outputIndex: number,
   unspentTxOuts: UnspentTxOut[]
-): UnspentTxOut | undefined {
+): UnspentTxOut | undefined => {
   return unspentTxOuts.find(
-    (utxo) => utxo.transactionId === transactionId && utxo.index === outputIndex
+    (utxo) => utxo.txOutId === transactionId && utxo.txOutIndex === outputIndex
   );
-}
+};
 
 class Transaction {
   id: string;
@@ -158,18 +191,41 @@ class Transaction {
 
 class SaveTransaction {
   transaction: Transaction;
+  directory: string;
 
-  constructor({ transaction }: { transaction: Transaction }) {
+  constructor({ transaction, directory = 'default-path' }: { transaction: Transaction; directory?: string }) {
     this.transaction = transaction;
+    this.directory = directory;
   }
 
   saveTransaction(): void {
-    const transactionFile = path.join(transactionDirectory, `${this.transaction.id}.json`);
+    const transactionFile = path.join(this.directory, `${this.transaction.id}.json`);
     fs.writeFileSync(transactionFile, JSON.stringify(this.transaction));
+  }
+
+  updateTransaction(): void {
+    const transactionFile = path.join(this.directory, `${this.transaction.id}.json`);
+    if (!fs.existsSync(transactionFile)) {
+      throw new Error(`Transaction file '${transactionFile}' does not exist for update`);
+    }
+
+    const transactionData = fs.readFileSync(transactionFile, 'utf8');
+    const existingTransaction = JSON.parse(transactionData);
+    existingTransaction.outputMap = this.transaction.outputMap;
+
+    fs.writeFileSync(transactionFile, JSON.stringify(existingTransaction));
   }
 }
 
-const CreateTransaction = ({ senderWallet, recipient, amount }: { senderWallet: Wallet; recipient: string; amount: number }): Transaction => {
+const CreateTransaction = ({
+  senderWallet,
+  recipient,
+  amount,
+}: {
+  senderWallet: Wallet;
+  recipient: string;
+  amount: number;
+}): Transaction => {
   if (amount > senderWallet.balance) {
     throw new Error('Amount exceeds balance');
   }
@@ -181,20 +237,26 @@ const CreateTransaction = ({ senderWallet, recipient, amount }: { senderWallet: 
   });
 };
 
-const LoadTransaction = ({ transactionId }: { transactionId: string }): Transaction => {
-  const transactionFile = path.join(transactionDirectory, `${transactionId}.json`);
+const LoadTransactions = ({
+  directory = 'default-directory',
+}: {
+  directory: string;
+}): Transaction[] => {
+  const transactionFiles = fs.readdirSync(directory);
+  const transactions: Transaction[] = [];
 
-  if (!fs.existsSync(transactionFile)) {
-    throw new Error(`Transaction file '${transactionFile}' not found`);
+  for (const file of transactionFiles) {
+    const transactionFile = path.join(directory, file);
+    if (!fs.existsSync(transactionFile)) {
+      throw new Error(`Transaction file '${transactionFile}' not found`);
+    }
+
+    const transactionData = fs.readFileSync(transactionFile, 'utf8');
+    const transaction = JSON.parse(transactionData);
+    transactions.push(transaction);
   }
 
-  const transactionData = fs.readFileSync(transactionFile, 'utf8');
-
-  try {
-    return JSON.parse(transactionData);
-  } catch (error) {
-    throw new Error(`Invalid JSON data in transaction file '${transactionFile}': ${error.message}`);
-  }
+  return transactions;
 };
 
 const encryptPrivateKey = (privateKey: string, passphrase: string) => {
@@ -222,7 +284,7 @@ export {
   Transaction,
   CreateTransaction,
   SaveTransaction,
-  LoadTransaction,
+  LoadTransactions,
   encryptPrivateKey,
   decryptPrivateKey,
   UnspentTxOut,
