@@ -67,7 +67,7 @@ class TransactionPool {
       for (let transaction of block.data) {
         const transactionInPool = this.transactionMap[transaction.id];
 
-        if (transactionInPool) {
+        if (transactionInPool && transactionInPool.id === transaction.id) {
           transactionInPool.update({
             recipient: transaction.outputMap[transaction.senderWallet.publicKey()],
             amount: transaction.outputMap[transaction.senderWallet.publicKey()],
@@ -146,6 +146,7 @@ class UpdateTransactionPool {
 }
 
 export {
+  Transaction,
   TransactionPool,
   TransactionPoolMap,
   CreateTransactionPool,

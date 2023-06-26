@@ -14,23 +14,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = require("fs");
 const path_1 = __importDefault(require("path"));
+const os_1 = __importDefault(require("os"));
 const elliptic_1 = require("elliptic");
 const utils_1 = require("./utils");
-const block_js_1 = require("./block.js");
-const wallet_1 = require("./wallet");
+const block_1 = require("./block");
+const wallet_1 = __importDefault(require("./wallet"));
 const genesisBlock_1 = require("./genesisBlock");
 const createBlockchain_1 = __importDefault(require("./createBlockchain"));
 const loadBlockchain_1 = __importDefault(require("./loadBlockchain"));
 const walletPool_1 = require("./walletPool");
 const blockPool_1 = require("./blockPool");
-const logger = require('./logger');
-const walletDirectory = path_1.default.join(process.env.HOME, 'Seigr', 'wallets');
-const blockDirectory = path_1.default.join(process.env.HOME, 'Seigr', 'blocks');
-const transactionDirectory = path_1.default.join(process.env.HOME, 'Seigr', 'transactions');
-const blockchainDirectory = path_1.default.join(process.env.HOME, 'Seigr', 'blockchain');
-const walletPoolDirectory = path_1.default.join(process.env.HOME, 'Seigr', 'walletPools');
-const blockPoolDirectory = path_1.default.join(process.env.HOME, 'Seigr', 'blockPools');
-const transactionPoolDirectory = path_1.default.join(process.env.HOME, 'Seigr', 'transactionPools');
+const logger_1 = __importDefault(require("./logger"));
+const walletDirectory = path_1.default.join(os_1.default.homedir(), 'Seigr', 'wallets');
+const blockDirectory = path_1.default.join(os_1.default.homedir(), 'Seigr', 'blocks');
+const transactionDirectory = path_1.default.join(os_1.default.homedir(), 'Seigr', 'transactions');
+const blockchainDirectory = path_1.default.join(os_1.default.homedir(), 'Seigr', 'blockchain');
+const walletPoolDirectory = path_1.default.join(os_1.default.homedir(), 'Seigr', 'walletPools');
+const blockPoolDirectory = path_1.default.join(os_1.default.homedir(), 'Seigr', 'blockPools');
+const transactionPoolDirectory = path_1.default.join(os_1.default.homedir(), 'Seigr', 'transactionPools');
 const ensureDirectoriesExist = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield fs_1.promises.mkdir(walletDirectory, { recursive: true });
@@ -42,7 +43,7 @@ const ensureDirectoriesExist = () => __awaiter(void 0, void 0, void 0, function*
         yield fs_1.promises.mkdir(transactionPoolDirectory, { recursive: true });
     }
     catch (error) {
-        logger.error(`Error creating directories: ${error.message}`);
+        logger_1.default.error(`Error creating directories: ${error.message}`);
         throw new Error(`Error creating directories: ${error.message}`);
     }
 });
@@ -52,7 +53,7 @@ const loadOrCreateSenderWallet = () => __awaiter(void 0, void 0, void 0, functio
         yield fs_1.promises.access(senderWalletPath);
         const senderWalletContents = yield fs_1.promises.readFile(senderWalletPath, 'utf8');
         const senderWallet = JSON.parse(senderWalletContents);
-        logger.info('Sender wallet loaded successfully.');
+        logger_1.default.info('Sender wallet loaded successfully.');
         return senderWallet;
     }
     catch (_a) {
@@ -63,10 +64,10 @@ const loadOrCreateSenderWallet = () => __awaiter(void 0, void 0, void 0, functio
         const newSenderWallet = { publicKey, privateKey };
         try {
             yield fs_1.promises.writeFile(senderWalletPath, JSON.stringify(newSenderWallet), 'utf8');
-            logger.info('New sender wallet generated and saved successfully.');
+            logger_1.default.info('New sender wallet generated and saved successfully.');
         }
         catch (writeError) {
-            logger.error(`Error writing sender wallet to disk: ${writeError.message}`);
+            logger_1.default.error(`Error writing sender wallet to disk: ${writeError.message}`);
         }
         return newSenderWallet;
     }
@@ -80,7 +81,7 @@ const loadOrCreateBlockchain = () => __awaiter(void 0, void 0, void 0, function*
     catch (_b) {
         const genesisWallet = yield loadOrCreateSenderWallet();
         const genesisBlock = new genesisBlock_1.GenesisBlock({ genesisWallet });
-        yield (0, block_js_1.saveBlock)(genesisBlock);
+        yield (0, block_1.SaveBlock)(genesisBlock);
         const blockchain = new createBlockchain_1.default();
         blockchain.addBlock(genesisBlock);
         yield saveBlockchain(blockchain);
@@ -93,7 +94,7 @@ const saveBlockchain = (blockchain) => __awaiter(void 0, void 0, void 0, functio
         yield fs_1.promises.writeFile(blockchainPath, JSON.stringify(blockchain, null, 2), 'utf8');
     }
     catch (error) {
-        logger.error(`Error saving blockchain: ${error.message}`);
+        logger_1.default.error(`Error saving blockchain: ${error.message}`);
         throw new Error(`Error saving blockchain: ${error.message}`);
     }
 });
@@ -101,10 +102,10 @@ const createBlock = (previousHash, processedTransactions) => {
     const ec = new elliptic_1.ec('secp256k1');
     const keyPair = ec.genKeyPair(); // Generate a new private key each time
     const minerIdentifier = keyPair.getPublic().encode('hex', false);
-    return new block_js_1.Block({
+    return new block_1.Block({
         timestamp: Date.now(),
         lastHash: previousHash,
-        hash: (0, utils_1.cryptoHash)(previousHash),
+        hash: (0, utils_1.CryptoHash)(previousHash),
         data: processedTransactions,
         nonce: 0,
         difficulty: 0,
@@ -133,10 +134,10 @@ class SeigrBlockchain {
             const processedTransactions = transactions.slice(); // Use a copy of the transactions array
             const newBlock = createBlock(previousHash, processedTransactions);
             try {
-                yield (0, block_js_1.saveBlock)(newBlock);
+                yield (0, block_1.SaveBlock)(newBlock);
                 yield Promise.all(processedTransactions.map((transaction) => fs_1.promises.unlink(path_1.default.join(transactionPoolDirectory, `${transaction.id}.json`))));
                 const walletUpdatePromises = processedTransactions.map((transaction) => __awaiter(this, void 0, void 0, function* () {
-                    const wallet = new wallet_1.Wallet({ walletId: transaction.input.address });
+                    const wallet = new wallet_1.default({ walletId: transaction.input.address });
                     const walletBalance = wallet.calculateBalance({ blockchain: this });
                     yield wallet.updateBalance({ blockchain: this, balance: walletBalance });
                 }));
@@ -148,7 +149,7 @@ class SeigrBlockchain {
                 yield this.blockPool.updateBlockchainPool(this);
             }
             catch (error) {
-                logger.error(`Error adding block: ${error.message}`);
+                logger_1.default.error(`Error adding block: ${error.message}`);
                 throw new Error(`Error adding block: ${error.message}`);
             }
         });

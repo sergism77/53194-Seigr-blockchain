@@ -12,6 +12,69 @@ const ec = new elliptic.ec('secp256k1');
 // Update transactionDirectory to be configurable
 const transactionDirectory = path.join(os.homedir(), 'Seigr', 'transactions');
 
+interface UnspentTxOut {
+  readonly transactionId: string;
+  readonly index: number;
+  readonly address: string;
+  readonly amount: string | number;
+}
+
+
+interface TxIn {
+  readonly transactionId: string;
+  readonly index: number;
+  readonly signature: string;
+}
+
+interface TxOut {
+  readonly address: string;
+  readonly amount: number;
+}
+
+function getTransactionId(transaction: any): string {
+  const transactionData = JSON.stringify(transaction);
+  return CryptoHash(transactionData);
+}
+
+function isValidTransactionStructure(transaction: any): boolean {
+  if (typeof transaction.id !== 'string' || typeof transaction.input !== 'object' || typeof transaction.outputMap !== 'object') {
+    return false;
+  }
+
+  const { input, outputMap } = transaction;
+
+  if (Object.keys(input).length !== 4) {
+    return false;
+  }
+
+  if (typeof input.timestamp !== 'number' || typeof input.amount !== 'number' || typeof input.address !== 'string' || typeof input.signature !== 'string') {
+    return false;
+  }
+
+  if (Object.keys(outputMap).length < 1) {
+    return false;
+  }
+
+  for (const output of Object.values(outputMap)) {
+    if (typeof output !== 'number') {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function findUnspentTxOut(
+  transactionId: string,
+  outputIndex: number,
+  unspentTxOuts: UnspentTxOut[]
+): UnspentTxOut | undefined {
+  return unspentTxOuts.find(
+    (utxo) => utxo.transactionId === transactionId && utxo.index === outputIndex
+  );
+}
+
+
 class Transaction {
   id: string;
   outputMap: { [key: string]: number };
@@ -24,15 +87,11 @@ class Transaction {
 
   constructor({ senderWallet, recipient, amount }: { senderWallet: Wallet; recipient: string; amount: number }) {
     this.id = CryptoHash(Date.now().toString());
-    this.outputMap = this.createOutputMap({
-      senderWallet,
-      recipient,
-      amount,
-    });
-    this.input = this.createInput({ senderWallet, outputMap: this.outputMap });
+    this.outputMap = this.createOutputMap(senderWallet, recipient, amount);
+    this.input = this.createInput(senderWallet, this.outputMap);
   }
 
-  createOutputMap({ senderWallet, recipient, amount }: { senderWallet: Wallet; recipient: string; amount: number }): { [key: string]: number } {
+  createOutputMap(senderWallet: Wallet, recipient: string, amount: number): { [key: string]: number } {
     const outputMap: { [key: string]: number } = {};
 
     outputMap[recipient] = amount;
@@ -41,13 +100,7 @@ class Transaction {
     return outputMap;
   }
 
-  createInput({
-    senderWallet,
-    outputMap,
-  }: {
-    senderWallet: Wallet;
-    outputMap: { [key: string]: number };
-  }): {
+  createInput(senderWallet: Wallet, outputMap: { [key: string]: number }): {
     timestamp: number;
     amount: number;
     address: string;
@@ -81,18 +134,20 @@ class Transaction {
   }
 
   update({ recipient, amount }: { recipient: string; amount: number }): void {
-    if (amount > this.outputMap[this.input.address]) {
+    const transaction = this;
+
+    if (amount > transaction.outputMap[transaction.input.address]) {
       throw new Error('Amount exceeds balance');
     }
 
-    if (!this.outputMap[recipient]) {
-      this.outputMap[recipient] = amount;
+    if (!transaction.outputMap[recipient]) {
+      transaction.outputMap[recipient] = amount;
     } else {
-      this.outputMap[recipient] += amount;
+      transaction.outputMap[recipient] += amount;
     }
 
-    this.outputMap[this.input.address] -= amount;
-    this.input.amount = this.outputMap[this.input.address];
+    transaction.outputMap[transaction.input.address] -= amount;
+    transaction.input.amount = transaction.outputMap[transaction.input.address];
   }
 }
 
@@ -150,4 +205,16 @@ const encryptPrivateKey = (privateKey: string, passphrase: string) => {
   };
 };
 
-export { Transaction, CreateTransaction, SaveTransaction, LoadTransaction, encryptPrivateKey };
+export {
+  Transaction,
+  CreateTransaction,
+  SaveTransaction,
+  LoadTransaction,
+  encryptPrivateKey,
+  UnspentTxOut,
+  TxIn,
+  TxOut,
+  getTransactionId,
+  isValidTransactionStructure,
+  findUnspentTxOut,
+};

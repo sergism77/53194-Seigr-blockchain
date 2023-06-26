@@ -23,79 +23,71 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.encryptPrivateKey = exports.Wallet = exports.LoadTransaction = exports.SaveTransaction = exports.CreateTransaction = exports.Transaction = void 0;
+exports.findUnspentTxOut = exports.isValidTransactionStructure = exports.getTransactionId = exports.encryptPrivateKey = exports.LoadTransaction = exports.SaveTransaction = exports.CreateTransaction = exports.Transaction = void 0;
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
 const os = __importStar(require("os"));
 const utils_1 = require("./utils");
-const config_1 = require("./config");
 const elliptic = __importStar(require("elliptic"));
 const crypto = __importStar(require("crypto"));
 const ec = new elliptic.ec('secp256k1');
 // Update transactionDirectory to be configurable
 const transactionDirectory = path.join(os.homedir(), 'Seigr', 'transactions');
-class Wallet {
-    constructor() {
-        this.keyPair = ec.genKeyPair();
-        this.publicKey = this.keyPair.getPublic('hex');
-        this.balance = config_1.STARTING_BALANCE;
-    }
-    /**
-     * Signs the given data using the wallet's private key.
-     * @param {string} data - The data to sign.
-     * @returns {string} - The signature.
-     */
-    sign(data) {
-        return this.keyPair.sign((0, utils_1.CryptoHash)(data)).toDER('hex');
-    }
-    /**
-     * Retrieves the transaction history for the user from the transaction directory.
-     * @returns {Transaction[]} - The array of transactions.
-     */
-    getTransactionHistory() {
-        const transactions = [];
-        const files = fs.readdirSync(transactionDirectory);
-        for (const file of files) {
-            const transactionFile = path.join(transactionDirectory, file);
-            const transactionData = fs.readFileSync(transactionFile, 'utf8');
-            const transaction = JSON.parse(transactionData);
-            transactions.push(transaction);
-        }
-        return transactions;
-    }
+function getTransactionId(transaction) {
+    const transactionData = JSON.stringify(transaction);
+    return (0, utils_1.CryptoHash)(transactionData);
 }
-exports.Wallet = Wallet;
+exports.getTransactionId = getTransactionId;
+function isValidTransactionStructure(transaction) {
+    if (typeof transaction.id !== 'string' || typeof transaction.input !== 'object' || typeof transaction.outputMap !== 'object') {
+        return false;
+    }
+    const { input, outputMap } = transaction;
+    if (Object.keys(input).length !== 4) {
+        return false;
+    }
+    if (typeof input.timestamp !== 'number' || typeof input.amount !== 'number' || typeof input.address !== 'string' || typeof input.signature !== 'string') {
+        return false;
+    }
+    if (Object.keys(outputMap).length < 1) {
+        return false;
+    }
+    for (const output of Object.values(outputMap)) {
+        if (typeof output !== 'number') {
+            return false;
+        }
+    }
+    return true;
+}
+exports.isValidTransactionStructure = isValidTransactionStructure;
+function findUnspentTxOut(transactionId, outputIndex, unspentTxOuts) {
+    return unspentTxOuts.find((utxo) => utxo.transactionId === transactionId && utxo.index === outputIndex);
+}
+exports.findUnspentTxOut = findUnspentTxOut;
 class Transaction {
     constructor({ senderWallet, recipient, amount }) {
         this.id = (0, utils_1.CryptoHash)(Date.now().toString());
-        this.outputMap = this.createOutputMap({
-            senderWallet,
-            recipient,
-            amount,
-        });
-        this.input = this.createInput({ senderWallet, outputMap: this.outputMap });
+        this.outputMap = this.createOutputMap(senderWallet, recipient, amount);
+        this.input = this.createInput(senderWallet, this.outputMap);
     }
-    createOutputMap({ senderWallet, recipient, amount }) {
+    createOutputMap(senderWallet, recipient, amount) {
         const outputMap = {};
         outputMap[recipient] = amount;
-        outputMap[senderWallet.publicKey] = senderWallet.balance - amount;
+        outputMap[senderWallet.publicKey()] = senderWallet.balance - amount;
         return outputMap;
     }
-    createInput({ senderWallet, outputMap, }) {
+    createInput(senderWallet, outputMap) {
+        const signature = senderWallet.sign(JSON.stringify(outputMap));
         return {
             timestamp: Date.now(),
             amount: senderWallet.balance,
-            address: senderWallet.publicKey,
-            signature: senderWallet.sign(JSON.stringify(outputMap)),
+            address: senderWallet.publicKey(),
+            signature: signature.toDER('hex'),
         };
     }
-    /**
-     * Validates a transaction's amount and signature.
-     * @param {Transaction} transaction - The transaction to validate.
-     * @returns {boolean} - Indicates whether the transaction is valid.
-     */
-    static validateTransaction(transaction) {
-        const { input: { address, amount, signature }, outputMap, } = transaction;
+    verifyTransaction() {
+        const { address, amount, signature } = this.input;
+        const { outputMap } = this;
         if (amount !== outputMap[address]) {
             console.error(`Invalid transaction from ${address}`);
             return false;
@@ -106,15 +98,26 @@ class Transaction {
         }
         return true;
     }
+    update({ recipient, amount }) {
+        const transaction = this;
+        if (amount > transaction.outputMap[transaction.input.address]) {
+            throw new Error('Amount exceeds balance');
+        }
+        if (!transaction.outputMap[recipient]) {
+            transaction.outputMap[recipient] = amount;
+        }
+        else {
+            transaction.outputMap[recipient] += amount;
+        }
+        transaction.outputMap[transaction.input.address] -= amount;
+        transaction.input.amount = transaction.outputMap[transaction.input.address];
+    }
 }
 exports.Transaction = Transaction;
 class SaveTransaction {
     constructor({ transaction }) {
         this.transaction = transaction;
     }
-    /**
-     * Saves the transaction to a file.
-     */
     saveTransaction() {
         const transactionFile = path.join(transactionDirectory, `${this.transaction.id}.json`);
         fs.writeFileSync(transactionFile, JSON.stringify(this.transaction));

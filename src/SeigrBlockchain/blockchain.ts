@@ -1,37 +1,37 @@
-'use strict';
-
 import os from 'os';
 import fs from 'fs/promises';
 import path from 'path';
 import { CryptoHash } from './utils';
-import { LoadBlock, Block, SaveBlock } from './block.js';
-import { createWallet } from './walletUtils';
+import { Block, SaveBlock } from './block.js';
 import Wallet from './wallet';
-import { GenesisBlock } from './genesisBlock';
 import { CreateWalletPool, UpdateWalletPool } from './walletPool';
 import { CreateBlockPool, UpdateBlockPool } from './blockPool';
 import { CreateTransactionPool, UpdateTransactionPool } from './transactionPool';
 import { CreateBlockchainPool, UpdateBlockchainPool } from './blockchainPool';
 
 const blockchainDirectory = path.join(os.homedir(), 'Seigr', 'blockchain');
+const transactionPoolDirectory = path.join(os.homedir(), 'Seigr', 'transaction-pool');
 
 class Blockchain {
-  chain: Block[]; // Initialize this.chain as an empty array
+  chain: Block[];
 
   constructor() {
     this.chain = [];
   }
 
-  async addBlock(transactions: any) {
+  async addBlock(transactions: any, minerIdentifier: string) {
     // Custom logic for adding blocks to the blockchain
     if (!transactions || Object.keys(transactions).length === 0) {
       throw new Error('Block does not contain any transactions.');
     }
 
     const previousHash =
-      this.chain.length > 0 ? this.chain[this.chain.length - 1].hash : null;
+      this.chain.length > 0 ? this.chain[this.chain.length - 1].hash : '';
 
     const newBlock = new Block({
+      index: 0,
+      previousHash: '',
+      id: '',
       timestamp: Date.now(),
       lastHash: previousHash,
       hash: CryptoHash(previousHash),
@@ -45,23 +45,35 @@ class Blockchain {
     try {
       await SaveBlock(newBlock);
 
-      for (const transaction of Object.values(transactions)) {
-        if (transaction.id) {
-          await fs.unlink(path.join(transactionPoolDirectory, `${transaction.id}.json`));
+      for (const transactionId of Object.keys(transactions)) {
+        const transactionFilePath = path.join(
+          transactionPoolDirectory,
+          `${transactionId}.json`
+        );
+        if (await fileExists(transactionFilePath)) {
+          await fs.unlink(transactionFilePath);
         }
       }
 
       for (const transaction of Object.values(transactions)) {
-        if (transaction.input && transaction.input.address) {
-          const wallet = new Wallet({ walletId: transaction.input.address });
-          const walletBalance = wallet.calculateBalance({ blockchain: this });
-          await wallet.updateBalance({ blockchain: this, balance: walletBalance });
+        if (
+          transaction &&
+          transaction.input &&
+          transaction.input.address &&
+          typeof transaction.input.address === 'string' // Check if the address is a string
+        ) {
+          const wallet = new Wallet({ address: transaction.input.address });
+          const walletBalance = Wallet.calculateBalance({
+            chain: this.chain,
+            address: wallet.address,
+          });
+          await wallet.updateBalance(walletBalance);
         }
       }
 
-      this.saveBlockchain();
+      await this.saveBlockchain();
       await this.updatePools();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error adding block:', error);
       throw error;
     }
@@ -69,18 +81,18 @@ class Blockchain {
 
   async updatePools() {
     try {
-      const walletPool = await CreateWalletPool({ blockchain: this });
+      const walletPool = new CreateWalletPool({ chain: this.chain });
       await walletPool.updateWalletPool();
 
-      const blockPool = await CreateBlockPool({ blockchain: this });
+      const blockPool = new CreateBlockPool({ chain: this.chain });
       await blockPool.updateBlockPool();
 
-      const transactionPool = await CreateTransactionPool({ blockchain: this });
+      const transactionPool = new CreateTransactionPool({ chain: this.chain });
       await transactionPool.updateTransactionPool();
 
-      const blockchainPool = await CreateBlockchainPool({ blockchain: this });
+      const blockchainPool = new CreateBlockchainPool({ blockchain: this });
       await blockchainPool.updateBlockchainPool();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating pools:', error);
       throw error;
     }
@@ -94,7 +106,7 @@ class Blockchain {
     const blockchainPath = path.join(blockchainDirectory, 'blockchain.json');
     try {
       await fs.writeFile(blockchainPath, JSON.stringify(this));
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving blockchain:', error);
       throw error;
     }
@@ -104,11 +116,23 @@ class Blockchain {
     const blockchainPath = path.join(blockchainDirectory, 'blockchain.json');
     try {
       const blockchainJSON = await fs.readFile(blockchainPath, 'utf-8');
-      return JSON.parse(blockchainJSON);
-    } catch (error) {
+      const blockchainData = JSON.parse(blockchainJSON);
+      const blockchain = new Blockchain();
+      blockchain.chain = blockchainData.chain.map((blockData: any) => new Block(blockData));
+      return blockchain;
+    } catch (error: any) {
       console.error('Error loading blockchain:', error);
       throw error;
     }
+  }
+}
+
+async function fileExists(filePath: string): Promise<boolean> {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
   }
 }
 

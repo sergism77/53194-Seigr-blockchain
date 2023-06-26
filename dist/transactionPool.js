@@ -1,7 +1,8 @@
-'use strict';
+"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CreateTransactionPool = exports.TransactionPoolMap = exports.TransactionPool = void 0;
+exports.UpdateTransactionPool = exports.CreateTransactionPool = exports.TransactionPoolMap = exports.TransactionPool = exports.Transaction = void 0;
 const transaction_1 = require("./transaction");
+Object.defineProperty(exports, "Transaction", { enumerable: true, get: function () { return transaction_1.Transaction; } });
 class TransactionPool {
     constructor() {
         this.transactions = [];
@@ -12,20 +13,28 @@ class TransactionPool {
         this.senderWallet = senderWallet;
     }
     addTransaction(transaction) {
-        this.transactions.push(transaction);
-        this.transactionMap[transaction.id] = transaction;
+        if (Array.isArray(transaction)) {
+            transaction.forEach((tx) => {
+                this.transactions.push(tx);
+                this.transactionMap[tx.id] = tx;
+            });
+        }
+        else {
+            this.transactions.push(transaction);
+            this.transactionMap[transaction.id] = transaction;
+        }
     }
     findTransaction(address) {
         return this.transactions.find((transaction) => transaction.input.address === address);
     }
     validTransactions() {
         return this.transactions.filter((transaction) => {
-            const outputTotal = transaction.outputs.reduce((total, output) => total + output.amount, 0);
+            const outputTotal = Object.values(transaction.outputMap).reduce((total, outputAmount) => total + outputAmount, 0);
             if (transaction.input.amount !== outputTotal) {
                 console.log(`Invalid transaction from ${transaction.input.address}`);
                 return false;
             }
-            if (!transaction_1.Transaction.verifyTransaction(transaction)) {
+            if (!transaction.verifyTransaction()) {
                 console.log(`Invalid signature from ${transaction.input.address}`);
                 return false;
             }
@@ -41,8 +50,11 @@ class TransactionPool {
             const block = blockchain.chain[i];
             for (let transaction of block.data) {
                 const transactionInPool = this.transactionMap[transaction.id];
-                if (transactionInPool) {
-                    transactionInPool.update(transaction);
+                if (transactionInPool && transactionInPool.id === transaction.id) {
+                    transactionInPool.update({
+                        recipient: transaction.outputMap[transaction.senderWallet.publicKey()],
+                        amount: transaction.outputMap[transaction.senderWallet.publicKey()],
+                    });
                 }
             }
         }
@@ -69,7 +81,7 @@ class CreateTransactionPool {
             for (let transaction of block.data) {
                 if (!transactionPool.transactionMap[transaction.id]) {
                     transactionPool.setSenderWallet(transaction.senderWallet);
-                    transactionPool.addTransaction(transaction);
+                    transactionPool.addTransaction(new transaction_1.Transaction(transaction));
                 }
             }
         }
@@ -77,3 +89,18 @@ class CreateTransactionPool {
     }
 }
 exports.CreateTransactionPool = CreateTransactionPool;
+class UpdateTransactionPool {
+    constructor({ transactionPool, transactionPoolMap, }) {
+        this.transactionPool = transactionPool;
+        this.transactionPoolMap = transactionPoolMap;
+    }
+    updateTransactionPool() {
+        for (let transactionPoolKey in this.transactionPoolMap.transactionPoolMap) {
+            const transactionPool = this.transactionPoolMap.transactionPoolMap[transactionPoolKey];
+            transactionPool.setSenderWallet(transactionPool.senderWallet);
+            transactionPool.addTransaction(transactionPool.transactions);
+        }
+        return this.transactionPool;
+    }
+}
+exports.UpdateTransactionPool = UpdateTransactionPool;

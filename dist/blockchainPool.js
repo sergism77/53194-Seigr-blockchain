@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CreateBlockchainPool = exports.BlockchainPool = void 0;
+exports.UpdateBlockchainPool = exports.CreateBlockchainPool = exports.BlockchainPool = void 0;
 const fs = __importStar(require("fs"));
 const os = __importStar(require("os"));
 const path = __importStar(require("path"));
@@ -32,7 +32,7 @@ class BlockchainPool {
     constructor({ blockchain }) {
         this.blockchain = blockchain;
     }
-    updateBlockchainPool() {
+    UpdateBlockchainPool() {
         try {
             const blockchainPool = this.blockchain.getBlocks();
             const blockchainPoolString = JSON.stringify(blockchainPool);
@@ -47,6 +47,25 @@ class BlockchainPool {
     }
 }
 exports.BlockchainPool = BlockchainPool;
+class UpdateBlockchainPool {
+    constructor({ blockchain }) {
+        this.blockchain = blockchain;
+    }
+    UpdateBlockchainPool() {
+        try {
+            const blockchainPool = this.blockchain.getBlocks();
+            const blockchainPoolString = JSON.stringify(blockchainPool);
+            fs.mkdirSync(blockchainDirectory, { recursive: true });
+            fs.writeFileSync(path.join(blockchainDirectory, 'blockchain.json'), blockchainPoolString);
+            return blockchainPool;
+        }
+        catch (error) {
+            console.error('Error updating blockchain pool:', error);
+            throw error;
+        }
+    }
+}
+exports.UpdateBlockchainPool = UpdateBlockchainPool;
 const CreateBlockchainPool = ({ blockchain }) => {
     return new BlockchainPool({ blockchain });
 };

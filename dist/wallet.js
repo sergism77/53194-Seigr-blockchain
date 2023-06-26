@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("./config");
 const utils_1 = require("./utils");
-const transaction_1 = __importDefault(require("./transaction"));
+const transaction_1 = require("./transaction");
 const elliptic_1 = require("elliptic");
 const crypto_1 = __importDefault(require("crypto"));
 const bs58_1 = __importDefault(require("bs58"));
@@ -19,10 +19,10 @@ class Wallet {
             this.keyPair = ellipticCurve.genKeyPair();
         }
         this.balance = config_1.STARTING_BALANCE;
-        this.address = this.generateAddress(this.keyPair.getPublic().encode('hex'));
+        this.address = this.generateAddress(this.keyPair);
     }
     publicKey() {
-        return this.keyPair.getPublic().encode('hex');
+        return this.keyPair.getPublic().encode('hex', true);
     }
     sign(data) {
         try {
@@ -32,13 +32,19 @@ class Wallet {
             throw new Error('Error signing the data');
         }
     }
-    generateAddress(publicKey) {
-        const publicKeyHash = crypto_1.default.createHash('sha256').update(publicKey).digest();
+    generateAddress(keyPair) {
+        const publicKey = keyPair.getPublic();
+        const publicKeyHex = publicKey.encode('hex', true);
+        const publicKeyBuffer = Buffer.from(publicKeyHex, 'hex');
+        const publicKeyHash = crypto_1.default.createHash('sha256').update(publicKeyBuffer).digest();
         const addressBytes = Buffer.concat([Buffer.from([0x53, 0x19, 0x4e]), publicKeyHash]);
         const checksum = crypto_1.default.createHash('sha256').update(addressBytes).digest();
         const addressWithChecksum = Buffer.concat([addressBytes, checksum.subarray(0, 4)]);
         const address = bs58_1.default.encode(addressWithChecksum);
         return address;
+    }
+    getPrivateKey() {
+        return this.keyPair.getPrivate().toString(16);
     }
     createTransaction({ recipient, amount, chain }) {
         if (chain) {
@@ -50,7 +56,7 @@ class Wallet {
         if (amount > this.balance) {
             throw new Error('Amount exceeds balance');
         }
-        return new transaction_1.default({ senderWallet: this, recipient, amount });
+        return new transaction_1.Transaction({ senderWallet: this, recipient, amount });
     }
     static verifyTransaction({ transaction }) {
         const { input: { address, signature }, outputMap, } = transaction;
@@ -59,7 +65,7 @@ class Wallet {
             console.error(`Invalid transaction from ${address}`);
             return false;
         }
-        if (!(0, utils_1.VerifySignature)({ publicKey: address, data: outputMap, signature })) {
+        if (!(0, utils_1.VerifySignature)(address, JSON.stringify(outputMap), signature)) {
             console.error(`Invalid signature from ${address}`);
             return false;
         }

@@ -1,20 +1,24 @@
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.loadBlockPool = exports.saveBlockPool = exports.getBlockPool = exports.createBlockPool = void 0;
+exports.UpdateBlockPool = exports.LoadBlockPool = exports.SaveBlockPool = exports.GetBlockPool = exports.CreateBlockPool = void 0;
 let blockPool = [];
-const createBlockPool = () => {
+const CreateBlockPool = () => {
     blockPool = [];
 };
-exports.createBlockPool = createBlockPool;
-const getBlockPool = () => {
+exports.CreateBlockPool = CreateBlockPool;
+const GetBlockPool = () => {
     return [...blockPool];
 };
-exports.getBlockPool = getBlockPool;
-const saveBlockPool = () => {
+exports.GetBlockPool = GetBlockPool;
+const SaveBlockPool = () => {
     return [...blockPool];
 };
-exports.saveBlockPool = saveBlockPool;
-const loadBlockPool = () => {
+exports.SaveBlockPool = SaveBlockPool;
+const LoadBlockPool = () => {
     return [...blockPool];
 };
-exports.loadBlockPool = loadBlockPool;
+exports.LoadBlockPool = LoadBlockPool;
+const UpdateBlockPool = (block) => {
+    blockPool.push(block);
+};
+exports.UpdateBlockPool = UpdateBlockPool;
