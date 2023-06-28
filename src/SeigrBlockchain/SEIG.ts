@@ -1,52 +1,43 @@
-'use strict';
-
-/**
- * SEIGToken class representing a SEIG token with basic ERC20 functionalities.
- */
-class SEIG {
+interface SEIGToken {
   totalSupply: number;
   name: string;
   symbol: string;
   decimals: number;
   owner: string;
-  balanceOf: { [key: string]: number };
-  allowance: { [key: string]: { [key: string]: number } };
+  balanceOf: Record<string, number>;
+  allowance: Record<string, Record<string, number>>;
+}
 
-  /**
-   * Constructs a new instance of the SEIGToken class.
-   * @param {string} owner - The owner address.
-   */
+class SEIG implements SEIGToken {
+  totalSupply: number;
+  name: string;
+  symbol: string;
+  decimals: number;
+  owner: string;
+  balanceOf: Record<string, number>;
+  allowance: Record<string, Record<string, number>>;
+
   constructor(owner: string) {
     this.totalSupply = 0;
-    this.name = "Seig";
-    this.symbol = "SEIG";
+    this.name = 'Seig';
+    this.symbol = 'SEIG';
     this.decimals = 18;
     this.owner = owner;
-    this.balanceOf = {
-      [this.owner]: this.totalSupply,
-    };
+    this.balanceOf = {};
+    this.balanceOf[owner] = this.totalSupply;
     this.allowance = {};
   }
 
-  /**
-   * Transfers tokens from the sender to the specified recipient.
-   * @param {string} msgSender - The sender address.
-   * @param {string} to - The recipient address.
-   * @param {number} value - The amount of tokens to transfer.
-   * @returns {boolean} - True if the transfer is successful, false otherwise.
-   */
   transfer(msgSender: string, to: string, value: number): boolean {
-    // Input validation
     if (typeof value !== 'number' || Number.isNaN(value) || value <= 0) {
-      throw new Error("Invalid value parameter. Expected a positive number.");
+      throw new Error('Invalid value parameter. Expected a positive number.');
     }
-  
+
     if (value > this.balanceOf[msgSender]) {
-      throw new Error("Insufficient balance.");
+      throw new Error('Insufficient balance.');
     }
     this.balanceOf[msgSender] -= value;
     this.balanceOf[to] = (this.balanceOf[to] || 0) + value;
-    // Emit transfer event
     const transferEvent = {
       from: msgSender,
       to: to,
@@ -56,24 +47,14 @@ class SEIG {
     return true;
   }
 
-  /**
-   * Approves the specified spender to spend the sender's tokens.
-   * @param {string} msgSender - The sender address.
-   * @param {string} spender - The address of the spender.
-   * @param {number} value - The amount of tokens to approve.
-   * @returns {boolean} - True if the approval is successful, false otherwise.
-   */
   approve(msgSender: string, spender: string, value: number): boolean {
-    // Input validation
     if (typeof value !== 'number' || Number.isNaN(value) || value <= 0) {
-      throw new Error("Invalid value parameter. Expected a positive number.");
+      throw new Error('Invalid value parameter. Expected a positive number.');
     }
-  
-    // Clear existing approval first
+
     this.allowance[msgSender] = this.allowance[msgSender] || {};
     this.allowance[msgSender][spender] = 0;
     this.allowance[msgSender][spender] = value;
-    // Emit approval event
     const approvalEvent = {
       owner: msgSender,
       spender: spender,
@@ -83,27 +64,17 @@ class SEIG {
     return true;
   }
 
-  /**
-   * Transfers tokens from the specified owner to the recipient using the spender's allowance.
-   * @param {string} msgSender - The sender address.
-   * @param {string} from - The address of the owner.
-   * @param {string} to - The address of the recipient.
-   * @param {number} value - The amount of tokens to transfer.
-   * @returns {boolean} - True if the transfer is successful, false otherwise.
-   */
   transferFrom(msgSender: string, from: string, to: string, value: number): boolean {
-    // Input validation
     if (typeof value !== 'number' || Number.isNaN(value) || value <= 0) {
-      throw new Error("Invalid value parameter. Expected a positive number.");
+      throw new Error('Invalid value parameter. Expected a positive number.');
     }
-  
+
     if (value > this.allowance[from][msgSender]) {
-      throw new Error("Insufficient allowance.");
+      throw new Error('Insufficient allowance.');
     }
     this.allowance[from][msgSender] -= value;
     this.balanceOf[from] -= value;
     this.balanceOf[to] = (this.balanceOf[to] || 0) + value;
-    // Emit transfer event
     const transferEvent = {
       from: from,
       to: to,
@@ -113,25 +84,16 @@ class SEIG {
     return true;
   }
 
-  /**
-   * Mints new tokens and adds them to the specified recipient's balance.
-   * @param {string} msgSender - The sender address.
-   * @param {string} to - The address of the recipient.
-   * @param {number} value - The amount of tokens to mint.
-   * @returns {boolean} - True if the minting is successful, false otherwise.
-   */
   mint(msgSender: string, to: string, value: number): boolean {
-    // Input validation
     if (typeof value !== 'number' || Number.isNaN(value) || value <= 0) {
-      throw new Error("Invalid value parameter. Expected a positive number.");
+      throw new Error('Invalid value parameter. Expected a positive number.');
     }
-  
+
     if (msgSender !== this.owner) {
-      throw new Error("Only owner can mint.");
+      throw new Error('Only owner can mint.');
     }
     this.totalSupply += value;
     this.balanceOf[to] = (this.balanceOf[to] || 0) + value;
-    // Emit mint event
     const mintEvent = {
       to: to,
       value: value,
@@ -140,24 +102,16 @@ class SEIG {
     return true;
   }
 
-  /**
-   * Burns tokens by reducing the sender's balance and the total supply.
-   * @param {string} msgSender - The sender address.
-   * @param {number} value - The amount of tokens to burn.
-   * @returns {boolean} - True if the burning is successful, false otherwise.
-   */
   burn(msgSender: string, value: number): boolean {
-    // Input validation
     if (typeof value !== 'number' || Number.isNaN(value) || value <= 0) {
-      throw new Error("Invalid value parameter. Expected a positive number.");
+      throw new Error('Invalid value parameter. Expected a positive number.');
     }
-  
+
     if (value > this.balanceOf[msgSender]) {
-      throw new Error("Insufficient balance.");
+      throw new Error('Insufficient balance.');
     }
     this.totalSupply -= value;
     this.balanceOf[msgSender] -= value;
-    // Emit burn event
     const burnEvent = {
       from: msgSender,
       value: value,
@@ -166,26 +120,17 @@ class SEIG {
     return true;
   }
 
-  /**
-   * Burns tokens from the specified owner by reducing their balance, allowance, and the total supply.
-   * @param {string} msgSender - The sender address.
-   * @param {string} from - The address of the owner.
-   * @param {number} value - The amount of tokens to burn.
-   * @returns {boolean} - True if the burning is successful, false otherwise.
-   */
   burnFrom(msgSender: string, from: string, value: number): boolean {
-    // Input validation
     if (typeof value !== 'number' || Number.isNaN(value) || value <= 0) {
-      throw new Error("Invalid value parameter. Expected a positive number.");
+      throw new Error('Invalid value parameter. Expected a positive number.');
     }
-  
+
     if (value > this.allowance[from][msgSender]) {
-      throw new Error("Insufficient allowance.");
+      throw new Error('Insufficient allowance.');
     }
     this.totalSupply -= value;
     this.allowance[from][msgSender] -= value;
     this.balanceOf[from] -= value;
-    // Emit burn event
     const burnEvent = {
       from: from,
       value: value,
@@ -194,23 +139,13 @@ class SEIG {
     return true;
   }
 
-  /**
-   * Increases the allowance of the specified spender for the sender.
-   * @param {string} msgSender - The sender address.
-   * @param {string} spender - The address of the spender.
-   * @param {number} addedValue - The additional amount of tokens to approve.
-   * @returns {boolean} - True if the increase is successful, false otherwise.
-   */
   increaseAllowance(msgSender: string, spender: string, addedValue: number): boolean {
-    // Input validation
     if (typeof addedValue !== 'number' || Number.isNaN(addedValue) || addedValue <= 0) {
-      throw new Error("Invalid addedValue parameter. Expected a positive number.");
+      throw new Error('Invalid addedValue parameter. Expected a positive number.');
     }
-  
+
     this.allowance[msgSender] = this.allowance[msgSender] || {};
-    this.allowance[msgSender][spender] =
-      (this.allowance[msgSender][spender] || 0) + addedValue;
-    // Emit approval event
+    this.allowance[msgSender][spender] = (this.allowance[msgSender][spender] || 0) + addedValue;
     const approvalEvent = {
       owner: msgSender,
       spender: spender,
@@ -220,24 +155,15 @@ class SEIG {
     return true;
   }
 
-  /**
-   * Decreases the allowance of the specified spender for the sender.
-   * @param {string} msgSender - The sender address.
-   * @param {string} spender - The address of the spender.
-   * @param {number} subtractedValue - The subtracted amount of tokens to approve.
-   * @returns {boolean} - True if the decrease is successful, false otherwise.
-   */
   decreaseAllowance(msgSender: string, spender: string, subtractedValue: number): boolean {
-    // Input validation
     if (typeof subtractedValue !== 'number' || Number.isNaN(subtractedValue) || subtractedValue <= 0) {
-      throw new Error("Invalid subtractedValue parameter. Expected a positive number.");
+      throw new Error('Invalid subtractedValue parameter. Expected a positive number.');
     }
-  
+
     if (subtractedValue > this.allowance[msgSender][spender]) {
-      throw new Error("Insufficient allowance.");
+      throw new Error('Insufficient allowance.');
     }
     this.allowance[msgSender][spender] -= subtractedValue;
-    // Emit approval event
     const approvalEvent = {
       owner: msgSender,
       spender: spender,
@@ -248,31 +174,24 @@ class SEIG {
   }
 }
 
-/**
- * SEIGTokenMap class representing a SEIG token with basic ERC20 functionalities using a Map for storage.
- */
 class SEIGMap extends SEIG {
   constructor(owner: string) {
     super(owner);
-    this.balanceOf = new Map<string, number>();
-    this.balanceOf.set(this.owner, this.totalSupply);
-    this.allowance = new Map<string, Map<string, number>>();
+    this.balanceOf = {};
+    this.balanceOf[owner] = this.totalSupply;
+    this.allowance = {};
   }
 
-  // Same implementation as SEIGToken, but using Map for storage
-
   transfer(msgSender: string, to: string, value: number): boolean {
-    // Input validation
     if (typeof value !== 'number' || Number.isNaN(value) || value <= 0) {
-      throw new Error("Invalid value parameter. Expected a positive number.");
+      throw new Error('Invalid value parameter. Expected a positive number.');
     }
-  
-    if (value > this.balanceOf.get(msgSender)) {
-      throw new Error("Insufficient balance.");
+
+    if (value > this.balanceOf[msgSender]) {
+      throw new Error('Insufficient balance.');
     }
-    this.balanceOf.set(msgSender, this.balanceOf.get(msgSender) - value);
-    this.balanceOf.set(to, (this.balanceOf.get(to) || 0) + value);
-    // Emit transfer event
+    this.balanceOf[msgSender] -= value;
+    this.balanceOf[to] = (this.balanceOf[to] || 0) + value;
     const transferEvent = {
       from: msgSender,
       to: to,
@@ -283,20 +202,17 @@ class SEIGMap extends SEIG {
   }
 
   approve(msgSender: string, spender: string, value: number): boolean {
-    // Input validation
     if (typeof value !== 'number' || Number.isNaN(value) || value <= 0) {
-      throw new Error("Invalid value parameter. Expected a positive number.");
+      throw new Error('Invalid value parameter. Expected a positive number.');
     }
-  
-    // Clear existing approval first
-    let spenderAllowance = this.allowance.get(msgSender);
+
+    let spenderAllowance = this.allowance[msgSender];
     if (!spenderAllowance) {
-      spenderAllowance = new Map<string, number>();
-      this.allowance.set(msgSender, spenderAllowance);
+      spenderAllowance = {};
+      this.allowance[msgSender] = spenderAllowance;
     }
-    spenderAllowance.set(spender, 0);
-    spenderAllowance.set(spender, value);
-    // Emit approval event
+    spenderAllowance[spender] = 0;
+    spenderAllowance[spender] = value;
     const approvalEvent = {
       owner: msgSender,
       spender: spender,
@@ -307,18 +223,16 @@ class SEIGMap extends SEIG {
   }
 
   transferFrom(msgSender: string, from: string, to: string, value: number): boolean {
-    // Input validation
     if (typeof value !== 'number' || Number.isNaN(value) || value <= 0) {
-      throw new Error("Invalid value parameter. Expected a positive number.");
+      throw new Error('Invalid value parameter. Expected a positive number.');
     }
-  
-    if (value > this.allowance.get(from).get(msgSender)) {
-      throw new Error("Insufficient allowance.");
+
+    if (value > this.allowance[from][msgSender]) {
+      throw new Error('Insufficient allowance.');
     }
-    this.allowance.get(from).set(msgSender, this.allowance.get(from).get(msgSender) - value);
-    this.balanceOf.set(from, this.balanceOf.get(from) - value);
-    this.balanceOf.set(to, (this.balanceOf.get(to) || 0) + value);
-    // Emit transfer event
+    this.allowance[from][msgSender] -= value;
+    this.balanceOf[from] -= value;
+    this.balanceOf[to] = (this.balanceOf[to] || 0) + value;
     const transferEvent = {
       from: from,
       to: to,
@@ -329,17 +243,15 @@ class SEIGMap extends SEIG {
   }
 
   mint(msgSender: string, to: string, value: number): boolean {
-    // Input validation
     if (typeof value !== 'number' || Number.isNaN(value) || value <= 0) {
-      throw new Error("Invalid value parameter. Expected a positive number.");
+      throw new Error('Invalid value parameter. Expected a positive number.');
     }
-  
+
     if (msgSender !== this.owner) {
-      throw new Error("Only owner can mint.");
+      throw new Error('Only owner can mint.');
     }
     this.totalSupply += value;
-    this.balanceOf.set(to, (this.balanceOf.get(to) || 0) + value);
-    // Emit mint event
+    this.balanceOf[to] = (this.balanceOf[to] || 0) + value;
     const mintEvent = {
       to: to,
       value: value,
@@ -349,17 +261,15 @@ class SEIGMap extends SEIG {
   }
 
   burn(msgSender: string, value: number): boolean {
-    // Input validation
     if (typeof value !== 'number' || Number.isNaN(value) || value <= 0) {
-      throw new Error("Invalid value parameter. Expected a positive number.");
+      throw new Error('Invalid value parameter. Expected a positive number.');
     }
-  
-    if (value > this.balanceOf.get(msgSender)) {
-      throw new Error("Insufficient balance.");
+
+    if (value > this.balanceOf[msgSender]) {
+      throw new Error('Insufficient balance.');
     }
     this.totalSupply -= value;
-    this.balanceOf.set(msgSender, this.balanceOf.get(msgSender) - value);
-    // Emit burn event
+    this.balanceOf[msgSender] -= value;
     const burnEvent = {
       from: msgSender,
       value: value,
@@ -369,18 +279,16 @@ class SEIGMap extends SEIG {
   }
 
   burnFrom(msgSender: string, from: string, value: number): boolean {
-    // Input validation
     if (typeof value !== 'number' || Number.isNaN(value) || value <= 0) {
-      throw new Error("Invalid value parameter. Expected a positive number.");
+      throw new Error('Invalid value parameter. Expected a positive number.');
     }
-  
-    if (value > this.allowance.get(from).get(msgSender)) {
-      throw new Error("Insufficient allowance.");
+
+    if (value > this.allowance[from][msgSender]) {
+      throw new Error('Insufficient allowance.');
     }
     this.totalSupply -= value;
-    this.allowance.get(from).set(msgSender, this.allowance.get(from).get(msgSender) - value);
-    this.balanceOf.set(from, this.balanceOf.get(from) - value);
-    // Emit burn event
+    this.allowance[from][msgSender] -= value;
+    this.balanceOf[from] -= value;
     const burnEvent = {
       from: from,
       value: value,
@@ -390,37 +298,34 @@ class SEIGMap extends SEIG {
   }
 
   increaseAllowance(msgSender: string, spender: string, addedValue: number): boolean {
-    // Input validation
     if (typeof addedValue !== 'number' || Number.isNaN(addedValue) || addedValue <= 0) {
-      throw new Error("Invalid addedValue parameter. Expected a positive number.");
+      throw new Error('Invalid addedValue parameter. Expected a positive number.');
     }
-  
-    this.allowance.get(msgSender).set(spender, (this.allowance.get(msgSender).get(spender) || 0) + addedValue);
-    // Emit approval event
+
+    this.allowance[msgSender] = this.allowance[msgSender] || {};
+    this.allowance[msgSender][spender] = (this.allowance[msgSender][spender] || 0) + addedValue;
     const approvalEvent = {
       owner: msgSender,
       spender: spender,
-      value: this.allowance.get(msgSender).get(spender),
+      value: this.allowance[msgSender][spender],
     };
     console.log(`Approval from ${approvalEvent.owner} to ${approvalEvent.spender} with value ${approvalEvent.value}`);
     return true;
   }
 
   decreaseAllowance(msgSender: string, spender: string, subtractedValue: number): boolean {
-    // Input validation
     if (typeof subtractedValue !== 'number' || Number.isNaN(subtractedValue) || subtractedValue <= 0) {
-      throw new Error("Invalid subtractedValue parameter. Expected a positive number.");
+      throw new Error('Invalid subtractedValue parameter. Expected a positive number.');
     }
-  
-    if (subtractedValue > this.allowance.get(msgSender).get(spender)) {
-      throw new Error("Insufficient allowance.");
+
+    if (subtractedValue > this.allowance[msgSender][spender]) {
+      throw new Error('Insufficient allowance.');
     }
-    this.allowance.get(msgSender).set(spender, this.allowance.get(msgSender).get(spender) - subtractedValue);
-    // Emit approval event
+    this.allowance[msgSender][spender] -= subtractedValue;
     const approvalEvent = {
       owner: msgSender,
       spender: spender,
-      value: this.allowance.get(msgSender).get(spender),
+      value: this.allowance[msgSender][spender],
     };
     console.log(`Approval from ${approvalEvent.owner} to ${approvalEvent.spender} with value ${approvalEvent.value}`);
     return true;
