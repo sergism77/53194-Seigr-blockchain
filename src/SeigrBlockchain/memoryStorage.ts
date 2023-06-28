@@ -3,7 +3,7 @@ import TransactionPool from './transactionPool';
 import TransactionPoolMap from './transactionPoolMap';
 import TransactionMiner from './transactionMiner';
 import TransactionMinerMap from './transactionMinerMap';
-import SEIGToken from './SEIGToken';
+import SEIGToken from './SEIG';
 import SEIGTokenPool from './SEIGTokenPool';
 import SEIGTokenPoolMap from './SEIGTokenPoolMap';
 import SEIGTokenMiner from './SEIGTokenMiner';

@@ -121,7 +121,7 @@ const findUnspentTxOut = (
   );
 };
 
-class Transaction {
+class Transaction { 
   readonly id: string;
   readonly outputMap: { [key: string]: number };
   readonly input: {
@@ -137,7 +137,7 @@ class Transaction {
     }
     
     const timestamp = Date.now();
-    const pubKey = senderWallet.publicKey( );
+    const pubKey = senderWallet.getPublicKey( );
 
     const outputMap = this.createOutputMap(senderWallet, recipient, amount);
 
@@ -157,7 +157,7 @@ class Transaction {
       throw new Error('Amount exceeds sender balance');
     }
 
-    const pbKey = senderWallet.publicKey( );
+    const pbKey = senderWallet.getPublicKey( );
     return {
       [pbKey]: senderWallet.balance() - amount,
       [recipient]: amount,
