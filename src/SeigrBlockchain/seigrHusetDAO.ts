@@ -1,34 +1,91 @@
-import { SEIG } from "./SEIG";
+import { QuadraticVoting } from "./quadraticVoting";
 
-class Proposal {
+interface Proposal {
   id: number;
   title: string;
   description: string;
   votes: number;
   amountToWithdraw?: number;
+}
 
-  constructor(id: number, title: string, description: string) {
-    this.id = id;
-    this.title = title;
-    this.description = description;
-    this.votes = 0;
+export class Governance {
+  private proposals: Proposal[];
+  private quadraticVoting: QuadraticVoting;
+
+  constructor() {
+    this.proposals = [];
+    this.quadraticVoting = new QuadraticVoting();
   }
 
-  setWithdrawalAmount(amount: number) {
-    if (amount <= 0) {
+  createProposal(proposalId: number, title: string, description: string, options: string[]) {
+    const proposal: Proposal = {
+      id: proposalId,
+      title,
+      description,
+      votes: 0
+    };
+
+    this.proposals.push(proposal);
+    this.quadraticVoting.createQuadraticVotingProposal(proposalId);
+  }
+
+  createWithdrawProposal(proposalId: number, title: string, description: string, amountToWithdraw: number) {
+    if (amountToWithdraw <= 0) {
       throw new Error("Invalid withdrawal amount. Expected a positive number.");
     }
-    this.amountToWithdraw = amount;
+
+    const proposal: Proposal = {
+      id: proposalId,
+      title,
+      description,
+      votes: 0,
+      amountToWithdraw
+    };
+
+    this.proposals.push(proposal);
+    this.quadraticVoting.createQuadraticVotingProposal(proposalId);
+  }
+
+  voteOnProposal(proposalId: number, option: string, votingPower: number) {
+    if (votingPower <= 0) {
+      throw new Error("Invalid voting power. Expected a positive number.");
+    }
+
+    const proposal = this.proposals.find((p) => p.id === proposalId);
+    if (!proposal) {
+      throw new Error("Proposal not found");
+    }
+
+    proposal.votes += votingPower;
+    this.quadraticVoting.voteOnQuadraticVotingProposal(proposalId, votingPower);
+  }
+
+  tallyVotes(proposalId: number) {
+    const votes = this.quadraticVoting.tallyQuadraticVotingVotes(proposalId);
+    const proposal = this.proposals.find((p) => p.id === proposalId);
+    if (proposal) {
+      proposal.votes = votes;
+    }
+  }
+
+  executeProposal(proposalId: number) {
+    const proposal = this.proposals.find((p) => p.id === proposalId);
+    if (!proposal) {
+      throw new Error("Proposal not found");
+    }
+
+    // Execute the proposal based on your specific business logic
   }
 }
 
 class SeigrHusetDAO {
-  proposals: Proposal[];
-  seigHolderVotingPower: number;
-  seigHolderStakingRewards: number;
-  daoFeePercentage: number;
-  daoSafeBalance: number;
-  lockedBalance: number;
+  private proposals: Proposal[];
+  private seigHolderVotingPower: number;
+  private seigHolderStakingRewards: number;
+  private daoFeePercentage: number;
+  private daoSafeBalance: number;
+  private lockedBalance: number;
+  private archivedProposals: Proposal[];
 
   constructor() {
     this.proposals = [];
@@ -37,11 +94,12 @@ class SeigrHusetDAO {
     this.daoFeePercentage = 0;
     this.daoSafeBalance = 0;
     this.lockedBalance = 0;
+    this.archivedProposals = [];
   }
 
   setDaoFeePercentage(feePercentage: number) {
     if (feePercentage < 0.05 || feePercentage > 100) {
-      throw new Error("Invalid fee percentage. Expected a value between 0 and 100.");
+      throw new Error("Invalid fee percentage. Expected a value between 0.05 and 100.");
     }
     this.daoFeePercentage = feePercentage;
   }
@@ -61,6 +119,61 @@ class SeigrHusetDAO {
     }
     proposal.votes += seigBalance;
     this.seigHolderVotingPower = 0;
+  }
+
+  requiredVotesToPass(proposalId: number) {
+    const proposal = this.proposals.find((p) => p.id === proposalId);
+    if (!proposal) {
+      throw new Error("Proposal not found");
+    }
+    return proposal.votes / 2;
+  }
+
+  withdrawFromDAO(proposalId: number) {
+    const proposal = this.proposals.find((p) => p.id === proposalId);
+    if (!proposal) {
+      throw new Error("Proposal not found");
+    }
+    if (proposal.votes < this.requiredVotesToPass(proposalId)) {
+      throw new Error("Proposal not passed");
+    }
+    if (proposal.amountToWithdraw) {
+      this.daoSafeBalance -= proposal.amountToWithdraw;
+      this.lockedBalance -= proposal.amountToWithdraw;
+      proposal.amountToWithdraw = undefined;
+    }
+
+    // Transfer the amount from the DAO safe to the voted wallet's address
+    // Implement the transfer
+  }
+
+  archiveProposal(proposalId: number) {
+    const proposal = this.proposals.find((p) => p.id === proposalId);
+
+    if (!proposal) {
+      throw new Error("Proposal not found");
+    }
+
+    this.archivedProposals.push(proposal);
+
+    // Remove the proposal from the active proposals list
+    this.proposals = this.proposals.filter((p) => p.id !== proposalId);
+  }
+
+  getArchivedProposals() {
+    return this.archivedProposals;
+  }
+
+  getDAOSafeBalance() {
+    return this.daoSafeBalance;
+  }
+
+  getLockedBalance() {
+    return this.lockedBalance;
+  }
+
+  getSeigHolderVotingPower() {
+    return this.seigHolderVotingPower;
   }
 
   processTransaction(transactionAmount: number) {
@@ -89,9 +202,8 @@ class SeigrHusetDAO {
     }
 
     // Transfer the amount from the SEIG token to the DAO safe
-    // You will need to implement the transfer logic based on your SEIG token implementation
-    // For example:
-    // seigToken.transfer(msgSender, daoSafeAddress, amount);
+    // Implement the transfer logic based on your SEIG token implementation
+    // seigToken.transfer(daoSafeAddress, amount);
 
     // Increase the locked balance by the staked amount
     this.lockedBalance += amount;
@@ -102,8 +214,13 @@ class SeigrHusetDAO {
       throw new Error("Invalid withdrawal amount. Expected a positive number.");
     }
 
-    const proposal = new Proposal(proposalId, title, description);
-    proposal.setWithdrawalAmount(amountToWithdraw);
+    const proposal: Proposal = {
+      id: proposalId,
+      title,
+      description,
+      votes: 0,
+      amountToWithdraw,
+    };
 
     this.proposals.push(proposal);
   }
