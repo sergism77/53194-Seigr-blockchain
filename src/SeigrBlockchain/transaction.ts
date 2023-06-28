@@ -131,7 +131,7 @@ class Transaction {
     readonly signature: string;
   };
 
-  constructor({ senderWallet, recipient, amount }: { senderWallet: Wallet; recipient: string; amount: number }) {
+  constructor({ senderWallet, recipient, amount }: { senderWallet: any; recipient: string; amount: number }) {
     if (!(senderWallet && recipient && amount > 0)) {
       throw new Error('Invalid transaction parameters');
     }
@@ -180,6 +180,14 @@ class Transaction {
 
     return true;
   }
+
+  static rewardTransaction({ minerWallet }: { minerWallet: Wallet }): Transaction {
+    // Implement the logic to create a reward transaction for the miner
+    return new this({ senderWallet: minerWallet, recipient: MINING_REWARD_ADDRESS, amount: MINING_REWARD });
+
+
+  }
+  
 }
 
 class Wallet {
@@ -338,4 +346,6 @@ export {
   getTransactionId,
   isValidTransactionStructure,
   findUnspentTxOut,
+  isTxInStructureValid,
+  isTxOutStructureValid
 };
