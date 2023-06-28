@@ -11,6 +11,23 @@ const ec = new elliptic.ec('secp256k1');
 // Update transactionDirectory to be configurable
 const transactionDirectory = path.join(os.homedir(), 'Seigr', 'transactions');
 
+/* The code is importing the `SeigrHusetDAO` module from the file `SeigrHusetDAO.js` and creating an
+instance of the `SeigrHusetDAO` class. It then sets the DAO fee percentage to 0.01% and processes a
+transaction with an amount of 100. The purpose of this code is to demonstrate the usage of the
+`SeigrHusetDAO` class and its methods. */
+const SeigrHusetDAO = require('./SeigrHusetDAO');
+
+// Create an instance of the SeigrHusetDAO
+const dao = new SeigrHusetDAO();
+
+// Set the DAO fee percentage
+const feePercentage = 0.01; // Example fee percentage of 0.01%
+dao.setDaoFeePercentage(feePercentage);
+
+// Process a transaction
+const transactionAmount = 100; // Example transaction amount
+dao.processTransaction(transactionAmount);
+
 interface UnspentTxOut {
   readonly txOutId: string;
   readonly txOutIndex: number;
