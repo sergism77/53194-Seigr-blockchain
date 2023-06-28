@@ -5,12 +5,20 @@ class Proposal {
   title: string;
   description: string;
   votes: number;
+  amountToWithdraw?: number;
 
   constructor(id: number, title: string, description: string) {
     this.id = id;
     this.title = title;
     this.description = description;
     this.votes = 0;
+  }
+
+  setWithdrawalAmount(amount: number) {
+    if (amount <= 0) {
+      throw new Error("Invalid withdrawal amount. Expected a positive number.");
+    }
+    this.amountToWithdraw = amount;
   }
 }
 
@@ -89,30 +97,56 @@ class SeigrHusetDAO {
     this.lockedBalance += amount;
   }
 
-  withdrawFromDAOSafe(amount: number) {
-    if (amount <= 0) {
+  createWithdrawProposal(proposalId: number, title: string, description: string, amountToWithdraw: number) {
+    if (amountToWithdraw <= 0) {
       throw new Error("Invalid withdrawal amount. Expected a positive number.");
     }
 
-    if (amount > this.lockedBalance) {
-      throw new Error("Insufficient locked balance in the DAO safe.");
+    const proposal = new Proposal(proposalId, title, description);
+    proposal.setWithdrawalAmount(amountToWithdraw);
+
+    this.proposals.push(proposal);
+  }
+
+  voteOnWithdrawProposal(proposalId: number) {
+    const seigBalance = this.seigHolderStakingRewards + this.seigHolderVotingPower;
+    if (seigBalance < 10) {
+      throw new Error("Not enough SEIG to vote");
+    }
+
+    const proposal = this.proposals.find((p) => p.id === proposalId);
+    if (!proposal) {
+      throw new Error("Proposal not found");
+    }
+
+    proposal.votes += seigBalance;
+    this.seigHolderVotingPower = 0;
+  }
+
+  processWithdrawProposal(proposalId: number) {
+    const proposal = this.proposals.find((p) => p.id === proposalId);
+    if (!proposal || !proposal.amountToWithdraw) {
+      throw new Error("Withdraw proposal not found");
     }
 
     // Check if the proposal to withdraw the specified amount has passed
     // You will need to implement the proposal and voting mechanism
     // For example:
-    // const proposal = this.proposals.find((p) => p.amountToWithdraw === amount);
-    // if (!proposal || proposal.votes < requiredVotes) {
+    // const requiredVotes = calculateRequiredVotesForWithdrawal();
+    // if (proposal.votes < requiredVotes) {
     //   throw new Error("Proposal to withdraw the amount has not passed.");
     // }
 
     // Withdraw the amount from the DAO safe
     // You will need to implement the withdrawal logic based on your SEIG token implementation
     // For example:
-    // seigToken.transfer(daoSafeAddress, msgSender, amount);
+    // seigToken.transfer(daoSafeAddress, msgSender, proposal.amountToWithdraw);
 
     // Decrease the locked balance by the withdrawn amount
-    this.lockedBalance -= amount;
+    this.lockedBalance -= proposal.amountToWithdraw;
+
+    // Remove the proposal from the list
+    this.proposals = this.proposals.filter((p) => p.id !== proposalId);
   }
 }
 
