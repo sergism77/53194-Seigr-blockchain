@@ -64,6 +64,7 @@
         "walletpassphrase",
         "walletpassphrasechange",
         "walletpassphrasecheck",
-        "walletprocesspsbt"
+        "walletprocesspsbt",
+        "websockets"
     ]
 }
