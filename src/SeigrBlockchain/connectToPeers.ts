@@ -56,48 +56,54 @@ is a breakdown of what each part of the class does: */
       socket.addEventListener('close', closeListener);
     }
   
-/**
- * The function creates a WebSocket connection to a specified peer and returns a promise that resolves
- * with the WebSocket object.
- * @param {string} peer - The `peer` parameter is a string that represents the URL of the WebSocket
- * server that the client wants to connect to.
- * @returns A Promise object is being returned.
- */
+    /**
+     * The function creates a WebSocket connection to a specified peer URL and returns a promise that
+     * resolves with the WebSocket object.
+     * @param {string} peer - The `peer` parameter is a string that represents the URL of the peer to
+     * connect to.
+     * @returns A Promise that resolves to a WebSocket object.
+     */
     private createWebSocket(peer: string): Promise<WebSocket> {
-      return new Promise((resolve, reject) => {
+        if (!this.isValidUrl(peer)) {
+        throw new Error(`Invalid peer URL: ${peer}`);
+        }
+
+        return new Promise((resolve, reject) => {
         const socket = new WebSocket(peer);
-        socket.addEventListener('open', () => resolve(socket));
-        socket.addEventListener('error', (error: Event) => {
-          const errorMessage = (error instanceof Error) ? error.message : 'Unknown error occurred';
-          reject(new ConnectionError(peer, errorMessage));
+
+        // Set a timeout for the websocket connection
+        const connectionTimeout = setTimeout(() => {
+            reject(new Error(`Connection to ${peer} timed out`));
+        }, 5000); // Adjust the timeout value as needed
+
+        socket.addEventListener('open', () => {
+            clearTimeout(connectionTimeout);
+            resolve(socket);
         });
-      });
+
+        socket.addEventListener('error', (error: Event) => {
+            clearTimeout(connectionTimeout);
+            const errorMessage = (error instanceof Error) ? error.message : 'Unknown error occurred';
+            reject(new Error(`Error connecting to ${peer}: ${errorMessage}`));
+        });
+        });
     }
   
    /**
     * The function connects to a list of peers by creating websockets and handling any connection
     * errors.
     */
-    async connectToPeers(): Promise<void> {
-      for (const peer of this.peers) {
-        try {
-          if (!this.isValidUrl(peer)) {
-            throw new Error(`Invalid peer URL: ${peer}`);
-          }
-  
-          const socket = await this.createWebSocket(peer);
-          this.connectSocket(socket);
-          console.log(`Connected to peer: ${peer}`);
-        } catch (error) {
-          if (error instanceof ConnectionError) {
-            console.error(`Failed to connect to peer ${peer}: ${error.message}`);
-          } else {
-            console.error(error);
-          }
-        }
+   async connectToPeers(): Promise<void> {
+    for (const peer of this.peers) {
+      try {
+        const socket = await this.createWebSocket(peer);
+        this.connectSocket(socket);
+        console.log(`Connected to peer: ${peer}`);
+      } catch (error) {
+        console.error(error);
       }
     }
   }
+  }
   
   export default ConnectToPeers;
-  
