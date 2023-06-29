@@ -88,6 +88,10 @@ export class QuadraticVoting {
    * @returns A map of proposalId to VotingProposal.
    */
   getAllQuadraticVotingProposals(): { [key: number]: VotingProposal } {
+    if (Object.keys(this.votingProposals).length === 0) {
+      throw new Error("No quadratic voting proposals available.");
+    }
+  
     return this.votingProposals;
   }
 
@@ -97,17 +101,24 @@ export class QuadraticVoting {
    * @returns true if the proposal was successfully removed, false if the proposal with the given ID doesn't exist.
    * @throws {ProposalNotFoundError} If the proposalId parameter is not a valid number or if the proposal with the given ID doesn't exist.
    */
+     
+
   removeQuadraticVotingProposal(proposalId: number): boolean {
     if (typeof proposalId !== "number" || !Number.isInteger(proposalId) || proposalId <= 0) {
       throw new Error("Invalid proposalId. Expected a positive integer.");
     }
-
+  
     if (!this.votingProposals.hasOwnProperty(proposalId)) {
       return false; // Proposal doesn't exist
     }
-
-    delete this.votingProposals[proposalId];
-    return true; // Proposal was successfully removed
+  
+    try {
+      delete this.votingProposals[proposalId];
+      return true; // Proposal was successfully removed
+    } catch (error) {
+      console.error("Failed to remove proposal:", error);
+      return false;
+    }
   }
 
   /**
@@ -120,12 +131,20 @@ export class QuadraticVoting {
     if (typeof proposalId !== "number" || !Number.isInteger(proposalId) || proposalId <= 0) {
       throw new Error("Invalid proposalId. Expected a positive integer.");
     }
-
+  
     if (!this.votingProposals.hasOwnProperty(proposalId)) {
       throw new ProposalNotFoundError(proposalId);
     }
 
-    // Implement the logic for executing the quadratic voting proposal with the given proposalId
-    throw new Error("Execution logic not implemented");
-  }
+    // Add implementation logic here
+    // use the tallyQuadraticVotingVotes function to get the total votes for the proposal and then use the getAllQuadraticVotingProposals function to get the proposal with the highest votes.
+    this.tallyQuadraticVotingVotes(proposalId);
+    this.getAllQuadraticVotingProposals();
+    
+    // Then use the removeQuadraticVotingProposal function to remove the proposal with the highest votes.
+    this.removeQuadraticVotingProposal(proposalId);
+
+  // Remove the throw statement once the implementation is complete
+  throw new Error("Execution logic not implemented");
+}
 }
