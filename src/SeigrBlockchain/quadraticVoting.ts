@@ -3,62 +3,59 @@ interface VotingProposal {
   voters: Set<number>;
 }
 
-class ProposalAlreadyExistsError extends Error {
-  constructor() {
-    super("Proposal already exists");
-    this.name = "ProposalAlreadyExistsError";
-  }
+interface ProposalError {
+  name: string;
+  message: string;
 }
 
-class ProposalNotFoundError extends Error {
-  constructor() {
-    super("Proposal not found");
-    this.name = "ProposalNotFoundError";
-  }
+class ProposalAlreadyExistsError implements ProposalError {
+  name = "ProposalAlreadyExistsError";
+  message = "Proposal already exists";
 }
 
+class ProposalNotFoundError implements ProposalError {
+  name = "ProposalNotFoundError";
+  message = "Proposal not found";
+}
+
+/**
+ * QuadraticVoting class represents a quadratic voting system for proposals.
+ */
 export class QuadraticVoting {
-  private votingProposals: Map<number, VotingProposal>;
+  private readonly votingProposals: { [key: number]: VotingProposal };
 
+  /**
+   * Creates an instance of QuadraticVoting.
+   */
   constructor() {
-    this.votingProposals = new Map<number, VotingProposal>();
+    this.votingProposals = {};
   }
 
-  private isValidNumber(value: number): boolean {
-    return Number.isFinite(value) && Number.isSafeInteger(value);
-  }
-
-  private validateProposalId(proposalId: number): void {
-    if (!this.isValidNumber(proposalId)) {
-      throw new Error("Invalid proposalId. Expected a valid number.");
-    }
-  }
-
-  private validateVotingPower(votingPower: number): void {
-    if (!this.isValidNumber(votingPower) || votingPower <= 0) {
-      throw new Error("Invalid votingPower. Expected a positive integer.");
-    }
-  }
-
+  /**
+   * Creates a quadratic voting proposal with the given proposalId.
+   * @param proposalId - The ID of the proposal.
+   * @throws {ProposalAlreadyExistsError} If a proposal with the same ID already exists.
+   */
   createQuadraticVotingProposal(proposalId: number): void {
-    this.validateProposalId(proposalId);
-
-    if (this.votingProposals.has(proposalId)) {
+    if (this.votingProposals.hasOwnProperty(proposalId)) {
       throw new ProposalAlreadyExistsError();
     }
 
-    this.votingProposals.set(proposalId, { votes: 0, voters: new Set<number>() });
+    this.votingProposals[proposalId] = { votes: 0, voters: new Set<number>() };
   }
 
+  /**
+   * Votes on a quadratic voting proposal with the given proposalId using the specified votingPower.
+   * @param proposalId - The ID of the proposal.
+   * @param votingPower - The voting power of the voter.
+   * @throws {ProposalNotFoundError} If the proposal with the given ID doesn't exist.
+   */
   voteOnQuadraticVotingProposal(proposalId: number, votingPower: number): void {
-    this.validateProposalId(proposalId);
-    this.validateVotingPower(votingPower);
-
-    const proposal = this.votingProposals.get(proposalId);
-
-    if (!proposal) {
+    if (!this.votingProposals.hasOwnProperty(proposalId)) {
       throw new ProposalNotFoundError();
     }
+
+    const proposal = this.votingProposals[proposalId];
 
     if (proposal.voters.has(votingPower)) {
       throw new Error("Same voter cannot vote multiple times for the same proposal");
@@ -68,38 +65,47 @@ export class QuadraticVoting {
     proposal.voters.add(votingPower);
   }
 
+  /**
+   * Retrieves the total votes for a quadratic voting proposal with the given proposalId.
+   * @param proposalId - The ID of the proposal.
+   * @returns The total votes for the proposal.
+   * @throws {ProposalNotFoundError} If the proposal with the given ID doesn't exist.
+   */
   tallyQuadraticVotingVotes(proposalId: number): number {
-    this.validateProposalId(proposalId);
-
-    const proposal = this.votingProposals.get(proposalId);
-
-    if (!proposal) {
+    if (!this.votingProposals.hasOwnProperty(proposalId)) {
       throw new ProposalNotFoundError();
     }
 
-    return proposal.votes;
+    return this.votingProposals[proposalId].votes;
   }
 
-  getAllQuadraticVotingProposals(): Map<number, VotingProposal> {
+  /**
+   * Retrieves all the quadratic voting proposals and their respective vote counts.
+   * @returns A map of proposalId to VotingProposal.
+   */
+  getAllQuadraticVotingProposals(): { [key: number]: VotingProposal } {
     return this.votingProposals;
   }
 
+  /**
+   * Removes a quadratic voting proposal with the given proposalId.
+   * @param proposalId - The ID of the proposal.
+   */
   removeQuadraticVotingProposal(proposalId: number): void {
-    this.validateProposalId(proposalId);
-    this.votingProposals.delete(proposalId);
+    delete this.votingProposals[proposalId];
   }
 
+  /**
+   * Executes the quadratic voting proposal with the given proposalId.
+   * @param proposalId - The ID of the proposal.
+   * @throws {ProposalNotFoundError} If the proposal with the given ID doesn't exist.
+   */
   executeQuadraticVotingProposal(proposalId: number): void {
-    this.validateProposalId(proposalId);
-
-    const proposal = this.votingProposals.get(proposalId);
-
-    if (!proposal) {
+    if (!this.votingProposals.hasOwnProperty(proposalId)) {
       throw new ProposalNotFoundError();
     }
 
-    // Determine the winning option based on the vote count
-    // Perform the necessary actions based on the outcome of the voting
+    // Determine the purpose and behavior of this method and implement the required logic
     // ...
   }
 }
