@@ -15,6 +15,10 @@ export class QuadraticVoting {
   }
 
   voteOnQuadraticVotingProposal(proposalId: number, votingPower: number) {
+    if (!this.votingProposals.has(proposalId)) {
+      throw new Error("Proposal not found");
+    }
+
     const proposal = this.votingProposals.get(proposalId);
 
     if (!proposal) {
@@ -33,6 +37,10 @@ export class QuadraticVoting {
   }
 
   tallyQuadraticVotingVotes(proposalId: number): number {
+    if (!this.votingProposals.has(proposalId)) {
+      throw new Error("Proposal not found");
+    }
+
     const proposal = this.votingProposals.get(proposalId);
 
     if (!proposal) {
@@ -44,6 +52,19 @@ export class QuadraticVoting {
 
   getAllQuadraticVotingProposals(): Map<number, { votes: number; voters: Set<number> }> {
     return this.votingProposals;
+  }
+
+  proposalExists(proposalId: number): boolean {
+    return this.votingProposals.has(proposalId);
+  }
+
+  voterHasVoted(proposalId: number, votingPower: number): boolean {
+    const proposal = this.votingProposals.get(proposalId);
+    return proposal?.voters.has(votingPower) || false;
+  }
+
+  removeQuadraticVotingProposal(proposalId: number) {
+    this.votingProposals.delete(proposalId);
   }
 
   executeQuadraticVotingProposal(proposalId: number) {
