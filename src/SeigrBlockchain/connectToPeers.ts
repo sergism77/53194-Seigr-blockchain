@@ -3,38 +3,62 @@ import { Peer } from './peer';
 class ConnectToPeers {
     sockets: WebSocket[];
 
-    constructor() {
+    constructor(private peers: string[]) {
         this.sockets = [];
     }
 
     connectToPeers() {
-        const peers: string[] = ['peer1', 'peer2', 'peer3']; // Example array of peer addresses
-
-        peers.forEach((peer: string) => {
-            const socket = new WebSocket(peer);
-
-            socket.addEventListener('open', () => this.connectSocket(socket));
+        this.peers.forEach((peer: string) => {
+            try {
+                const socket = new WebSocket(peer);
+                socket.addEventListener('open', () => this.connectSocket(socket));
+                socket.addEventListener('error', (error: Event) => {
+                    const errorMessage = (error as unknown) instanceof Error ? (error as unknown as Error).message : 'Unknown error occurred';
+                    console.error(`Failed to connect to peer ${peer}: ${errorMessage}`);
+                });
+            } catch (error) {
+                console.error(`Failed to connect to peer ${peer}: ${(error as Error).message}`);
+            }
         });
     }
 
-    connectSocket(socket: WebSocket) {
+    connectSocket(socket: WebSocket): void {
         this.sockets.push(socket);
         console.log('Socket connected');
 
-        this.messageHandler(socket);
+        socket.addEventListener('message', (event: MessageEvent): void => {
+            if (event.origin === 'trusted-domain.com') {
+                try {
+                    const data: any = JSON.parse(event.data);
+                    console.log(data);
+                } catch (error) {
+                    console.error(`Failed to parse JSON data: ${(error as Error).message}`);
+                }
+            } else {
+                console.log('Received message from an untrusted origin. Ignoring...');
+            }
+        });
+
+        socket.addEventListener('close', (): void => {
+            console.log('Socket closed');
+            this.sockets = this.sockets.filter(s => s !== socket);
+            socket.removeEventListener('message', (event) => this.messageHandler(event));
+            socket.removeEventListener('close', () => this.connectSocket(socket));
+        });
     }
 
-    messageHandler(socket: WebSocket) {
-        socket.addEventListener('message', (event: MessageEvent) => {
-          // Check the origin of the received message
-          if (event.origin === 'trusted-domain.com') {
-            const data = JSON.parse(event.data);
-            console.log(data);
-          } else {
-            // Handle invalid or untrusted origins
+    private messageHandler(event: MessageEvent): void {
+        const socket = event.currentTarget as WebSocket;
+        if (event.origin === 'trusted-domain.com') {
+            try {
+                const data: any = JSON.parse(event.data);
+                console.log(data);
+            } catch (error) {
+                console.error(`Failed to parse JSON data: ${(error as Error).message}`);
+            }
+        } else {
             console.log('Received message from an untrusted origin. Ignoring...');
-          }
-        });
+        }
     }
 }
 
