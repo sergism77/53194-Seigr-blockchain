@@ -6,6 +6,10 @@ export class QuadraticVoting {
   }
 
   createQuadraticVotingProposal(proposalId: number) {
+    if (this.votingProposals.has(proposalId)) {
+      throw new Error("Proposal already exists");
+    }
+
     // Initialize the proposal with zero votes and an empty set of voters
     this.votingProposals.set(proposalId, { votes: 0, voters: new Set<number>() });
   }
@@ -15,6 +19,10 @@ export class QuadraticVoting {
 
     if (!proposal) {
       throw new Error("Proposal not found");
+    }
+
+    if (proposal.voters.has(votingPower)) {
+      throw new Error("Same voter cannot vote multiple times for the same proposal");
     }
 
     // Update the votes for the proposal
