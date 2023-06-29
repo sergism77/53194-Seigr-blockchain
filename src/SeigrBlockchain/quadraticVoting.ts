@@ -1,31 +1,52 @@
 export class QuadraticVoting {
-    private votingProposals: Map<number, number>; // Map proposalId -> votes
-  
-    constructor() {
-      this.votingProposals = new Map<number, number>();
-    }
-  
-    createQuadraticVotingProposal(proposalId: number) {
-      // Initialize the proposal with zero votes
-      this.votingProposals.set(proposalId, 0);
-    }
-  
-    voteOnQuadraticVotingProposal(proposalId: number, votingPower: number) {
-      const currentVotes = this.votingProposals.get(proposalId) || 0;
-  
-      // Apply quadratic voting algorithm: Vote power is the square of the voting power
-      const newVotes = votingPower ** 2;
-  
-      // Update the votes for the proposal
-      this.votingProposals.set(proposalId, currentVotes + newVotes);
-    }
-  
-    tallyQuadraticVotingVotes(proposalId: number): number {
-      return this.votingProposals.get(proposalId) || 0;
-    }
-  
-    executeQuadraticVotingProposal(proposalId: number) {
-      // Execute the proposal based on the quadratic voting outcome
-    }
+  private votingProposals: Map<number, { votes: number; voters: Set<number> }>;
+
+  constructor() {
+    this.votingProposals = new Map<number, { votes: number; voters: Set<number> }>();
   }
-  
+
+  createQuadraticVotingProposal(proposalId: number) {
+    // Initialize the proposal with zero votes and an empty set of voters
+    this.votingProposals.set(proposalId, { votes: 0, voters: new Set<number>() });
+  }
+
+  voteOnQuadraticVotingProposal(proposalId: number, votingPower: number) {
+    const proposal = this.votingProposals.get(proposalId);
+
+    if (!proposal) {
+      throw new Error("Proposal not found");
+    }
+
+    // Update the votes for the proposal
+    proposal.votes += votingPower ** 2;
+
+    // Add the voter to the set of voters
+    proposal.voters.add(votingPower);
+  }
+
+  tallyQuadraticVotingVotes(proposalId: number): number {
+    const proposal = this.votingProposals.get(proposalId);
+
+    if (!proposal) {
+      throw new Error("Proposal not found");
+    }
+
+    return proposal.votes;
+  }
+
+  getAllQuadraticVotingProposals(): Map<number, { votes: number; voters: Set<number> }> {
+    return this.votingProposals;
+  }
+
+  executeQuadraticVotingProposal(proposalId: number) {
+    const proposal = this.votingProposals.get(proposalId);
+
+    if (!proposal) {
+      throw new Error("Proposal not found");
+    }
+
+    // Determine the winning option based on the vote count
+    // Perform the necessary actions based on the outcome of the voting
+    // ...
+  }
+}
