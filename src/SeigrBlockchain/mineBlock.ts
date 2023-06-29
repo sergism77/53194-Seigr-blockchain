@@ -1,6 +1,6 @@
 'use strict';
 
-import { cryptoHash } from './utils';
+import { CryptoHash } from './utils';
 import { REWARD_INPUT, MINING_REWARD } from './config';
 import { Transaction } from './transaction';
 import CreateTransaction from './createTransaction';
@@ -51,7 +51,7 @@ class CreateBlock {
             nonce++;
             timestamp = Date.now();
             difficulty = CreateBlock.adjustDifficulty({ originalBlock: lastBlock, timestamp });
-            hash = cryptoHash(timestamp, lastHash, transactions, nonce, difficulty);
+            hash = CryptoHash(timestamp, lastHash, transactions, nonce, difficulty);
         } while (hash.substring(0, difficulty) !== '0'.repeat(difficulty));
 
         return new this({

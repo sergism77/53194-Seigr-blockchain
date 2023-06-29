@@ -49,6 +49,7 @@
         "prioritisetransaction",
         "rawtransaction",
         "removeprunedfunds",
+        "secp",
         "Seigr",
         "sendmany",
         "sendrawtransaction",

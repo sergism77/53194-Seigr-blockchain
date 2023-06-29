@@ -33,6 +33,19 @@ export class QuadraticVoting {
     this.votingProposals = votingProposals;
   }
 
+  createQuadraticVotingProposal(proposalId: number): void {
+    if (this.votingProposals.hasOwnProperty(proposalId)) {
+      throw new ProposalAlreadyExistsError();
+    }
+
+    this.votingProposals[proposalId] = {
+      proposalId,
+
+      votes: 0,
+      voters: new Set<number>()
+    };
+  }
+
   getAllQuadraticVotingProposals(): { [key: number]: VotingProposal } {
     if (Object.keys(this.votingProposals).length === 0) {
       throw new Error("No quadratic voting proposals available.");
@@ -55,6 +68,22 @@ export class QuadraticVoting {
       console.error("Failed to remove proposal:", error);
       return false;
     }
+  }
+
+  voteOnQuadraticVotingProposal(proposalId: number, votingPower: number): void {
+    this.validateProposalId(proposalId);
+
+    if (!this.votingProposals.hasOwnProperty(proposalId)) {
+      throw new ProposalNotFoundError(proposalId);
+    }
+
+    if (votingPower <= 0) {
+      throw new Error("Invalid voting power. Expected a positive number.");
+    }
+
+    const proposal = this.votingProposals[proposalId];
+    proposal.votes += votingPower;
+    proposal.voters.add(votingPower);
   }
 
   executeQuadraticVotingProposal(proposalId: number): void {
