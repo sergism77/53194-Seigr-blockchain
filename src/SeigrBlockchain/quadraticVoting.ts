@@ -6,10 +6,6 @@ interface VotingProposal {
   voters: Set<number>;
 }
 
-interface ProposalNotFoundError extends Error {
-  proposalId: number;
-}
-
 class ProposalAlreadyExistsError extends Error {
   constructor() {
     super("Proposal already exists");
@@ -18,6 +14,8 @@ class ProposalAlreadyExistsError extends Error {
 }
 
 class ProposalNotFoundError extends Error {
+  public proposalId: number;
+
   constructor(proposalId: number) {
     super(`Proposal not found: ${proposalId}`);
     this.name = "ProposalNotFoundError";
@@ -28,7 +26,7 @@ class ProposalNotFoundError extends Error {
 /**
  * QuadraticVoting class represents a quadratic voting system for proposals.
  */
-class QuadraticVoting {
+export class QuadraticVoting {
   private votingProposals: { [key: number]: VotingProposal };
 
   constructor(votingProposals: { [key: number]: VotingProposal }) {
@@ -110,26 +108,16 @@ class QuadraticVoting {
 
     // Implementation logic to tally votes for a proposal
     // Create the tallying logic for our quadratic voting here
-    //we need to get the number of votes and the number of voters from the proposal
-    getNumberOfVoters(proposal);
-    getNumberOfVotes(proposal);
-    //we need to get the square root of the number of voters
-    getSquareRootOfVoters(proposal);
-    //we need to multiply the square root of the number of voters by the number of votes
-    multiplySquareRootByVotes(proposal);
-    //we need to return the result of the multiplication
-    const resultOfMultiplication = getSquareRootOfVoters(proposal) * getNumberOfVotes(proposal);
+    // We already have separate functions for each step in the logic
 
-    return resultOfMultiplication;
-
-
+    return multiplySquareRootByVotes(proposal);
   }
 }
+
 function getNumberOfVoters(proposal: VotingProposal) {
   //we need to get the number of voters from the proposal
   const numberOfVoters = proposal.voters.size;
   return numberOfVoters;
-  
 }
 
 function getNumberOfVotes(proposal: VotingProposal) {
@@ -149,4 +137,3 @@ function multiplySquareRootByVotes(proposal: VotingProposal) {
   const resultOfMultiplication = getSquareRootOfVoters(proposal) * getNumberOfVotes(proposal);
   return resultOfMultiplication;
 }
-
