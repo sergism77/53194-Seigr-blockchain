@@ -1,77 +1,101 @@
+interface VotingProposal {
+  votes: number;
+  voters: Set<number>;
+}
+
+class ProposalAlreadyExistsError extends Error {
+  constructor() {
+    super("Proposal already exists");
+    this.name = "ProposalAlreadyExistsError";
+  }
+}
+
+class ProposalNotFoundError extends Error {
+  constructor() {
+    super("Proposal not found");
+    this.name = "ProposalNotFoundError";
+  }
+}
+
 export class QuadraticVoting {
-  private votingProposals: Map<number, { votes: number; voters: Set<number> }>;
+  private votingProposals: Map<number, VotingProposal>;
 
   constructor() {
-    this.votingProposals = new Map<number, { votes: number; voters: Set<number> }>();
+    this.votingProposals = new Map<number, VotingProposal>();
   }
 
-  createQuadraticVotingProposal(proposalId: number) {
+  private isValidNumber(value: number): boolean {
+    return Number.isFinite(value) && Number.isSafeInteger(value);
+  }
+
+  private validateProposalId(proposalId: number): void {
+    if (!this.isValidNumber(proposalId)) {
+      throw new Error("Invalid proposalId. Expected a valid number.");
+    }
+  }
+
+  private validateVotingPower(votingPower: number): void {
+    if (!this.isValidNumber(votingPower) || votingPower <= 0) {
+      throw new Error("Invalid votingPower. Expected a positive integer.");
+    }
+  }
+
+  createQuadraticVotingProposal(proposalId: number): void {
+    this.validateProposalId(proposalId);
+
     if (this.votingProposals.has(proposalId)) {
-      throw new Error("Proposal already exists");
+      throw new ProposalAlreadyExistsError();
     }
 
-    // Initialize the proposal with zero votes and an empty set of voters
     this.votingProposals.set(proposalId, { votes: 0, voters: new Set<number>() });
   }
 
-  voteOnQuadraticVotingProposal(proposalId: number, votingPower: number) {
-    if (!this.votingProposals.has(proposalId)) {
-      throw new Error("Proposal not found");
-    }
+  voteOnQuadraticVotingProposal(proposalId: number, votingPower: number): void {
+    this.validateProposalId(proposalId);
+    this.validateVotingPower(votingPower);
 
     const proposal = this.votingProposals.get(proposalId);
 
     if (!proposal) {
-      throw new Error("Proposal not found");
+      throw new ProposalNotFoundError();
     }
 
     if (proposal.voters.has(votingPower)) {
       throw new Error("Same voter cannot vote multiple times for the same proposal");
     }
 
-    // Update the votes for the proposal
     proposal.votes += votingPower ** 2;
-
-    // Add the voter to the set of voters
     proposal.voters.add(votingPower);
   }
 
   tallyQuadraticVotingVotes(proposalId: number): number {
-    if (!this.votingProposals.has(proposalId)) {
-      throw new Error("Proposal not found");
-    }
+    this.validateProposalId(proposalId);
 
     const proposal = this.votingProposals.get(proposalId);
 
     if (!proposal) {
-      throw new Error("Proposal not found");
+      throw new ProposalNotFoundError();
     }
 
     return proposal.votes;
   }
 
-  getAllQuadraticVotingProposals(): Map<number, { votes: number; voters: Set<number> }> {
+  getAllQuadraticVotingProposals(): Map<number, VotingProposal> {
     return this.votingProposals;
   }
 
-  proposalExists(proposalId: number): boolean {
-    return this.votingProposals.has(proposalId);
-  }
-
-  voterHasVoted(proposalId: number, votingPower: number): boolean {
-    const proposal = this.votingProposals.get(proposalId);
-    return proposal?.voters.has(votingPower) || false;
-  }
-
-  removeQuadraticVotingProposal(proposalId: number) {
+  removeQuadraticVotingProposal(proposalId: number): void {
+    this.validateProposalId(proposalId);
     this.votingProposals.delete(proposalId);
   }
 
-  executeQuadraticVotingProposal(proposalId: number) {
+  executeQuadraticVotingProposal(proposalId: number): void {
+    this.validateProposalId(proposalId);
+
     const proposal = this.votingProposals.get(proposalId);
 
     if (!proposal) {
-      throw new Error("Proposal not found");
+      throw new ProposalNotFoundError();
     }
 
     // Determine the winning option based on the vote count
