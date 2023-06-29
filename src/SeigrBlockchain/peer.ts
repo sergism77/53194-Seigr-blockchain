@@ -17,6 +17,68 @@ interface Peer {
   receive: (message: any) => void;
 }
 
+class PeerNode implements Peer {
+  id: any;
+  address: any;
+  port: any;
+  lastSeen: any;
+  lastSeenTimestamp: any;
+  lastSeenDate: any;
+  blockchain: any;
+  blockchainLength: any;
+  blockchainLastBlock: any;
+  blockchainLastBlockHash: any;
+  blockchainLastBlockTimestamp: any;
+  blockchainLastBlockDate: any;
+
+  constructor(
+    id: any,
+    address: any,
+    port: any,
+    lastSeen: any,
+    lastSeenTimestamp: any,
+    lastSeenDate: any,
+    blockchain: any,
+    blockchainLength: any,
+    blockchainLastBlock: any,
+    blockchainLastBlockHash: any,
+    blockchainLastBlockTimestamp: any,
+    blockchainLastBlockDate: any
+  ) {
+    this.id = id;
+    this.address = address;
+    this.port = port;
+    this.lastSeen = lastSeen;
+    this.lastSeenTimestamp = lastSeenTimestamp;
+    this.lastSeenDate = lastSeenDate;
+    this.blockchain = blockchain;
+    this.blockchainLength = blockchainLength;
+    this.blockchainLastBlock = blockchainLastBlock;
+    this.blockchainLastBlockHash = blockchainLastBlockHash;
+    this.blockchainLastBlockTimestamp = blockchainLastBlockTimestamp;
+    this.blockchainLastBlockDate = blockchainLastBlockDate;
+  }
+
+  send(message: any) {
+    console.log('Sending message to peer...');
+  }
+
+  connect() {
+    console.log('Connecting to peer...');
+
+    // Connect to peer
+  }
+
+  disconnect() {
+    console.log('Disconnecting from peer...');
+  }
+
+  receive(message: any) {
+    console.log('Receiving message from peer...');
+  }
+}
+
+
 class PeerList {
   peers: Peer[];
 
@@ -195,4 +257,5 @@ class PeerListItem {
   }
 }
 
-export { Peer, PeerList, PeerListItem };
+
+export { PeerNode as Peer, PeerList, PeerListItem };
