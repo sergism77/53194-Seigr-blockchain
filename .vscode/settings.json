@@ -66,5 +66,6 @@
         "walletpassphrasecheck",
         "walletprocesspsbt",
         "websockets"
-    ]
+    ],
+    "docwriter.progress.trackFunctions": false
 }

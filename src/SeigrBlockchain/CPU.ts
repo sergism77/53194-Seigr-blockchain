@@ -1,7 +1,9 @@
 'use strict';
 
-import { Block } from './block';
-import { cryptoHash } from './utils';
+import { Block, BlockData } from './block';
+import { CryptoHash } from './utils';
+import Wallet from './wallet';
+import { Transaction } from './transaction';
 
 export class CPU {
   chain: Block[];
@@ -10,10 +12,11 @@ export class CPU {
     this.chain = blockchain;
   }
 
-  mineBlock(data: any) {
+  mineBlock(data: Transaction[], walletAddress: Wallet) {
     const newBlock = Block.mineBlock({
       lastBlock: this.chain[this.chain.length - 1],
-      data
+      data,
+      wallet: walletAddress, // Use the provided walletAddress directly
     });
 
     this.chain.push(newBlock);
@@ -25,21 +28,11 @@ export class CPU {
     }
 
     for (let i = 1; i < chain.length; i++) {
-      const { timestamp, lastHash, hash, data, nonce, difficulty } = chain[i];
+      const block = chain[i];
+      const lastBlock = chain[i - 1];
 
-      const actualLastHash = chain[i - 1].hash;
-
-      if (lastHash !== actualLastHash) return false;
-
-      const validatedHash = cryptoHash(
-        timestamp,
-        lastHash,
-        data,
-        nonce,
-        difficulty
-      );
-
-      if (hash !== validatedHash) return false;
+      if (!Block.isValidBlock(block, lastBlock)) return false;
+      if (block.lastHash !== lastBlock.hash) return false;
     }
 
     return true;
@@ -56,17 +49,12 @@ export class CPU {
       return;
     }
 
-    console.log('replacing chain with', chain);
+    console.log('Replacing chain with', chain);
     this.chain = chain;
   }
 
-  static genesis(): CPU {
-    return new this({
-      timestamp: 'Genesis time',
-      lastHash: '-----',
-      hash: 'hash-one',
-      data: []
-    });
+  static genesis(): Block {
+    return Block.genesis();
   }
 }
 
@@ -80,33 +68,4 @@ export class CPUMap {
   addCPU(cpu: CPU) {
     this.cpus.push(cpu);
   }
-
-  static isValidCPU(cpu: CPU[]): boolean {
-    if (JSON.stringify(cpu[0]) !== JSON.stringify(CPU.genesis())) {
-      return false;
-    }
-
-    for (let i = 1; i < cpu.length; i++) {
-      const { timestamp, lastHash, hash, data, nonce, difficulty } = cpu[i];
-
-      const actualLastHash = cpu[i - 1].hash;
-
-      if (lastHash !== actualLastHash) return false;
-
-      const validatedHash = cryptoHash(
-        timestamp,
-        lastHash,
-        data,
-        nonce,
-        difficulty
-      );
-
-      if (hash !== validatedHash) return false;
-    }
-    return true;
-  }
 }
-
-export {
-  Block,
-};

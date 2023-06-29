@@ -21,7 +21,7 @@ instance. It specifies the properties and their types that are required to creat
 as the block's index, timestamp, previous hash, last hash, hash, data, nonce, difficulty,
 transactions, and miner. This interface is used to ensure that the data passed to the `Block`
 constructor is in the correct format and has all the required properties. */
-interface BlockData {
+export interface BlockData {
   index: number;
   timestamp: number;
   previousHash: string;
