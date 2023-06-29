@@ -90,15 +90,22 @@ export class QuadraticVoting {
   /**
    * Removes a quadratic voting proposal with the given proposalId.
    * @param proposalId - The ID of the proposal.
+   * @returns true if the proposal was successfully removed, false if the proposal with the given ID doesn't exist.
    */
-  removeQuadraticVotingProposal(proposalId: number): void {
+  removeQuadraticVotingProposal(proposalId: number): boolean {
+    if (!this.votingProposals.hasOwnProperty(proposalId)) {
+      return false; // Proposal doesn't exist
+    }
+
     delete this.votingProposals[proposalId];
+    return true; // Proposal was successfully removed
   }
 
   /**
    * Executes the quadratic voting proposal with the given proposalId.
    * @param proposalId - The ID of the proposal.
    * @throws {ProposalNotFoundError} If the proposal with the given ID doesn't exist.
+   * @throws {Error} If the execution logic is not implemented.
    */
   executeQuadraticVotingProposal(proposalId: number): void {
     if (!this.votingProposals.hasOwnProperty(proposalId)) {
@@ -106,6 +113,6 @@ export class QuadraticVoting {
     }
 
     // Determine the purpose and behavior of this method and implement the required logic
-    // ...
+    throw new Error("Execution logic not implemented");
   }
 }
