@@ -3,19 +3,23 @@ interface VotingProposal {
   voters: Set<number>;
 }
 
-interface ProposalError {
-  name: string;
-  message: string;
+interface ProposalNotFoundError extends Error {
+  proposalId: number;
 }
 
-class ProposalAlreadyExistsError implements ProposalError {
-  name = "ProposalAlreadyExistsError";
-  message = "Proposal already exists";
+class ProposalAlreadyExistsError extends Error {
+  constructor() {
+    super("Proposal already exists");
+    this.name = "ProposalAlreadyExistsError";
+  }
 }
 
-class ProposalNotFoundError implements ProposalError {
-  name = "ProposalNotFoundError";
-  message = "Proposal not found";
+class ProposalNotFoundError extends Error {
+  constructor(proposalId: number) {
+    super(`Proposal not found: ${proposalId}`);
+    this.name = "ProposalNotFoundError";
+    this.proposalId = proposalId;
+  }
 }
 
 /**
@@ -52,7 +56,7 @@ export class QuadraticVoting {
    */
   voteOnQuadraticVotingProposal(proposalId: number, votingPower: number): void {
     if (!this.votingProposals.hasOwnProperty(proposalId)) {
-      throw new ProposalNotFoundError();
+      throw new ProposalNotFoundError(proposalId);
     }
 
     const proposal = this.votingProposals[proposalId];
@@ -73,7 +77,7 @@ export class QuadraticVoting {
    */
   tallyQuadraticVotingVotes(proposalId: number): number {
     if (!this.votingProposals.hasOwnProperty(proposalId)) {
-      throw new ProposalNotFoundError();
+      throw new ProposalNotFoundError(proposalId);
     }
 
     return this.votingProposals[proposalId].votes;
@@ -91,8 +95,13 @@ export class QuadraticVoting {
    * Removes a quadratic voting proposal with the given proposalId.
    * @param proposalId - The ID of the proposal.
    * @returns true if the proposal was successfully removed, false if the proposal with the given ID doesn't exist.
+   * @throws {ProposalNotFoundError} If the proposalId parameter is not a valid number or if the proposal with the given ID doesn't exist.
    */
   removeQuadraticVotingProposal(proposalId: number): boolean {
+    if (typeof proposalId !== "number" || !Number.isInteger(proposalId) || proposalId <= 0) {
+      throw new Error("Invalid proposalId. Expected a positive integer.");
+    }
+
     if (!this.votingProposals.hasOwnProperty(proposalId)) {
       return false; // Proposal doesn't exist
     }
@@ -104,15 +113,19 @@ export class QuadraticVoting {
   /**
    * Executes the quadratic voting proposal with the given proposalId.
    * @param proposalId - The ID of the proposal.
-   * @throws {ProposalNotFoundError} If the proposal with the given ID doesn't exist.
+   * @throws {ProposalNotFoundError} If the proposalId parameter is not a valid number or if the proposal with the given ID doesn't exist.
    * @throws {Error} If the execution logic is not implemented.
    */
   executeQuadraticVotingProposal(proposalId: number): void {
-    if (!this.votingProposals.hasOwnProperty(proposalId)) {
-      throw new ProposalNotFoundError();
+    if (typeof proposalId !== "number" || !Number.isInteger(proposalId) || proposalId <= 0) {
+      throw new Error("Invalid proposalId. Expected a positive integer.");
     }
 
-    // Determine the purpose and behavior of this method and implement the required logic
+    if (!this.votingProposals.hasOwnProperty(proposalId)) {
+      throw new ProposalNotFoundError(proposalId);
+    }
+
+    // Implement the logic for executing the quadratic voting proposal with the given proposalId
     throw new Error("Execution logic not implemented");
   }
 }
