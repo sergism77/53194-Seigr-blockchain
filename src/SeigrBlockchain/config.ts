@@ -1,7 +1,4 @@
-export const STARTING_BALANCE = 0;
-
-export class Config {
-
+class Config {
     chainID: number;
     chainName: string;
     mineRate: number;
@@ -50,7 +47,7 @@ export class Config {
         this.startingBalance = 0;
         this.rewardInput = { address: '*authorized-reward*' };
         this.miningReward = 0.1 * 100000000;
-        this.stakeReward = 1.5 & 100000000;
+        this.stakeReward = 1.5 * 100000000;
         this.socketURL = 'http://localhost';
         this.socketPort = 53194;
         this.socketPath = '/seigr.socket';
@@ -64,6 +61,91 @@ export class Config {
         this.socket = this.socketURL + ':' + this.socketPort + this.socketPath;
         this.socketServer = this.socketURL + ':' + this.socketPort;
         this.socketClient = this.socketURL + ':' + this.socketPort + this.socketPath;
+    }
+
+    setTimestamp(timestamp: number): void {
+        this.timestamp = timestamp;
+    }
+
+    setRewardInput(rewardInput: { address: string }): void {
+        this.rewardInput = rewardInput;
+    }
+
+    setMiningReward(miningReward: number): void {
+        this.miningReward = miningReward;
+    }
+
+    setStakeReward(stakeReward: number): void {
+        this.stakeReward = stakeReward;
+    }
+
+    setStartingBalance(startingBalance: number): void {
+        this.startingBalance = startingBalance;
+    }
+
+    setChainID(chainID: number): void {
+        this.chainID = chainID;
+    }
+
+    setChainName(chainName: string): void {
+        this.chainName = chainName;
+    }
+
+    setMineRate(mineRate: number): void {
+        this.mineRate = mineRate;
+    }
+
+    setInitialDifficulty(initialDifficulty: number): void {
+        this.initialDifficulty = initialDifficulty;
+    }
+
+    setGenesisData(genesisData: {
+        timestamp: number;
+        lastHash: string;
+        hash: string;
+        difficulty: number;
+        nonce: number;
+        data: any[];
+    }): void {
+        this.genesisData = genesisData;
+    }
+
+    setSocketURL(socketURL: string): void {
+        this.socketURL = socketURL;
+    }
+
+    setSocketPort(socketPort: number): void {
+        this.socketPort = socketPort;
+    }
+
+    setSocketPath(socketPath: string): void {
+        this.socketPath = socketPath;
+    }
+
+    setSocketOptions(socketOptions: {
+        transports: string[];
+        reconnection: boolean;
+        reconnectionDelay: number;
+        reconnectionDelayMax: number;
+        reconnectionAttempts: number;
+    }): void {
+        this.socketOptions = socketOptions;
+    }
+
+    setSocket(socket: string): void {
+        this.socket = socket;
+    }
+
+    setSocketServer(socketServer: string): void {
+        this.socketServer = socketServer;
+    }
+
+    setSocketClient(socketClient: string): void {
+        this.socketClient = socketClient;
+    }
+
+    getTimestamp(): number {
+        return this.timestamp;
     }
 
     getRewardInput(): { address: string } {
@@ -143,3 +225,5 @@ export class Config {
         return this.socketClient;
     }
 }
+
+export const config = new Config();

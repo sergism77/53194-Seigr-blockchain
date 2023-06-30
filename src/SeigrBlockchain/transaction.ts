@@ -4,29 +4,12 @@ import * as os from 'os';
 import * as elliptic from 'elliptic';
 import * as crypto from 'crypto';
 import { CryptoHash, VerifySignature } from './utils';
-import { STARTING_BALANCE } from './config';
+import { config } from './config';
 
 const ec = new elliptic.ec('secp256k1');
 
 // Update transactionDirectory to be configurable
 const transactionDirectory = path.join(os.homedir(), 'Seigr', 'transactions');
-
-/* The code is importing the `SeigrHusetDAO` module from the file `SeigrHusetDAO.js` and creating an
-instance of the `SeigrHusetDAO` class. It then sets the DAO fee percentage to 0.01% and processes a
-transaction with an amount of 100. The purpose of this code is to demonstrate the usage of the
-`SeigrHusetDAO` class and its methods. */
-const SeigrHusetDAO = require('./SeigrHusetDAO');
-
-// Create an instance of the SeigrHusetDAO
-const dao = new SeigrHusetDAO();
-
-// Set the DAO fee percentage
-const feePercentage = 0.01; // Example fee percentage of 0.01%
-dao.setDaoFeePercentage(feePercentage);
-
-// Process a transaction
-const transactionAmount = 100; // Example transaction amount
-dao.processTransaction(transactionAmount);
 
 interface UnspentTxOut {
   readonly txOutId: string;
@@ -138,7 +121,7 @@ const findUnspentTxOut = (
   );
 };
 
-class Transaction { 
+class Transaction {
   readonly id: string;
   readonly outputMap: { [key: string]: number };
   readonly input: {
@@ -152,9 +135,9 @@ class Transaction {
     if (!(senderWallet && recipient && amount > 0)) {
       throw new Error('Invalid transaction parameters');
     }
-    
+
     const timestamp = Date.now();
-    const pubKey = senderWallet.getPublicKey( );
+    const pubKey = senderWallet.getPublicKey();
 
     const outputMap = this.createOutputMap(senderWallet, recipient, amount);
 
@@ -170,13 +153,13 @@ class Transaction {
       throw new Error('Incomplete Parameters for Transaction');
     }
 
-    if (amount > senderWallet.balance()) {
+    if (amount > senderWallet.getBalance()) {
       throw new Error('Amount exceeds sender balance');
     }
 
-    const pbKey = senderWallet.getPublicKey( );
+    const pbKey = senderWallet.getPublicKey();
     return {
-      [pbKey]: senderWallet.balance() - amount,
+      [pbKey]: senderWallet.getBalance() - amount,
       [recipient]: amount,
     };
   }
@@ -200,11 +183,8 @@ class Transaction {
 
   static rewardTransaction({ minerWallet }: { minerWallet: Wallet }): Transaction {
     // Implement the logic to create a reward transaction for the miner
-    return new this({ senderWallet: minerWallet, recipient: MINING_REWARD_ADDRESS, amount: MINING_REWARD });
-
-
+    return new this({ senderWallet: minerWallet, recipient: config.getRewardInput().address, amount: config.getMiningReward() });
   }
-  
 }
 
 class Wallet {
@@ -213,7 +193,7 @@ class Wallet {
   private pvtKey: string;
 
   constructor() {
-    this.balance = STARTING_BALANCE;
+    this.balance = config.getStartingBalance();
     this.pubKey = '';
     this.pvtKey = '';
   }
@@ -364,5 +344,5 @@ export {
   isValidTransactionStructure,
   findUnspentTxOut,
   isTxInStructureValid,
-  isTxOutStructureValid
+  isTxOutStructureValid,
 };

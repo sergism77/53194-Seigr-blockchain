@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { VerifySignature, CryptoHash } from './utils';
-import { REWARD_INPUT, MINING_REWARD } from './config';
+import { config } from './config';
 import { ec as EC } from 'elliptic';
 
 const ec = new EC('secp256k1');
@@ -10,6 +10,7 @@ interface AddressInput {
   address: string;
   amount: number;
   signature: EC.Signature;
+  privateKey?: KeyPair;
 }
 
 interface AddressOutput {
@@ -76,8 +77,8 @@ class Address {
    * @param privateKey The private key used for signing.
    * @returns The signature.
    */
-  static signAddress(dataHash: string, privateKey: string) {
-    const key = ec.keyFromPrivate(privateKey);
+  static signAddress(dataHash: string, privateKey: string | KeyPair) {
+    const key = typeof privateKey === 'string' ? ec.keyFromPrivate(privateKey) : privateKey;
     return key.sign(dataHash);
   }
 
@@ -107,7 +108,7 @@ class Address {
       timestamp: Date.now(),
       address: senderWallet.input.address,
       amount: senderWallet.input.amount,
-      signature: Address.signAddress(Address.hash(data), senderWallet.privateKey)
+      signature: Address.signAddress(Address.hash(data), senderWallet.input.privateKey)
     };
 
     const outputs: AddressOutput[] = [
@@ -115,7 +116,7 @@ class Address {
       { address: senderWallet.input.address, amount: senderWallet.input.amount - amount }
     ];
 
-    return new Address({id: uuidv4(), input: input, outputs: outputs});
+    return new Address({ id: uuidv4(), input: input, outputs: outputs });
   }
 
   /**
@@ -124,13 +125,19 @@ class Address {
    * @returns The reward transaction.
    */
   static createRewardTransaction(minerWallet: any): AddressData {
-    const input: AddressInput = REWARD_INPUT;
+    const input: AddressInput = {
+      timestamp: Date.now(),
+      address: minerWallet.address,
+      amount: config.getMiningReward(),
+      signature: Address.signAddress('', '') // Generate the signature based on the input and private key
+    };
+
     const outputs: AddressOutput[] = [
-      { address: minerWallet.address, amount: MINING_REWARD }
+      { address: minerWallet.address, amount: config.getMiningReward() }
     ];
 
     return new Address({
-      id: REWARD_INPUT.id,
+      id: uuidv4(),
       input,
       outputs
     });
@@ -142,7 +149,7 @@ class Address {
    * @param recipient The recipient's address.
    * @param amount The amount to transfer.
    */
-  update({ senderWallet, recipient, amount }: { senderWallet: Address, recipient: string, amount: number }): void {
+  update({ senderWallet, recipient, amount }: { senderWallet: Address; recipient: string; amount: number }): void {
     const senderOutput = this.outputs.find((output) => output.address === senderWallet.input.address);
 
     if (!senderOutput) {
@@ -169,7 +176,7 @@ class Address {
       timestamp: Date.now(),
       address: senderWallet.input.address,
       amount: senderOutput.amount,
-      signature: Address.signAddress(dataHash, senderWallet.privateKey)
+      signature: Address.signAddress(dataHash, senderWallet.input.privateKey)
     };
   }
 
@@ -177,7 +184,7 @@ class Address {
    * Converts the transaction to a key-value format.
    * @returns The transaction in key-value format.
    */
-  transactionMap(): { id: string, input: AddressInput, outputs: AddressOutput[] } {
+  transactionMap(): { id: string; input: AddressInput; outputs: AddressOutput[] } {
     return {
       id: this.id,
       input: this.input,
@@ -193,10 +200,7 @@ class Address {
   static isValidTransaction(transaction: any): boolean {
     const { input, outputs } = transaction;
 
-    const outputTotal = outputs.reduce(
-      (total: number, output: any) => total + output.amount,
-      0
-    );
+    const outputTotal = outputs.reduce((total: number, output: any) => total + output.amount, 0);
 
     if (input.amount !== outputTotal) {
       console.error(`Invalid transaction from ${input.address}`);
@@ -264,15 +268,12 @@ class AddressPool {
    */
   isValidAddressPool(): boolean {
     for (const address of this.addressPool) {
-      if (address.input.address === REWARD_INPUT.address) {
+      if (address.input.address === config.getRewardInput().address) {
         console.error('The miner reward input is invalid');
         return false;
       }
 
-      const totalOutputAmount = address.outputs.reduce(
-        (total, output) => total + output.amount,
-        0
-      );
+      const totalOutputAmount = address.outputs.reduce((total, output) => total + output.amount, 0);
 
       if (totalOutputAmount !== address.input.amount) {
         console.error(`The address ${address.input.address} has an invalid balance`);
@@ -335,15 +336,12 @@ class AddressMiner {
    */
   isValidAddressMiner(): boolean {
     for (const address of this.addressMiner) {
-      if (address.input.address === REWARD_INPUT.address) {
+      if (address.input.address === config.getRewardInput().address) {
         console.error('The miner reward input is invalid');
         return false;
       }
 
-      const totalOutputAmount = address.outputs.reduce(
-        (total, output) => total + output.amount,
-        0
-      );
+      const totalOutputAmount = address.outputs.reduce((total, output) => total + output.amount, 0);
 
       if (totalOutputAmount !== address.input.amount) {
         console.error(`The address ${address.input.address} has an invalid balance`);

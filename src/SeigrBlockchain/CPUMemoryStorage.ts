@@ -1,16 +1,49 @@
 'use strict';
 
-import cryptoHash from './utils';
+import { CryptoHash } from './utils';
+
+interface CPUData {
+  name: string;
+  manufacturer: string;
+  brand: string;
+  vendor: string;
+  family: string;
+  model: string;
+  stepping: string;
+  revision: string;
+  voltage: string;
+  speed: string;
+  speedmin: string;
+  speedmax: string;
+  governor: string;
+  cores: number;
+  physicalCores: number;
+  processors: number;
+  socket: string;
+  cache: {
+    l1d: number;
+    l1i: number;
+    l2: number;
+    l3: number;
+  };
+}
 
 class CPU {
   timestamp: number;
   lastHash: string;
   hash: string;
-  data: any;
+  data: CPUData;
   nonce: number;
   difficulty: number;
 
-  constructor(timestamp: number, lastHash: string, hash: string, data: any, nonce: number, difficulty: number) {
+  constructor(
+    timestamp: number,
+    lastHash: string,
+    hash: string,
+    data: CPUData,
+    nonce: number,
+    difficulty: number
+  ) {
     this.timestamp = timestamp;
     this.lastHash = lastHash;
     this.hash = hash;
@@ -19,31 +52,31 @@ class CPU {
     this.difficulty = difficulty;
   }
 
-  static genesis() {
-    return new this(0, '', '', [], 0, 0);
+  static genesis(): CPU {
+    return new this(0, '', '', {} as CPUData, 0, 0);
   }
 }
 
 class CPUMemoryStorage {
-  _storage: Map<string, any>;
+  private _storage: Map<string, CPU>;
 
   constructor() {
     this._storage = new Map();
   }
 
-  get(key: string) {
+  get(key: string): CPU | undefined {
     return this._storage.get(key);
   }
 
-  set(key: string, value: any) {
+  set(key: string, value: CPU) {
     this._storage.set(key, value);
   }
 
   addCPU(cpu: CPU) {
-    this._storage.set(cpu.name, cpu);
+    this._storage.set(cpu.data.name, cpu);
   }
 
-  getCPU(name: string) {
+  getCPU(name: string): CPU | undefined {
     return this._storage.get(name);
   }
 
@@ -63,22 +96,32 @@ class CPUMemoryStorage {
     }
 
     console.log('replacing cpu with', cpu);
-    this.cpu = cpu;
+    this._storage.clear();
+    cpu.forEach((cpuItem) => {
+      this._storage.set(cpuItem.data.name, cpuItem);
+    });
   }
 
-  static isValidCPU(cpu: CPU[]) {
+  static isValidCPU(cpu: CPU[]): boolean {
     if (JSON.stringify(cpu[0]) !== JSON.stringify(CPU.genesis())) {
       return false;
     }
 
     for (let i = 1; i < cpu.length; i++) {
-      const { timestamp, lastHash, hash, data, nonce, difficulty } = cpu[i];
+      const {
+        timestamp,
+        lastHash,
+        hash,
+        data,
+        nonce,
+        difficulty,
+      } = cpu[i];
 
       const actualLastHash = cpu[i - 1].hash;
 
       if (lastHash !== actualLastHash) return false;
 
-      const validatedHash = cryptoHash(
+      const validatedHash = CryptoHash(
         timestamp,
         lastHash,
         data,
@@ -94,17 +137,17 @@ class CPUMemoryStorage {
 }
 
 class CPUMemoryStorageMap {
-  map: Map<string, any>;
+  private map: Map<string, CPU>;
 
   constructor() {
     this.map = new Map();
   }
 
   addCPU(cpu: CPU) {
-    this.map.set(cpu.name, cpu);
+    this.map.set(cpu.data.name, cpu);
   }
 
-  getCPU(name: string) {
+  getCPU(name: string): CPU | undefined {
     return this.map.get(name);
   }
 
@@ -124,22 +167,32 @@ class CPUMemoryStorageMap {
     }
 
     console.log('replacing cpu with', cpu);
-    this.cpu = cpu;
+    this.map.clear();
+    cpu.forEach((cpuItem) => {
+      this.map.set(cpuItem.data.name, cpuItem);
+    });
   }
 
-  static isValidCPU(cpu: CPU[]) {
+  static isValidCPU(cpu: CPU[]): boolean {
     if (JSON.stringify(cpu[0]) !== JSON.stringify(CPU.genesis())) {
       return false;
     }
 
     for (let i = 1; i < cpu.length; i++) {
-      const { timestamp, lastHash, hash, data, nonce, difficulty } = cpu[i];
+      const {
+        timestamp,
+        lastHash,
+        hash,
+        data,
+        nonce,
+        difficulty,
+      } = cpu[i];
 
       const actualLastHash = cpu[i - 1].hash;
 
       if (lastHash !== actualLastHash) return false;
 
-      const validatedHash = cryptoHash(
+      const validatedHash = CryptoHash(
         timestamp,
         lastHash,
         data,
@@ -155,45 +208,46 @@ class CPUMemoryStorageMap {
 }
 
 class CPUMemoryStorageSingleton {
-  static instance: CPUMemoryStorageSingleton;
-  cpu: CPU[];
+  private static instance: CPUMemoryStorageSingleton;
+  private cpu: CPU[];
 
-  constructor() {
-    if (!CPUMemoryStorageSingleton.instance) {
-      CPUMemoryStorageSingleton.instance = new CPUMemoryStorage();
-    }
+  private constructor() {
+    this.cpu = [];
   }
 
-  getInstance() {
+  static getInstance(): CPUMemoryStorageSingleton {
+    if (!CPUMemoryStorageSingleton.instance) {
+      CPUMemoryStorageSingleton.instance = new CPUMemoryStorageSingleton();
+    }
     return CPUMemoryStorageSingleton.instance;
   }
 
   set(key: string, value: any) {
-    this.getInstance().set(key, value);
+    CPUMemoryStorageSingleton.getInstance().set(key, value);
   }
 
-  get(key: string) {
-    return this.getInstance().get(key);
+  get(key: string): any {
+    return CPUMemoryStorageSingleton.getInstance().get(key);
   }
 
   clear() {
-    this.getInstance().clear();
+    CPUMemoryStorageSingleton.getInstance().clear();
   }
 
   addCPU(cpu: CPU) {
-    this.getInstance().addCPU(cpu);
+    CPUMemoryStorageSingleton.getInstance().addCPU(cpu);
   }
 
-  getCPU(name: string) {
-    return this.getInstance().getCPU(name);
+  getCPU(name: string): CPU | undefined {
+    return CPUMemoryStorageSingleton.getInstance().getCPU(name);
   }
 
   replaceCPU(cpu: CPU[]) {
-    this.getInstance().replaceCPU(cpu);
+    CPUMemoryStorageSingleton.getInstance().replaceCPU(cpu);
   }
 
-  static isValidCPU(cpu: CPU[]) {
-    return this.getInstance().isValidCPU(cpu);
+  static isValidCPU(cpu: CPU[]): boolean {
+    return CPUMemoryStorageSingleton.isValidCPU(cpu);
   }
 }
 

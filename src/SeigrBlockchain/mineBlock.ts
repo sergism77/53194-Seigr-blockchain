@@ -1,7 +1,6 @@
-'use strict';
-
+/* The CreateBlock class is responsible for creating and mining blocks in a blockchain. */
 import { CryptoHash } from './utils';
-import { REWARD_INPUT, MINING_REWARD } from './config';
+import { config } from './config';
 import { Transaction } from './transaction';
 import CreateTransaction from './createTransaction';
 
@@ -15,6 +14,7 @@ interface BlockData {
     transactions: Transaction[];
     miner: string;
 }
+
 
 class CreateBlock {
     timestamp: number;
@@ -38,7 +38,8 @@ class CreateBlock {
     }
 
     static genesis() {
-        return new this(GENESIS_DATA);
+        const genesisData = config.getGenesisData();
+        return new this(genesisData);
     }
 
     static mineBlock({ lastBlock, transactions, miner }: { lastBlock: CreateBlock, transactions: Transaction[], miner: string }) {
@@ -54,6 +55,8 @@ class CreateBlock {
             hash = CryptoHash(timestamp, lastHash, transactions, nonce, difficulty);
         } while (hash.substring(0, difficulty) !== '0'.repeat(difficulty));
 
+        const data = ''; // Set the appropriate value for data
+
         return new this({
             timestamp,
             lastHash,
@@ -61,7 +64,8 @@ class CreateBlock {
             difficulty,
             nonce,
             miner,
-            hash
+            hash,
+            data, // Add data property to the object
         });
     }
 
@@ -70,7 +74,8 @@ class CreateBlock {
 
         if (difficulty < 1) return 1;
 
-        if ((timestamp - originalBlock.timestamp) > MINE_RATE) return difficulty - 1;
+        const mineRate = config.getMineRate();
+        if ((timestamp - originalBlock.timestamp) > mineRate) return difficulty - 1;
 
         return difficulty + 1;
     }
